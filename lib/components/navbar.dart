@@ -15,7 +15,7 @@ class _NavbarState extends State<Navbar> {
   @override
   void initState() {
     super.initState();
-    idx = widget.initialIndex; // Set the initial index from the parameter
+    idx = widget.initialIndex;
   }
 
   @override
