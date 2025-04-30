@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:capi/tambah-resep/tambah-resep-4.dart'; // Import the TambahResep4Page
+import 'package:dotted_border/dotted_border.dart';
+import 'package:capi/tambah-resep/tambah-resep-4.dart';
 
 class TambahResep3Page extends StatefulWidget {
   const TambahResep3Page({super.key});
@@ -9,14 +10,12 @@ class TambahResep3Page extends StatefulWidget {
 }
 
 class _TambahResep3PageState extends State<TambahResep3Page> {
-  int _currentStep = 2; // Step ketiga (indeks 2)
+  int _currentStep = 2;
   final _totalSteps = 5;
 
-  // Controller untuk subjudul
   final TextEditingController _firstSubtitleController = TextEditingController();
   final TextEditingController _secondSubtitleController = TextEditingController();
 
-  // List untuk menyimpan instruksi memasak dan subjudul, dipisahkan menjadi dua bagian
   List<Map<String, dynamic>> firstInstructionsList = [
     {'instruction': '', 'subTitle': ''},
     {'instruction': '', 'subTitle': ''},
@@ -26,14 +25,12 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
     {'instruction': '', 'subTitle': ''},
   ];
 
-  // Controllers untuk instruksi
   late List<TextEditingController> firstInstructionControllers;
   late List<TextEditingController> secondInstructionControllers;
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers for both instruction lists
     firstInstructionControllers = List.generate(
       firstInstructionsList.length,
       (index) => TextEditingController()
@@ -47,7 +44,6 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
 
   @override
   void dispose() {
-    // Dispose all controllers
     for (var controller in firstInstructionControllers) {
       controller.dispose();
     }
@@ -59,7 +55,6 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
     super.dispose();
   }
 
-  // Add a new instruction to the first list
   void addNewFirstInstruction() {
     setState(() {
       firstInstructionsList.add({'instruction': '', 'subTitle': ''});
@@ -67,7 +62,6 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
     });
   }
 
-  // Add a new instruction to the second list
   void addNewSecondInstruction() {
     setState(() {
       secondInstructionsList.add({'instruction': '', 'subTitle': ''});
@@ -171,12 +165,8 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
           ),
         ),
         const SizedBox(height: 8),
-        // First "Tambahkan subjudul" clickable text
         InkWell(
-          onTap: () {
-            // Show dialog to add subtitle
-            _showSubtitleDialog(context, true);
-          },
+          onTap: () => _showSubtitleDialog(context, true),
           child: Text(
             _firstSubtitleController.text.isEmpty ? 'Tambahkan subjudul' : _firstSubtitleController.text,
             style: TextStyle(
@@ -188,19 +178,15 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
         ),
         const SizedBox(height: 12),
         
-        // First set of instructions with ReorderableListView
         ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: firstInstructionsList.length,
           onReorder: (oldIndex, newIndex) {
             setState(() {
-              if (newIndex > oldIndex) {
-                newIndex -= 1;
-              }
+              if (newIndex > oldIndex) newIndex -= 1;
               final item = firstInstructionsList.removeAt(oldIndex);
               firstInstructionsList.insert(newIndex, item);
-              
               final controller = firstInstructionControllers.removeAt(oldIndex);
               firstInstructionControllers.insert(newIndex, controller);
             });
@@ -217,17 +203,11 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
         ),
         
         const SizedBox(height: 8),
-        // Add button for first instruction set
         _buildAddButton('Tambahkan instruksi baru', addNewFirstInstruction),
-        
         const SizedBox(height: 16),
         
-        // Second "Tambahkan subjudul" clickable text
         InkWell(
-          onTap: () {
-            // Show dialog to add subtitle
-            _showSubtitleDialog(context, false);
-          },
+          onTap: () => _showSubtitleDialog(context, false),
           child: Text(
             _secondSubtitleController.text.isEmpty ? 'Tambahkan subjudul' : _secondSubtitleController.text,
             style: TextStyle(
@@ -239,19 +219,15 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
         ),
         const SizedBox(height: 12),
         
-        // Second set of instructions with ReorderableListView
         ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: secondInstructionsList.length,
           onReorder: (oldIndex, newIndex) {
             setState(() {
-              if (newIndex > oldIndex) {
-                newIndex -= 1;
-              }
+              if (newIndex > oldIndex) newIndex -= 1;
               final item = secondInstructionsList.removeAt(oldIndex);
               secondInstructionsList.insert(newIndex, item);
-              
               final controller = secondInstructionControllers.removeAt(oldIndex);
               secondInstructionControllers.insert(newIndex, controller);
             });
@@ -268,9 +244,153 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
         ),
         
         const SizedBox(height: 8),
-        // Add button for second instruction set
         _buildAddButton('Tambahkan instruksi baru', addNewSecondInstruction),
       ],
+    );
+  }
+
+  Widget _buildDraggableInstructionRow(
+    int index, 
+    Key key, 
+    TextEditingController controller,
+    List<Map<String, dynamic>> instructionsList,
+    bool isFirstList
+  ) {
+    return Container(
+      key: key,
+      margin: const EdgeInsets.only(bottom: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          ReorderableDragStartListener(
+            index: index,
+            child: GestureDetector(
+              onTap: () => _deleteInstruction(index, isFirstList),
+              child: Container(
+                width: 40,
+                height: 56, // Increased height
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          
+          Expanded(
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: 'Masukkan instruksi',
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 14,
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // Increased padding
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  instructionsList[index]['instruction'] = value;
+                });
+              },
+            ),
+          ),
+          
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(8),
+                bottomRight: Radius.circular(8),
+              ),
+            ),
+            child: const SizedBox(
+              width: 40,
+              height: 56, // Increased height
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddButton(String text, VoidCallback onPressed) {
+    return InkWell(
+      onTap: onPressed,
+      child: DottedBorder(
+        borderType: BorderType.RRect,
+        radius: const Radius.circular(8),
+        dashPattern: const [5, 3],
+        color: Colors.grey[300]!,
+        strokeWidth: 1,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.add, size: 20, color: Colors.grey),
+              const SizedBox(width: 8),
+              Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContinueButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TambahResep4Page()),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF83AEB1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          elevation: 0,
+        ),
+        child: const Text(
+          'Lanjutkan',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+      ),
     );
   }
 
@@ -316,9 +436,7 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
     );
   }
 
-  // Function to delete instruction
   void _deleteInstruction(int index, bool isFirstList) {
-    // Tampilkan dialog konfirmasi
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -349,164 +467,6 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
             child: const Text('Hapus'),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDraggableInstructionRow(
-    int index, 
-    Key key, 
-    TextEditingController controller,
-    List<Map<String, dynamic>> instructionsList,
-    bool isFirstList
-  ) {
-    return Container(
-      key: key,
-      margin: const EdgeInsets.only(bottom: 8.0),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          // Icon delete di ujung kiri yang juga berfungsi sebagai ReorderableDragStartListener
-          ReorderableDragStartListener(
-            index: index,
-            child: GestureDetector(
-              onTap: () {
-                // Delete instruction when left icon is tapped
-                _deleteInstruction(index, isFirstList);
-              },
-              child: Container(
-                width: 40,
-                height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8),
-                    bottomLeft: Radius.circular(8),
-                  ),
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.delete_outline,
-                    size: 20,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          
-          // Text field tanpa border kanan karena ada tombol delete
-          Expanded(
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: 'Masukkan instruksi',
-                hintStyle: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 14,
-                ),
-                filled: true,
-                fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  instructionsList[index]['instruction'] = value;
-                });
-              },
-            ),
-          ),
-          
-          // Garis 2 (drag handle) di ujung kanan
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(8),
-                bottomRight: Radius.circular(8),
-              ),
-            ),
-            child: SizedBox(
-              width: 40,
-              height: 48,
-              
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAddButton(String text, VoidCallback onPressed) {
-    return InkWell(
-      onTap: onPressed,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey[300]!,
-            width: 1,
-            style: BorderStyle.solid,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.add,
-              size: 20,
-              color: Colors.grey,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              text,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContinueButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: () {
-          // Navigate to the next page (Step 4)
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const TambahResep4Page()),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF83AEB1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          elevation: 0,
-        ),
-        child: const Text(
-          'Lanjutkan',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
       ),
     );
   }

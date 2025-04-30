@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-// Import TambahResep5Page when it's available
-// import 'tambah_resep_5.dart';
+import 'validasi-resep.dart';
 
 // This file should be saved as 'tambah_resep_4.dart'
 class TambahResep4Page extends StatefulWidget {
@@ -71,7 +69,9 @@ class _TambahResep4PageState extends State<TambahResep4Page> {
                 ),
               ),
             ),
-            _buildBottomButton(),
+            _buildBottomButton(
+              
+            ),
           ],
         ),
       ),
@@ -188,50 +188,50 @@ class _TambahResep4PageState extends State<TambahResep4Page> {
     );
   }
 
-  Widget _buildBottomButton() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, -3),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: SizedBox(
-          height: 50,
-          child: ElevatedButton(
-            onPressed: () {
-              // Navigasi ke halaman berikutnya (Step 5)
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const TambahResep5Page()),
-              // );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF83AEB1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-              ),
-              elevation: 0,
+Widget _buildBottomButton() {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.1),
+          spreadRadius: 1,
+          blurRadius: 5,
+          offset: const Offset(0, -3),
+        ),
+      ],
+    ),
+    child: SafeArea(
+      child: SizedBox(
+        height: 50,
+        child: ElevatedButton(
+          onPressed: () {
+            // Navigate to Validasi Resep page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ValidasiResepPage()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF83AEB1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
             ),
-            child: const Text(
-              'Lanjutkan',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
+            elevation: 0,
+          ),
+          child: const Text(
+            'Lanjutkan',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
