@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'tambah-resep/tambah-resep-1.dart';
-import 'tambah-resep/tambah-resep-2.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -44,22 +44,22 @@ class RecipeMenuPage extends StatelessWidget {
     // List menu resep
     final List<Map<String, dynamic>> menuItems = [
       {
-        'title': 'Tambah Resep Baru-1',
+        'title': 'Tambah Resep Baru',
         'icon': Icons.restaurant_menu,
         'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
       },
       {
-        'title': 'Tambah Resep Baru-2',
+        'title': 'APA?',
         'icon': Icons.dinner_dining,
         'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
       },
       {
-        'title': 'Tambah Resep Baru-3',
+        'title': 'APA?',
         'icon': Icons.cake,
         'gradient': [const Color(0xFF98C7CA), const Color(0xFF7FABB0)]
       },
       {
-        'title': 'Tambah Resep Baru-4',
+        'title': 'APA?',
         'icon': Icons.local_drink,
         'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)]
       },
@@ -241,7 +241,7 @@ class RecipeMenuPage extends StatelessWidget {
       BuildContext context, String title, IconData icon, List<Color> gradient) {
     return InkWell(
       onTap: () {
-        if (title == 'Tambah Resep Baru-1') {
+        if (title == 'Tambah Resep Baru') {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const TambahResep1Page()),
