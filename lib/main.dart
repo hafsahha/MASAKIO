@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/Tambah Resep/tambah_resep1.dart';
-import 'package:masakio/detail_tips.dart';
-import 'package:masakio/tambah_tips.dart';
+import 'package:masakio/Tips Trik/detail_tips.dart';
+import 'package:masakio/Tips Trik/tambah_tips.dart';
 import 'package:masakio/main_page.dart';
 
 void main() {
