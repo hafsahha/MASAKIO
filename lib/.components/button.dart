@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Button extends StatelessWidget {
-  final Function onPressed;
+  final Function() onPressed;
   final String content;
   final double? width;
   final int? backgroundColor;
