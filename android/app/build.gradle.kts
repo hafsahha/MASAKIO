@@ -6,30 +6,30 @@ plugins {
 }
 
 android {
-    namespace = "com.example.capi"
-    compileSdk = 34 // Updated to latest stable Android SDK
-    ndkVersion = "26.1.10909125" // Updated to latest stable NDK
-    
+    namespace = "com.example.masakio"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = "27.0.12077973"
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17 // Updated to Java 17
-        targetCompatibility = JavaVersion.VERSION_17 // Updated to Java 17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-    
+
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString() // Updated to Java 17
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
-    
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.capi"
+        applicationId = "com.example.masakio"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 21 // Updated to a widely compatible min SDK
-        targetSdk = 34 // Updated to latest stable Android SDK
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-    
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
