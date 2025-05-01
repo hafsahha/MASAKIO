@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
-import 'tambah-resep-2.dart';
+import 'package:masakio/Tambah Resep/tambah_resep2.dart';
 
 class TambahResep1Page extends StatefulWidget {
   const TambahResep1Page({super.key});
@@ -12,7 +12,7 @@ class TambahResep1Page extends StatefulWidget {
 }
 
 class _TambahResep1PageState extends State<TambahResep1Page> {
-  int _currentStep = 0;
+  final _currentStep = 0;
   final _totalSteps = 5;
   
   // Variables for video upload
@@ -221,7 +221,7 @@ class _TambahResep1PageState extends State<TambahResep1Page> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   height: 200,
                   child: AspectRatio(

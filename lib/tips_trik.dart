@@ -18,6 +18,8 @@ class MyApp extends StatelessWidget {
 }
 
 class TipsAndTrikPage extends StatefulWidget {
+  const TipsAndTrikPage({super.key});
+
   @override
   State<TipsAndTrikPage> createState() => _TipsAndTrikPageState();
 }
@@ -175,8 +177,8 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.white, // Background color
-                  onPrimary: Colors.grey, // Text color
+                  backgroundColor: Colors.white, // Background color
+                  foregroundColor: Colors.grey, // Text color
                   side: BorderSide(color: Colors.grey), // Border color
                   padding: EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
@@ -190,7 +192,7 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
               height: 30,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.white.withOpacity(0), Colors.white],
+                  colors: [Color(0x00FFFFFF), Colors.white],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),

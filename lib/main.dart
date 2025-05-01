@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'tambah-resep/tambah-resep-1.dart';
-import 'detail_tips.dart';
-import 'forumPage/forum_page.dart';
-import 'tambah_tips.dart';
-import 'main_page.dart';
+import 'package:masakio/Tambah Resep/tambah_resep1.dart';
+import 'package:masakio/detail_tips.dart';
+import 'package:masakio/tambah_tips.dart';
+import 'package:masakio/main_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -102,7 +101,7 @@ class RecipeMenuPage extends StatelessWidget {
       },
       {
         'title': 'Forum Diskusi',
-        'dest': const MainPage(pageIndex: 2)
+        'dest': const MainPage(pageIndex: 2),
         'icon': Icons.forum,
         'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)]
       },
@@ -177,7 +176,7 @@ class RecipeMenuPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF83AEB1).withOpacity(0.3),
+                      color: const Color(0x4D83AEB1),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -286,19 +285,6 @@ class RecipeMenuPage extends StatelessWidget {
     );
   }
 
-  // Metode untuk membuat item bottom nav bar
-  Widget _buildNavBarItem({required IconData icon, required int index, required bool isSelected}) {
-    return Container(
-      width: 60,
-      height: 60,
-      child: Icon(
-        icon,
-        color: isSelected ? const Color(0xFF83AEB1) : Colors.grey[400],
-        size: 24,
-      ),
-    );
-  }
-
   Widget _buildMenuCard(
       BuildContext context, String title, dynamic dest, IconData icon, List<Color> gradient) {
     return InkWell(
@@ -307,25 +293,6 @@ class RecipeMenuPage extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (context) => dest)
         );
-        // if (title == 'Tambah Resep Baru') {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => const TambahResep1Page()),
-        //   );
-        // } else if (title == 'Detail Tips & Trik') {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => const TipsAndTrikPage()),
-        //   );
-        // } else {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(
-        //       content: Text('$title dipilih'),
-        //       backgroundColor: const Color(0xFF83AEB1),
-        //       duration: const Duration(seconds: 1),
-        //     ),
-        //   );
-        // }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -337,7 +304,7 @@ class RecipeMenuPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF83AEB1).withOpacity(0.3),
+              color: const Color(0x4D83AEB1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),

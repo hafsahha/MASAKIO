@@ -8,7 +8,7 @@ class TambahResep3Page extends StatefulWidget {
 }
 
 class _TambahResep3PageState extends State<TambahResep3Page> {
-  int _currentStep = 2; // Step ketiga (indeks 2)
+  final _currentStep = 2; // Step ketiga (indeks 2)
   final _totalSteps = 5;
 
   // List untuk menyimpan instruksi memasak

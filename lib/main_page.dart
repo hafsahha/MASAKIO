@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:masakio/components/bottom_popup.dart';
-import 'package:masakio/components/button.dart';
-import 'package:masakio/components/navbar.dart';
-import 'package:masakio/tambah-resep/tambah-resep-1.dart';
+import 'package:masakio/.components/bottom_popup.dart';
+import 'package:masakio/.components/button.dart';
+import 'package:masakio/.components/navbar.dart';
 
-import 'package:masakio/profile.dart';
+import 'package:masakio/Tambah%20Resep/tambah_resep1.dart';
+import 'package:masakio/tambah_tips.dart';
+
+import 'package:masakio/Forum/forum_page.dart';
+import 'package:masakio/Profile/profile.dart';
 
 class MainPage extends StatefulWidget {
   final int pageIndex;
@@ -20,7 +23,7 @@ class _MainPageState extends State<MainPage> {
   final _pages = [
     const Center(child: Text('Home Page')),     // HomePage(),
     const Center(child: Text('Explore Page')),  // ExplorePage(),
-    const Center(child: Text('Forum Page')),    // ForumPage(),
+    const ForumPage(),
     const ProfilePage(),
   ];
   
@@ -47,7 +50,7 @@ class _MainPageState extends State<MainPage> {
                   const SizedBox(height: 30),
                   Button(dest: TambahResep1Page(), content: 'Buat Resep Baru'),
                   const SizedBox(height: 10),
-                  Button(dest: null, content: 'Tulis Tips & Trik'),
+                  Button(dest: TambahTipsPage(), content: 'Tulis Tips & Trik'),
                 ],
               );
             },

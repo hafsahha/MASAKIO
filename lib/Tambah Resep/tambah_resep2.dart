@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'tambah-resep-3.dart'; // Import the next page
+import 'package:masakio/Tambah Resep/tambah_resep3.dart';
 
 class TambahResep2Page extends StatefulWidget {
   const TambahResep2Page({super.key});
@@ -10,7 +10,7 @@ class TambahResep2Page extends StatefulWidget {
 }
 
 class _TambahResep2PageState extends State<TambahResep2Page> {
-  int _currentStep = 1; // Step kedua (indeks 1)
+  final _currentStep = 1; // Step kedua (indeks 1)
   final _totalSteps = 5;
   
   // List untuk menyimpan bahan
