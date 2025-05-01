@@ -3,6 +3,7 @@ import 'tambah-resep/tambah-resep-1.dart';
 import 'detail_tips.dart';
 import 'forumPage/forum_page.dart';
 import 'tambah_tips.dart';
+import 'main_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -59,13 +60,13 @@ class RecipeMenuPage extends StatelessWidget {
       },
       {
         'title': 'Homepage',
-        'dest': null,
+        'dest': const MainPage(pageIndex: 0),
         'icon': Icons.home,
         'gradient': [const Color(0xFF98C7CA), const Color(0xFF7FABB0)]
       },
       {
         'title' : 'Discover - Resep',
-        'dest': null,
+        'dest': const MainPage(pageIndex: 1),
         'icon': Icons.search,
         'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)]
       },
@@ -101,7 +102,7 @@ class RecipeMenuPage extends StatelessWidget {
       },
       {
         'title': 'Forum Diskusi',
-        'dest': const ForumPage(),
+        'dest': const MainPage(pageIndex: 2)
         'icon': Icons.forum,
         'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)]
       },
@@ -112,8 +113,8 @@ class RecipeMenuPage extends StatelessWidget {
         'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
       },
       {
-        'title' : 'profile',
-        'dest': null,
+        'title' : 'Profile',
+        'dest': const MainPage(pageIndex: 3),
         'icon': Icons.person,
         'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
       },
