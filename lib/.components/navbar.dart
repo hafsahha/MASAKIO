@@ -18,9 +18,11 @@ class Navbar extends StatelessWidget {
     return BottomAppBar (
       shape: const CircularNotchedRectangle(),
       notchMargin: 10.0,
-      elevation: 99.0,
-      child: SizedBox(
-        height: 80.0,
+      elevation: 10.0,
+      color: Colors.white,
+      height: 80.0,
+      child: Container(
+        decoration: const BoxDecoration(color: Colors.transparent),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
