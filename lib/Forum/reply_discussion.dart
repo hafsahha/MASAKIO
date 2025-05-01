@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:masakio/.components/custom_button.dart';
+import 'package:masakio/.components/button.dart';
 
 class ReplyBottomSheet extends StatefulWidget {
   final Function(String, File?)? onReply;
@@ -192,8 +192,8 @@ class _ReplyBottomSheetState extends State<ReplyBottomSheet> {
             // Button
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: CustomButton(
-                text: 'Kirim Balasan',
+              child: Button(
+                content: 'Kirim Balasan',
                 onPressed: () {
                   final replyText = _replyController.text.trim();
                   if (replyText.isNotEmpty) {

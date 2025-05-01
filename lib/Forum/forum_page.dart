@@ -124,7 +124,7 @@ class _ForumPageState extends State<ForumPage> {
           // Discussion List
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 100.0),
               itemCount: _discussions.length,
               itemBuilder: (context, index) {
                 final discussion = _discussions[index];

@@ -36,6 +36,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: _pages[_index],
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF83AEB1),
@@ -48,9 +49,25 @@ class _MainPageState extends State<MainPage> {
                 children: [
                   Text('Mau buat apa hari ini?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 30),
-                  Button(dest: TambahResep1Page(), content: 'Buat Resep Baru'),
+                  Button(
+                    content: 'Buat Resep Baru',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const TambahResep1Page()),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 10),
-                  Button(dest: TambahTipsPage(), content: 'Tulis Tips & Trik'),
+                  Button(
+                    content: 'Tulis Tips & Trik',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const TambahTipsPage()),
+                      );
+                    },
+                  ),
                 ],
               );
             },
