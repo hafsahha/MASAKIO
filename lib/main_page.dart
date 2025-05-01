@@ -7,14 +7,15 @@ import 'package:masakio/tambah-resep/tambah-resep-1.dart';
 import 'package:masakio/profile.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final int pageIndex;
+  const MainPage({super.key, required this.pageIndex});
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  int _index = 0;
+  late int _index;
 
   final _pages = [
     const Center(child: Text('Home Page')),     // HomePage(),
@@ -22,6 +23,12 @@ class _MainPageState extends State<MainPage> {
     const Center(child: Text('Forum Page')),    // ForumPage(),
     const ProfilePage(),
   ];
+  
+  @override
+  void initState() {
+    super.initState();
+    _index = widget.pageIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
