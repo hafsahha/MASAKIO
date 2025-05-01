@@ -48,9 +48,25 @@ class _MainPageState extends State<MainPage> {
                 children: [
                   Text('Mau buat apa hari ini?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 30),
-                  Button(dest: TambahResep1Page(), content: 'Buat Resep Baru'),
+                  Button(
+                    content: 'Buat Resep Baru',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const TambahResep1Page()),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 10),
-                  Button(dest: TambahTipsPage(), content: 'Tulis Tips & Trik'),
+                  Button(
+                    content: 'Tulis Tips & Trik',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const TambahTipsPage()),
+                      );
+                    },
+                  ),
                 ],
               );
             },

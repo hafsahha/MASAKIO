@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:masakio/.components/custom_button.dart';
+import 'package:masakio/.components/button.dart';
 
 class AddDiscussionBottomSheet extends StatefulWidget {
   final Function(String, File?)? onAddDiscussion;
@@ -260,17 +260,13 @@ class _AddDiscussionBottomSheetState extends State<AddDiscussionBottomSheet> {
               // Add Discussion Button
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: CustomButton(
-                  text: 'Tambahkan Diskusi',
+                child: Button(
+                  content: 'Tambahkan Diskusi',
                   onPressed: () {
-                    // Save discussion and pass data back
                     if (_detailController.text.isNotEmpty) {
-                      if (widget.onAddDiscussion != null) {
-                        widget.onAddDiscussion!(_detailController.text, _selectedImage);
-                      }
+                      if (widget.onAddDiscussion != null) widget.onAddDiscussion!(_detailController.text, _selectedImage);
                       Navigator.pop(context);
                     } else {
-                      // Show error if discussion text is empty
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Isi diskusi tidak boleh kosong'),

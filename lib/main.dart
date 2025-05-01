@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:masakio/Auth/daftar.dart';
+import 'package:masakio/Auth/masuk.dart';
+import 'package:masakio/Forum/forum_page.dart';
+import 'package:masakio/Forum/detail_page.dart';
 import 'package:masakio/Tambah Resep/tambah_resep1.dart';
 import 'package:masakio/Tips Trik/detail_tips.dart';
 import 'package:masakio/Tips Trik/tambah_tips.dart';
@@ -47,13 +51,13 @@ class RecipeMenuPage extends StatelessWidget {
     final List<Map<String, dynamic>> menuItems = [
       {
         'title': 'Register',
-        'dest': null,
+        'dest': const DaftarAkunPage(),
         'icon': Icons.app_registration,
         'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
       },
       {
         'title': 'Login',
-        'dest': null,
+        'dest': const LoginPage(),
         'icon': Icons.login,
         'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
       },
@@ -107,7 +111,14 @@ class RecipeMenuPage extends StatelessWidget {
       },
       {
         'title' : 'Detail Forum Diskusi',
-        'dest': null,
+        'dest': ForumDetailPage(
+          username: 'kokihafas',
+          userImage: 'assets/images/avatar.png',
+          content: 'Untuk merebus kentang dengan baik dan menjaga nutrisinya, gunakan air secukupnya, jangan kupas kulitnya, tambahkan sedikit garam, rebus dengan api sedang, dan jangan menusuk terlalu sering. Angkat setelah matang. #kentang #masakio #masakioforum',
+          contentImage: 'assets/images/kentang.png',
+          hashtags: hashtagsFromContent('Untuk merebus kentang dengan baik dan menjaga nutrisinya, gunakan air secukupnya, jangan kupas kulitnya, tambahkan sedikit garam, rebus dengan api sedang, dan jangan menusuk terlalu sering. Angkat setelah matang. #kentang #masakio #masakioforum'),
+          repliesCount: 6,
+          likesCount: 15),
         'icon': Icons.forum_outlined,
         'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
       },

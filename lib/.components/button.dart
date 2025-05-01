@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
 
 class Button extends StatelessWidget {
-  final dynamic dest;
+  final Function onPressed;
   final String content;
   final double? width;
   final int? backgroundColor;
   final int? textColor;
-  const Button({super.key, required this.dest, required this.content, this.width, this.backgroundColor, this.textColor});
+  const Button({super.key, required this.onPressed, required this.content, this.width, this.backgroundColor, this.textColor});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => dest),
-        );
-      },
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Color(backgroundColor ?? 0xFF83AEB1),
         shape: RoundedRectangleBorder(
