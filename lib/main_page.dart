@@ -3,8 +3,8 @@ import 'package:masakio/.components/bottom_popup.dart';
 import 'package:masakio/.components/button.dart';
 import 'package:masakio/.components/navbar.dart';
 
-import 'package:masakio/Tambah%20Resep/tambah_resep1.dart';
-import 'package:masakio/tambah_tips.dart';
+import 'package:masakio/Tambah Resep/tambah_resep1.dart';
+import 'package:masakio/Tips Trik/tambah_tips.dart';
 
 import 'package:masakio/Forum/forum_page.dart';
 import 'package:masakio/Profile/profile.dart';
