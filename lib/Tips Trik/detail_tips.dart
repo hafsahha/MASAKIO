@@ -5,9 +5,12 @@ import 'package:masakio/.components/button.dart';
 import 'package:masakio/Tambah Resep/tambah_resep1.dart';
 import 'package:masakio/Tips Trik/tambah_tips.dart';
 import 'package:masakio/main_page.dart';
+import 'package:masakio/data/dummy_tips.dart';
+import 'package:intl/intl.dart';
 
 class TipsAndTrikPage extends StatefulWidget {
-  const TipsAndTrikPage({super.key});
+  final Tips tip;
+  const TipsAndTrikPage({super.key, required this.tip});
 
   @override
   State<TipsAndTrikPage> createState() => _TipsAndTrikPageState();
@@ -75,6 +78,9 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tip = widget.tip;
+    final formattedDate = DateFormat('MMMM d, yyyy').format(tip.uploadDate);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -101,50 +107,48 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
       ),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: tip.hashtags.map((tag) => Chip(
+                  label: Text(tag),
+                  backgroundColor: const Color(0xFF83AEB1),
+                  labelStyle: const TextStyle(color: Colors.white),
+                )).toList(),
+              ),
+            ),
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                width: double.infinity,
-                height: 200,
-                decoration: BoxDecoration(
-                  image: const DecorationImage(
-                    image: AssetImage('assets/images/kentang.png'),
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
+              child: Text(
+                tip.title,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, top: 4, bottom: 8),
+              child: Text(
+                'Oleh ${tip.author} • Diunggah: $formattedDate',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  tip.imageAsset,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF83AEB1),
-                      borderRadius: BorderRadius.circular(40),
-                    ),
-                    child: const Text(
-                      'Sayuran',
-                      style: TextStyle(color: Colors.white, fontSize: 13),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Simpan Kentang dengan Cara Ini Agar Tidak Cepat Busuk',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-              ),
-            ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.all(16),
               child: Stack(
                 children: [
                   Container(
@@ -153,69 +157,23 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: const Color(0xFFD8D8D8), width: 1),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Kentang adalah salah satu bahan makanan yang populer di banyak dapur. Namun, sering kali kalian mengalami masalah dengan kentang yang cepat busuk atau berubah berwarna hitam. Untuk mencegah hal tersebut, penting untuk mengetahui cara menyimpan kentang dengan benar. Nah, berikut tips untuk menjaga kentang tetap awet dan segar.\n\nHindari Menyimpan di Bawah Sinar Matahari',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                        ),
-                        if (_isExpanded) ...[
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Kentang sebaiknya disimpan di tempat yang tidak terlalu dingin dengan suhu sejuk, tetapi kering. Tujuannya adalah untuk menjaga rasa alami kentang agar tidak berubah dengan mudah, serta menunda pembentukan kecambah pada kulit kentang yang menandakan awal pembusukan. \n\nPenting untuk menjaga kentang agar tidak terpapar sinar matahari langsung. Sebuah penelitian yang diterbitkan dalam Critical Reviews in Food Science and Nutrition menunjukkan bahwa paparan sinar matahari dapat menghasilkan senyawa beracun bernama solanine. Selain dapat menyebabkan rasa pahit saat dimakan, solanine juga tergolong beracun jika dikonsumsi dalam jumlah besar.',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Jangan Simpan di Tempat yang Tertutup Rapat',
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Sirkulasi udara adalah kunci untuk menjaga kentang tetap segar. Sebaiknya, simpan kentang dalam wadah terbuka, seperti keranjang atau kantong berjaring agar udara bisa masuk dan keluar dengan bebas.\n\nHindari menyimpan kentang dalam kantong plastik karena ini dapat memicu kelembapan yang mempercepat kerusakan.',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Jangan Simpan di Kulkas',
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Kentang akan lebih mudah rusak jika disimpan di lemari es. Suhu dingin bisa mengubah kandungan pati menjadi gula, mengubah rasa dan tekstur kentang.',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Cara Menyimpan Kentang yang Sudah Dikupas',
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Simpan dalam air agar tidak menghitam. Jangan dicuci terlalu awal saat belum ingin digunakan untuk menghindari kelembapan berlebih.',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                        ],
-                      ],
+                    child: Text(
+                      _isExpanded ? tip.content : tip.content.split('. ').take(3).join('. ') + '.',
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ),
                   Positioned(
-                    bottom: 0,
+                    bottom: 12,
                     left: 0,
                     right: 0,
-                    child: Container(
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: GestureDetector(
-                        onTap: _toggleExpansion,
-                        child: Text(
-                          _isExpanded ? 'Lihat Lebih Sedikit' : 'Lihat Selengkapnya',
-                          style: const TextStyle(
-                            color: Color(0xFF82AEB1),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
+                    child: GestureDetector(
+                      onTap: _toggleExpansion,
+                      child: Text(
+                        _isExpanded ? 'Lihat Lebih Sedikit' : 'Lihat Selengkapnya',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF83AEB1),
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
