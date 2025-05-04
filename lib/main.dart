@@ -7,6 +7,7 @@ import 'package:masakio/Tambah Resep/tambah_resep1.dart';
 import 'package:masakio/Tips Trik/detail_tips.dart';
 import 'package:masakio/Tips Trik/tambah_tips.dart';
 import 'package:masakio/main_page.dart';
+import 'package:masakio/Profile/edit_profile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -130,7 +131,7 @@ class RecipeMenuPage extends StatelessWidget {
       },
       {
         'title' : 'Edit Profile',
-        'dest': null,
+        'dest': const EditProfile(),
         'icon': Icons.edit,
         'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
       }

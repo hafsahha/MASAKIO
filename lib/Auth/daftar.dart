@@ -82,7 +82,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/bg_food.jpg'),
+                image: AssetImage('assets/images/daftar.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -334,7 +334,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB6D9D0),
+                  backgroundColor: const Color(0xFF83AEB1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
