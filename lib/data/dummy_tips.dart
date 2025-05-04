@@ -44,4 +44,22 @@ final List<Tips> dummyTipsList = [
     author: "Farah Nuraini",
     uploadDate: DateTime(2025, 4, 25),
   ),
+    Tips(
+    title: "Trik Mengupas Bawang Tanpa Menangis",
+    content:
+        "Mengupas bawang sering kali membuat mata perih dan berair. Untuk menghindari hal ini, dinginkan bawang di dalam kulkas selama 30 menit sebelum dipotong. Gunakan pisau tajam agar irisan lebih halus dan tidak menghancurkan sel-sel bawang secara berlebihan. Kamu juga bisa mengupas bawang di dekat aliran air mengalir atau di bawah ventilasi dapur untuk mengurangi paparan gas. Hindari meniup bawang karena justru mempercepat gas mengenai mata.",
+    hashtags: ["BasicSkill", "Dapur", "TipsCepat"],
+    imageAsset: "assets/images/bawang.jpg",
+    author: "Rina Maharani",
+    uploadDate: DateTime(2025, 5, 2),
+  ),
+  Tips(
+    title: "Cara Menyimpan Daun Bawang agar Tahan Lama",
+    content:
+        "Daun bawang sering layu dan berlendir jika tidak disimpan dengan tepat. Untuk menjaga kesegarannya, bungkus daun bawang dengan tisu dapur kering lalu masukkan ke dalam plastik ziplock sebelum diletakkan di kulkas. Kamu juga bisa menyimpannya dalam gelas berisi sedikit air dan menutup bagian atasnya dengan plastik longgar. Jangan langsung mencuci daun bawang sebelum disimpan, karena air justru mempercepat pembusukan.",
+    hashtags: ["Sayuran", "Penyimpanan", "TipsDapur"],
+    imageAsset: "assets/images/daun_bawang.jpeg",
+    author: "Ahmad Rizki",
+    uploadDate: DateTime(2025, 5, 3),
+  ),
 ];
