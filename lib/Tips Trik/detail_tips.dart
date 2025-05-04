@@ -1,24 +1,14 @@
 import 'package:flutter/material.dart';
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Tips & Trik',
-      theme: ThemeData(
-        fontFamily: 'Montserrat',
-        scaffoldBackgroundColor: Colors.white,
-      ),
-      home: const TipsAndTrikPage(),
-    );
-  }
-}
+import 'package:masakio/.components/navbar.dart';
+import 'package:masakio/.components/bottom_popup.dart';
+import 'package:masakio/.components/button.dart';
+import 'package:masakio/Tambah Resep/tambah_resep1.dart';
+import 'package:masakio/Tips Trik/tambah_tips.dart';
+import 'package:masakio/main_page.dart';
 
 class TipsAndTrikPage extends StatefulWidget {
   const TipsAndTrikPage({super.key});
+
   @override
   State<TipsAndTrikPage> createState() => _TipsAndTrikPageState();
 }
@@ -30,6 +20,57 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
     setState(() {
       _isExpanded = !_isExpanded;
     });
+  }
+
+  void _onNavbarItemSelected(int index) {
+    if (index != 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainPage(pageIndex: index),
+        ),
+      );
+    }
+  }
+
+  void _showBottomPopup() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return BottomPopup(
+          children: [
+            const Text(
+              'Mau buat apa hari ini?',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 30),
+            Button(
+              content: 'Buat Resep Baru',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TambahResep1Page(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 10),
+            Button(
+              content: 'Tulis Tips & Trik',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TambahTipsPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -123,97 +164,62 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
                           const SizedBox(height: 12),
                           const Text(
                             'Kentang sebaiknya disimpan di tempat yang tidak terlalu dingin dengan suhu sejuk, tetapi kering. Tujuannya adalah untuk menjaga rasa alami kentang agar tidak berubah dengan mudah, serta menunda pembentukan kecambah pada kulit kentang yang menandakan awal pembusukan. \n\nPenting untuk menjaga kentang agar tidak terpapar sinar matahari langsung. Sebuah penelitian yang diterbitkan dalam Critical Reviews in Food Science and Nutrition menunjukkan bahwa paparan sinar matahari dapat menghasilkan senyawa beracun bernama solanine. Selain dapat menyebabkan rasa pahit saat dimakan, solanine juga tergolong beracun jika dikonsumsi dalam jumlah besar.',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                            style: TextStyle(fontSize: 14),
                           ),
                           const SizedBox(height: 12),
                           const Text(
                             'Jangan Simpan di Tempat yang Tertutup Rapat',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                            style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            'Sirkulasi udara adalah kunci untuk menjaga kentang tetap segar. Sebaiknya, simpan kentang dalam wadah terbuka, seperti keranjang atau kantong berjaring agar udara bisa masuk dan keluar dengan bebas.\n\nHindari menyimpan kentang dalam kantong plastik karena ini dapat memicu kelembapan yang mempercepat kerusakan. Jika kamu menggunakan kantong plastik saat berbelanja, pastikan untuk segera mengeluarkan kentang agar dapat disimpan lebih lama.',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                            'Sirkulasi udara adalah kunci untuk menjaga kentang tetap segar. Sebaiknya, simpan kentang dalam wadah terbuka, seperti keranjang atau kantong berjaring agar udara bisa masuk dan keluar dengan bebas.\n\nHindari menyimpan kentang dalam kantong plastik karena ini dapat memicu kelembapan yang mempercepat kerusakan.',
+                            style: TextStyle(fontSize: 14),
                           ),
                           const SizedBox(height: 12),
                           const Text(
                             'Jangan Simpan di Kulkas',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                            style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            'Tidak semua bahan makanan dapat bertahan lama saat disimpan di dalam kulkas. Kentang adalah salah satu bahan yang justru akan kurang baik jika disimpan dan diletakkan di lemari es. Cara menyimpan kentang di kulkas ini kurang baik untuk ketahanan dari kentang.\n\nSelain memengaruhi ketahanan, suhu dingin dapat mengubah kandungan pati pada kentang menjadi gula yang akan berdampak pada rasa saat dikonsumsi. Di samping itu, tekstur kentang juga akan menjadi lebih lembek.',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                            'Kentang akan lebih mudah rusak jika disimpan di lemari es. Suhu dingin bisa mengubah kandungan pati menjadi gula, mengubah rasa dan tekstur kentang.',
+                            style: TextStyle(fontSize: 14),
                           ),
                           const SizedBox(height: 12),
                           const Text(
                             'Cara Menyimpan Kentang yang Sudah Dikupas',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                            style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            'Cara menyimpan kentang yang sudah dikupas berbeda dengan cara menyimpan sebelum dikupas. Kentang segar yang masih berkulit sebaiknya tidak langsung dicuci. Mencuci kentang dengan kulitnya justru dapat menciptakan kondisi lembap yang mendorong pertumbuhan jamur dan bakteri.\n\nMeskipun tampak kotor dan penuh tanah, biarkan kentang dalam kondisi tersebut sampai siap untuk diolah. Saat sudah dikupas, kentang cenderung lebih mudah menghitam ketika terpapar udara. Hal ini disebabkan oleh kandungan polifenol oksidase dalam kentang yang bereaksi dengan oksigen, mengubah daging kentang menjadi berwarna kecokelatan atau keabu-abuan. Untuk mencegah warna menghitam pada kentang yang sudah dikupas, kalian bisa merendam kentang dalam baskom berisi air.',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                            'Simpan dalam air agar tidak menghitam. Jangan dicuci terlalu awal saat belum ingin digunakan untuk menghindari kelembapan berlebih.',
+                            style: TextStyle(fontSize: 14),
                           ),
                         ],
                       ],
                     ),
                   ),
-                  if (!_isExpanded)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 60,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.transparent,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.vertical(
-                            bottom: Radius.circular(12),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: GestureDetector(
-                          onTap: _toggleExpansion,
-                          child: const Text(
-                            'Lihat Selengkapnya',
-                            style: TextStyle(
-                              color: Color(0xFF82AEB1),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: GestureDetector(
+                        onTap: _toggleExpansion,
+                        child: Text(
+                          _isExpanded ? 'Lihat Lebih Sedikit' : 'Lihat Selengkapnya',
+                          style: const TextStyle(
+                            color: Color(0xFF82AEB1),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                     ),
-                  if (_isExpanded)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.only(top: 0, bottom: 16),
-                        child: GestureDetector(
-                          onTap: _toggleExpansion,
-                          child: const Text(
-                            'Lihat Lebih Sedikit',
-                            style: TextStyle(
-                              color: Color(0xFF82AEB1),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),
@@ -244,6 +250,17 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF83AEB1),
+        shape: const CircleBorder(),
+        onPressed: _showBottomPopup,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: Navbar(
+        idx: 1,
+        onItemSelected: _onNavbarItemSelected,
       ),
     );
   }
