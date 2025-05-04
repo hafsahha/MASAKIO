@@ -72,7 +72,7 @@ MASAKIO adalah aplikasi mobile berbasis Flutter yang dirancang untuk membantu pe
 ```
 
 lib/
-├── .components/            # Komponen UI reusable
+├── .components/ 
 │   ├── bottom_popup.dart
 │   ├── button.dart
 │   ├── card_rekomendasi.dart
@@ -143,8 +143,6 @@ flutter pub get
 ```bash
 flutter run
 ```
-
-> Pastikan semua asset sudah ditambahkan di `pubspec.yaml`.
 
 ---
 
