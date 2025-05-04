@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'tambah-resep/tambah-resep-1.dart';
-import 'detail_tips.dart';
-import 'forumPage/forum_page.dart';
-import 'tambah_tips.dart';
+import 'tambah-resep/tambah-resep-2.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,83 +44,25 @@ class RecipeMenuPage extends StatelessWidget {
     // List menu resep
     final List<Map<String, dynamic>> menuItems = [
       {
-        'title': 'Register',
-        'dest': null,
-        'icon': Icons.app_registration,
-        'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
-      },
-      {
-        'title': 'Login',
-        'dest': null,
-        'icon': Icons.login,
-        'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
-      },
-      {
-        'title': 'Homepage',
-        'dest': null,
-        'icon': Icons.home,
-        'gradient': [const Color(0xFF98C7CA), const Color(0xFF7FABB0)]
-      },
-      {
-        'title' : 'Discover - Resep',
-        'dest': null,
-        'icon': Icons.search,
-        'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)]
-      },
-      {
-        'title': 'Discover - Tips & Trik',
-        'dest': null,
-        'icon': Icons.search,
-        'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
-      },
-      {
-        'title': 'Detail Resep',
-        'dest': null,
-        'icon': Icons.receipt_long,
-        'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
-      },
-      {
-        'title': 'Tambah Resep Baru',
-        'dest' : const TambahResep1Page(),
+        'title': 'Tambah Resep Baru-1',
         'icon': Icons.restaurant_menu,
         'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
       },
       {
-        'title': 'Detail Tips & Trik',
-        'dest' : const TipsAndTrikPage(),
-        'icon': Icons.info_outline,
+        'title': 'Tambah Resep Baru-2',
+        'icon': Icons.dinner_dining,
         'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
       },
       {
-        'title': 'Tambah Tips & Trik',
-        'dest': const TambahTipsPage(),
-        'icon': Icons.add_circle_outline,
+        'title': 'Tambah Resep Baru-3',
+        'icon': Icons.cake,
         'gradient': [const Color(0xFF98C7CA), const Color(0xFF7FABB0)]
       },
       {
-        'title': 'Forum Diskusi',
-        'dest': const ForumPage(),
-        'icon': Icons.forum,
+        'title': 'Tambah Resep Baru-4',
+        'icon': Icons.local_drink,
         'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)]
       },
-      {
-        'title' : 'Detail Forum Diskusi',
-        'dest': null,
-        'icon': Icons.forum_outlined,
-        'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
-      },
-      {
-        'title' : 'profile',
-        'dest': null,
-        'icon': Icons.person,
-        'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
-      },
-      {
-        'title' : 'Edit Profile',
-        'dest': null,
-        'icon': Icons.edit,
-        'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
-      }
     ];
 
     return Scaffold(
@@ -271,7 +211,6 @@ class RecipeMenuPage extends StatelessWidget {
                     return _buildMenuCard(
                       context,
                       menuItems[index]['title'],
-                      menuItems[index]['dest'],
                       menuItems[index]['icon'],
                       menuItems[index]['gradient'],
                     );
@@ -299,32 +238,23 @@ class RecipeMenuPage extends StatelessWidget {
   }
 
   Widget _buildMenuCard(
-      BuildContext context, String title, dynamic dest, IconData icon, List<Color> gradient) {
+      BuildContext context, String title, IconData icon, List<Color> gradient) {
     return InkWell(
       onTap: () {
-        Navigator.push(
+        if (title == 'Tambah Resep Baru-1') {
+          Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => dest)
-        );
-        // if (title == 'Tambah Resep Baru') {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => const TambahResep1Page()),
-        //   );
-        // } else if (title == 'Detail Tips & Trik') {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => const TipsAndTrikPage()),
-        //   );
-        // } else {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(
-        //       content: Text('$title dipilih'),
-        //       backgroundColor: const Color(0xFF83AEB1),
-        //       duration: const Duration(seconds: 1),
-        //     ),
-        //   );
-        // }
+            MaterialPageRoute(builder: (context) => const TambahResep1Page()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$title dipilih'),
+              backgroundColor: const Color(0xFF83AEB1),
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        }
       },
       child: Container(
         decoration: BoxDecoration(
