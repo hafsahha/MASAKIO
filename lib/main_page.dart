@@ -3,13 +3,10 @@ import 'package:masakio/.components/bottom_popup.dart';
 import 'package:masakio/.components/button.dart';
 import 'package:masakio/.components/navbar.dart';
 
-import 'package:masakio/home.dart';
-
-import 'package:masakio/Profile/profile.dart';
-
 import 'package:masakio/Tambah Resep/tambah_resep1.dart';
 import 'package:masakio/Tips Trik/tambah_tips.dart';
 
+import 'package:masakio/home.dart';
 import 'package:masakio/Forum/forum_page.dart';
 import 'package:masakio/Profile/profile.dart';
 
@@ -25,8 +22,8 @@ class _MainPageState extends State<MainPage> {
   late int _index;
 
   final _pages = [
-    const HomePage(),     // HomePage(),
-    Center(child: Text('Explore Page')),  // ExplorePage(),
+    const HomePage(),
+    const Center(child: Text('Explore Page')),  // ExplorePage(),
     const ForumPage(),
     const ProfilePage(),
   ];

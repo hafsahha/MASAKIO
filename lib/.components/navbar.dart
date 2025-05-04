@@ -20,7 +20,7 @@ class Navbar extends StatelessWidget {
       notchMargin: 10.0,
       elevation: 10.0,
       color: Colors.white,
-      height: 80.0,
+      height: 85.0,
       child: Container(
         decoration: const BoxDecoration(color: Colors.transparent),
         child: Row(
