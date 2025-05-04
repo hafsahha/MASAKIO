@@ -4,14 +4,14 @@ import 'dart:typed_data';
 class TipsValidationPage extends StatelessWidget {
   final String judul;
   final String isi;
-  final String hashtag;
+  final List<String> hashtags;
   final Uint8List imageBytes;
 
   const TipsValidationPage({
     super.key,
     required this.judul,
     required this.isi,
-    required this.hashtag,
+    required this.hashtags,
     required this.imageBytes,
   });
 
@@ -57,16 +57,13 @@ class TipsValidationPage extends StatelessWidget {
             const SizedBox(height: 16),
             const Text('Hashtag', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFF83AEB1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                hashtag,
-                style: const TextStyle(color: Colors.white),
-              ),
+            Wrap(
+              spacing: 8,
+              children: hashtags.map((tag) => Chip(
+                label: Text(tag),
+                backgroundColor: const Color(0xFF83AEB1),
+                labelStyle: const TextStyle(color: Colors.white),
+              )).toList(),
             ),
             const SizedBox(height: 32),
             SizedBox(

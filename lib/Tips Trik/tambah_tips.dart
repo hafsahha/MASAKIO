@@ -14,6 +14,7 @@ class _TambahTipsPageState extends State<TambahTipsPage> {
   final TextEditingController _judulController = TextEditingController();
   final TextEditingController _isiController = TextEditingController();
   final TextEditingController _hashtagController = TextEditingController();
+  final List<String> _hashtags = [];
 
   Uint8List? _imageBytes;
 
@@ -32,14 +33,14 @@ class _TambahTipsPageState extends State<TambahTipsPage> {
     if (_imageBytes != null &&
         _judulController.text.isNotEmpty &&
         _isiController.text.isNotEmpty &&
-        _hashtagController.text.isNotEmpty) {
+        _hashtags.isNotEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => TipsValidationPage(
             judul: _judulController.text,
             isi: _isiController.text,
-            hashtag: _hashtagController.text,
+            hashtags: _hashtags,
             imageBytes: _imageBytes!,
           ),
         ),
@@ -127,7 +128,52 @@ class _TambahTipsPageState extends State<TambahTipsPage> {
             const SizedBox(height: 16),
             const Text('Hashtag', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
-            _buildTextField(controller: _hashtagController, hint: 'Contoh: Sayuran'),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    controller: _hashtagController,
+                    hint: 'Contoh: Sayuran',
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  height: 48,
+                  width: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF83AEB1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    onPressed: () {
+                      final tag = _hashtagController.text.trim();
+                      if (tag.isNotEmpty && !_hashtags.contains(tag)) {
+                        setState(() {
+                          _hashtags.add(tag);
+                          _hashtagController.clear();
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: _hashtags
+                  .map((tag) => Chip(
+                        label: Text(tag),
+                        deleteIcon: const Icon(Icons.close),
+                        onDeleted: () {
+                          setState(() {
+                            _hashtags.remove(tag);
+                          });
+                        },
+                      ))
+                  .toList(),
+            ),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
@@ -150,7 +196,11 @@ class _TambahTipsPageState extends State<TambahTipsPage> {
     );
   }
 
-  Widget _buildTextField({required TextEditingController controller, required String hint, int maxLines = 1}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    int maxLines = 1,
+  }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
