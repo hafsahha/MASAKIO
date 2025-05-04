@@ -9,12 +9,11 @@ class DaftarAkunPage extends StatefulWidget {
 
 class _DaftarAkunPageState extends State<DaftarAkunPage> {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  final List<TextEditingController> _riwayatControllers = [TextEditingController()];
+  final TextEditingController _riwayatController = TextEditingController();
+  final List<String> _riwayatList = [];
 
   bool _obscurePassword = true;
 
@@ -23,40 +22,38 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
   );
 
+  final RegExp emailRegExp = RegExp(
+    r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$',
+  );
+
   @override
   void dispose() {
     _namaController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    for (var c in _riwayatControllers) {
-      c.dispose();
-    }
+    _riwayatController.dispose();
     super.dispose();
   }
 
-  // Regex email sederhana
-  final RegExp emailRegExp = RegExp(
-    r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$',
-  );
-
-  void _addRiwayat() {
-    setState(() {
-      _riwayatControllers.add(TextEditingController());
-    });
-  }
-
-  void _removeRiwayat(int index) {
-    setState(() {
-      if (_riwayatControllers.length > 1) {
-        _riwayatControllers[index].dispose();
-        _riwayatControllers.removeAt(index);
-      }
-    });
+  void _tambahRiwayat(String text) {
+    final newText = text.trim();
+    if (newText.isNotEmpty && !_riwayatList.contains(newText)) {
+      setState(() {
+        _riwayatList.add(newText);
+        _riwayatController.clear();
+      });
+    }
   }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // Semua valid, bisa lanjut ke proses berikutnya
+      if (_riwayatList.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Minimal 1 riwayat penyakit harus diisi')),
+        );
+        return;
+      }
+
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -104,7 +101,6 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                // Form scrollable
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -118,75 +114,22 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                         key: _formKey,
                         child: Column(
                           children: [
-                            // Nama Lengkap
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: RichText(
-                                text: const TextSpan(
-                                  text: "Nama Lengkap ",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  children: [
-                                    TextSpan(
-                                      text: "*",
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            _buildLabel("Nama Lengkap *"),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _namaController,
-                              decoration: InputDecoration(
-                                hintText: "Masukan Nama Lengkap",
-                                border: border,
-                                enabledBorder: border,
-                                focusedBorder: border,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Nama lengkap wajib diisi';
-                                }
-                                return null;
-                              },
+                              decoration: _buildInputDecoration("Masukan Nama Lengkap"),
+                              validator: (value) =>
+                                  value == null || value.trim().isEmpty ? 'Nama wajib diisi' : null,
                             ),
                             const SizedBox(height: 18),
-                            // Email
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: RichText(
-                                text: const TextSpan(
-                                  text: "Email ",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  children: [
-                                    TextSpan(
-                                      text: "*",
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+
+                            _buildLabel("Email *"),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                hintText: "Masukan Email",
-                                border: border,
-                                enabledBorder: border,
-                                focusedBorder: border,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                              ),
+                              decoration: _buildInputDecoration("Masukan Email"),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return 'Email wajib diisi';
@@ -198,88 +141,63 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                               },
                             ),
                             const SizedBox(height: 18),
-                            // Riwayat Penyakit (dinamis)
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                "Riwayat Penyakit",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+
+                            _buildLabel("Riwayat Penyakit"),
+                            const SizedBox(height: 6),
+                            TextFormField(
+                              controller: _riwayatController,
+                              onFieldSubmitted: (value) => _tambahRiwayat(value),
+                              decoration: InputDecoration(
+                                hintText: "Masukan Riwayat Penyakit",
+                                border: border,
+                                enabledBorder: border,
+                                focusedBorder: border,
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () => _tambahRiwayat(_riwayatController.text),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 6),
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              padding: EdgeInsets.zero,
-                              itemCount: _riwayatControllers.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextFormField(
-                                          controller: _riwayatControllers[index],
-                                          decoration: InputDecoration(
-                                            hintText: "Masukan Riwayat Penyakit",
-                                            border: border,
-                                            enabledBorder: border,
-                                            focusedBorder: border,
-                                            isDense: true,
-                                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: _riwayatList
+                                    .map(
+                                      (e) => RawChip(
+                                        label: Text(
+                                          e,
+                                          style: const TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey.shade200,
-                                          borderRadius: BorderRadius.circular(10),
+                                        deleteIcon: const Icon(Icons.close, color: Colors.white),
+                                        onDeleted: () {
+                                          setState(() {
+                                            _riwayatList.remove(e);
+                                          });
+                                        },
+                                        backgroundColor: const Color(0xFFB6D9D0),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20),
                                         ),
-                                        child: IconButton(
-                                          icon: Icon(
-                                            index == _riwayatControllers.length - 1 ? Icons.add : Icons.remove,
-                                            color: Colors.black,
-                                          ),
-                                          onPressed: () {
-                                            if (index == _riwayatControllers.length - 1) {
-                                              _addRiwayat();
-                                            } else {
-                                              _removeRiwayat(index);
-                                            }
-                                          },
-                                        ),
+                                        elevation: 0,
+                                        shadowColor: Colors.transparent,
+                                        side: BorderSide.none,
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                    )
+                                    .toList(),
+                              ),
                             ),
                             const SizedBox(height: 18),
-                            // Kata Sandi
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: RichText(
-                                text: const TextSpan(
-                                  text: "Kata Sandi ",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  children: [
-                                    TextSpan(
-                                      text: "*",
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+
+                            _buildLabel("Kata Sandi *"),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _passwordController,
@@ -295,9 +213,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                                       ? Icons.visibility_off
                                       : Icons.visibility),
                                   onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
+                                    setState(() => _obscurePassword = !_obscurePassword);
                                   },
                                 ),
                               ),
@@ -306,7 +222,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                                   return 'Kata sandi wajib diisi';
                                 }
                                 if (value.length < 6) {
-                                  return 'Kata sandi minimal 6 karakter';
+                                  return 'Minimal 6 karakter';
                                 }
                                 return null;
                               },
@@ -322,9 +238,14 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
           ),
         ],
       ),
-      // Container tombol fixed di bawah
       bottomNavigationBar: Container(
-        color: Colors.white,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -336,8 +257,9 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF83AEB1),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(30),
                   ),
+                  elevation: 0,
                 ),
                 onPressed: _submitForm,
                 child: const Text(
@@ -353,15 +275,21 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
             const SizedBox(height: 16),
             Row(
               children: const [
-                Expanded(child: Divider()),
+                Expanded(child: Divider(thickness: 1, color: Colors.grey)),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text("Or"),
+                  child: Text(
+                    "Or",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
-                Expanded(child: Divider()),
+                Expanded(child: Divider(thickness: 1, color: Colors.grey)),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -387,6 +315,30 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLabel(String label) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      border: border,
+      enabledBorder: border,
+      focusedBorder: border,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
   }
 }
