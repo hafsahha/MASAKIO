@@ -10,6 +10,8 @@ import 'package:masakio/home.dart';
 import 'package:masakio/Forum/forum_page.dart';
 import 'package:masakio/Profile/profile.dart';
 
+import 'package:masakio/discovery_resep.dart';
+
 class MainPage extends StatefulWidget {
   final int pageIndex;
   const MainPage({super.key, required this.pageIndex});
@@ -23,7 +25,7 @@ class _MainPageState extends State<MainPage> {
 
   final _pages = [
     const HomePage(),
-    const Center(child: Text('Explore Page')),  // ExplorePage(),
+    const DiscoveryResep(),  // ExplorePage(),
     const ForumPage(),
     // const ProfilePage(pageIndex: 0),
   ];
