@@ -25,7 +25,7 @@ class _MainPageState extends State<MainPage> {
     const HomePage(),
     const Center(child: Text('Explore Page')),  // ExplorePage(),
     const ForumPage(),
-    const ProfilePage(),
+    // const ProfilePage(pageIndex: 0),
   ];
   
   @override
@@ -59,7 +59,7 @@ class _MainPageState extends State<MainPage> {
                       );
                     },
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   Button(
                     content: 'Tulis Tips & Trik',
                     onPressed: () {

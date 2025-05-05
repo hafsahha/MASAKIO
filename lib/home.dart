@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(bottom: 120.0),
+          padding: EdgeInsets.only(bottom: 120.0, top: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -136,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               decoration: BoxDecoration(
                                 color: _selectedCategoryIndex == index
-                                    ? Colors.teal.shade300
+                                    ? Color(0xFF83AEB1)
                                     : Colors.grey.shade200,
                                 borderRadius: BorderRadius.circular(20),
                               ),
