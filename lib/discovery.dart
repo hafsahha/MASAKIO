@@ -282,7 +282,7 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: ElevatedButton(
+                    child:ElevatedButton(
                       onPressed: () {
                         setState(() {
                           selectedCategory = tempCategory;
@@ -293,11 +293,20 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal.shade300,
+                        foregroundColor: Colors.white, // Mengatur warna text secara eksplisit
+                        elevation: 2, // Menambahkan sedikit elevasi untuk efek visual
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('Pasang'),
+                      child: const Text(
+                        'Pasang',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16, // Ukuran font yang sedikit lebih besar
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -439,17 +448,22 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                       padding: const EdgeInsets.only(right: 16),
                       child: ElevatedButton.icon(
                         onPressed: _showFilterBottomSheet,
-                        icon:
-                        const Icon(Icons.filter_list, size: 18),
-                        label: const Text("Filter"),
+                        icon: const Icon(Icons.filter_list, size: 18, color: Colors.white),
+                        label: const Text(
+                          "Filter",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal.shade300,
+                          backgroundColor: Color(0xFF83AEB1),
+                          foregroundColor: Colors.white, // Mengatur warna text secara eksplisit
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(20)),
+                              borderRadius: BorderRadius.circular(20)),
                         ),
-                      ),
+                      )
                     ),
                   ],
                 ),
@@ -474,6 +488,5 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
     );
   }
 }
-
 
 
