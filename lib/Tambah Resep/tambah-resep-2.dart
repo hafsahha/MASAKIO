@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:masakio/Tambah Resep/tambah_resep3.dart';
+import 'tambah-resep-3.dart'; // Import the next page
+import 'package:dotted_border/dotted_border.dart';
 
 class TambahResep2Page extends StatefulWidget {
   const TambahResep2Page({super.key});
@@ -10,7 +11,7 @@ class TambahResep2Page extends StatefulWidget {
 }
 
 class _TambahResep2PageState extends State<TambahResep2Page> {
-  final _currentStep = 1; // Step kedua (indeks 1)
+  int _currentStep = 1; // Step kedua (indeks 1)
   final _totalSteps = 5;
   
   // List untuk menyimpan bahan
@@ -258,7 +259,7 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
                 ),
                 filled: true,
                 fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // Adjusted padding
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
@@ -309,7 +310,7 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
                 ),
                 filled: true,
                 fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // Adjusted padding
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
@@ -344,7 +345,6 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
     );
   }
 
-  // New custom quantity field widget with up/down arrows on the right
   Widget _buildQuantityField({
     required TextEditingController controller,
     required VoidCallback onIncrement,
@@ -365,7 +365,7 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // Adjusted padding
                 border: InputBorder.none,
                 filled: true,
                 fillColor: Colors.grey[100],
@@ -385,7 +385,7 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
           // Up and Down arrows in a column
           Container(
             width: 32,
-            height: 48,
+            height: 56, // Adjusted height to match new padding
             decoration: BoxDecoration(
               border: Border(
                 left: BorderSide(color: Colors.grey[300]!),
@@ -441,34 +441,33 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
   Widget _buildAddButton(String text, VoidCallback onPressed) {
     return InkWell(
       onTap: onPressed,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey[300]!,
-            width: 1,
-            style: BorderStyle.solid,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.add,
-              size: 20,
-              color: Colors.grey,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              text,
-              style: const TextStyle(
+      child: DottedBorder(
+        borderType: BorderType.RRect,
+        radius: const Radius.circular(8),
+        dashPattern: const [5, 3],
+        color: Colors.grey[300]!,
+        strokeWidth: 1,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.add,
+                size: 20,
                 color: Colors.grey,
-                fontWeight: FontWeight.w500,
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+              Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -480,7 +479,6 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          // Navigate to the next page (TambahResep3Page)
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const TambahResep3Page()),

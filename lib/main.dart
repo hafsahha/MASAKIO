@@ -3,12 +3,13 @@ import 'package:masakio/Auth/daftar.dart';
 import 'package:masakio/Auth/masuk.dart';
 import 'package:masakio/Forum/forum_page.dart';
 import 'package:masakio/Forum/detail_page.dart';
-import 'package:masakio/Tambah Resep/tambah_resep1.dart';
+import 'package:masakio/Tambah Resep/tambah-resep-1.dart';
 import 'package:masakio/Tips Trik/detail_tips.dart';
 import 'package:masakio/Tips Trik/tambah_tips.dart';
 import 'package:masakio/main_page.dart';
 import 'package:masakio/Profile/edit_profile.dart';
 import 'package:masakio/data/dummy_tips.dart';
+import 'package:masakio/resep_detail.dart';
 
 
 void main() {
@@ -84,7 +85,7 @@ class RecipeMenuPage extends StatelessWidget {
       },
       {
         'title': 'Detail Resep',
-        'dest': null,
+        'dest': ResepDetailPage(),
         'icon': Icons.receipt_long,
         'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
       },

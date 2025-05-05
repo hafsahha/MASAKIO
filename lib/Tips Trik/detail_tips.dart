@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:masakio/.components/navbar.dart';
 import 'package:masakio/.components/bottom_popup.dart';
 import 'package:masakio/.components/button.dart';
-import 'package:masakio/Tambah Resep/tambah_resep1.dart';
+import 'package:masakio/Tambah Resep/tambah-resep-1.dart';
 import 'package:masakio/Tips Trik/tambah_tips.dart';
 import 'package:masakio/main_page.dart';
 import 'package:masakio/data/dummy_tips.dart';
