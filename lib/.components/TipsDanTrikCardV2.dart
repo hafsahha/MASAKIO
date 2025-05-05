@@ -108,7 +108,7 @@ class TipsDanTrikSectionV2 extends StatelessWidget {
         const SizedBox(height: 8),
         // Display the tips in a vertically stacked list
         SizedBox(
-          height: 720,  // Increase the height to show cards more prominently
+          height: 640,  // Increase the height to show cards more prominently
           child: ListView.builder(
             scrollDirection: Axis.vertical,  // Vertical scroll for a stack of cards
             padding: const EdgeInsets.symmetric(horizontal: 16),
