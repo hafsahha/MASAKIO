@@ -65,7 +65,7 @@ class TipsDanTrikCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 10,
-                    backgroundImage: NetworkImage(authorImage),
+                    backgroundImage: AssetImage(authorImage),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -135,7 +135,7 @@ class TipsDanTrikSection extends StatelessWidget {
                 imagePath: tip.imageAsset,
                 title: tip.title,
                 author: tip.author,
-                authorImage: 'https://via.placeholder.com/150', // ganti jika kamu punya data image
+                authorImage: 'assets/images/profile.jpg', // ganti jika kamu punya data image
                 onTap: () {
                   Navigator.push(
                     context,
