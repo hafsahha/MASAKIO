@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:masakio/data/dummy_resep.dart'; // pastikan path ini sesuai
 
 class CardRekomendasi extends StatelessWidget {
-  final String imagePath;
-  final String title;
-  final String reviews;
-  final String rating;
+  final Resep resep;
 
   const CardRekomendasi({
     Key? key,
-    required this.imagePath,
-    required this.title,
-    required this.reviews,
-    required this.rating,
+    required this.resep,
   }) : super(key: key);
 
   @override
@@ -22,23 +17,23 @@ class CardRekomendasi extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image with rounded corners
+          // Gambar dengan radius
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: AspectRatio(
               aspectRatio: 1,
               child: Image.asset(
-              imagePath,
-              height: 95,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+                resep.imageAsset,
+                height: 95,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const SizedBox(height: 4),
-          // Title
+          // Judul
           Text(
-            title,
+            resep.title,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
@@ -47,47 +42,39 @@ class CardRekomendasi extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          // Rating and reviews
+          // Rating dan jumlah review
           Row(
             children: [
-              // Star icons
-              const Icon(
-                Icons.star,
-                size: 10,
-                color: Colors.amber,
-              ),
+              const Icon(Icons.star, size: 10, color: Colors.amber),
               const SizedBox(width: 4),
-              // Rating text
               Text(
-                rating,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 10,
-                ),
+                resep.rating.toStringAsFixed(1),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
               ),
+              const SizedBox(width: 2),
               Text(
-                " | $reviews Reviews",
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 10,
-                ),
+                "| ${_getReviewCount(resep.rating)} Reviews",
+                style: const TextStyle(fontSize: 10, color: Colors.grey),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          // Eye icon
           const Row(
             children: [
-              Icon(
-                Icons.visibility,
-                size: 10,
-                color: Colors.grey,
-              ),
+              Icon(Icons.visibility, size: 10, color: Colors.grey),
             ],
           ),
         ],
       ),
     );
+  }
+
+  String _getReviewCount(double rating) {
+    if (rating >= 4.9) return "5k";
+    if (rating >= 4.8) return "4k";
+    if (rating >= 4.7) return "3.5k";
+    if (rating >= 4.6) return "3k";
+    return "1.5k";
   }
 }
 
@@ -96,6 +83,8 @@ class RekomendasiSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final rekomendasiList = dummyResepList.take(5).toList(); // ambil 5 teratas atau sesuaikan
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -106,13 +95,12 @@ class RekomendasiSection extends StatelessWidget {
             children: [
               const Text(
                 "Rekomendasi",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  // aksi lihat semua
+                },
                 child: const Text("Lihat Semua"),
               ),
             ],
@@ -120,29 +108,13 @@ class RekomendasiSection extends StatelessWidget {
         ),
         SizedBox(
           height: 220,
-          child: ListView(
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: const [
-              CardRekomendasi(
-                imagePath: 'assets/images/scrambled_egg.jpg',
-                title: "Scrambled Egg",
-                reviews: "5k",
-                rating: "4.9",
-              ),
-              CardRekomendasi(
-                  imagePath: 'assets/images/grilled_cheese.jpg',
-                title: "Grilled Cheese Sandwich",
-                reviews: "4k",
-                rating: "4.9",
-              ),
-              CardRekomendasi(
-                  imagePath: 'assets/images/pizza.jpg',
-                title: "Pasta with Olive",
-                reviews: "3.5k",
-                rating: "4.8",
-              ),
-            ],
+            itemCount: rekomendasiList.length,
+            itemBuilder: (context, index) {
+              return CardRekomendasi(resep: rekomendasiList[index]);
+            },
           ),
         ),
       ],
