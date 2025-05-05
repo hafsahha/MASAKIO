@@ -147,6 +147,8 @@ flutter run
 ---
 
 ## Dokumentasi 
+https://github.com/user-attachments/assets/2756ecdf-5b77-4325-a40a-9d53850096ee
+
 | Nama Laman | Tampilan Laman |
 |---|---|
 | Main | <img width="150" src="https://github.com/user-attachments/assets/05ff7922-8081-407f-a406-4d0989608936" /> |
