@@ -10,7 +10,7 @@ import 'package:masakio/home.dart';
 import 'package:masakio/Forum/forum_page.dart';
 import 'package:masakio/Profile/profile.dart';
 
-import 'package:masakio/discovery_resep.dart';
+import 'package:masakio/discovery.dart';
 
 class MainPage extends StatefulWidget {
   final int pageIndex;
