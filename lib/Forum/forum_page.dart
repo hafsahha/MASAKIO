@@ -61,6 +61,7 @@ class _ForumPageState extends State<ForumPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Discussion Forum',
           style: TextStyle(
