@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:masakio/.components/bottom_popup.dart';
 import 'package:masakio/.components/user_avatar.dart';
 import 'package:masakio/.components/button.dart';
 
@@ -12,11 +13,10 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final _formKey = GlobalKey<FormState>();
-  final _namaController = TextEditingController();
-  final _emailController =
-      TextEditingController(text: 'tungtungtung@gmail.com');
+  final _namaController = TextEditingController(text: 'Kucing Sedih');
+  final _emailController = TextEditingController(text: 'tungtungtung@gmail.com');
   final _passwordController = TextEditingController();
-  final _tanggalLahirController = TextEditingController();
+  final _tanggalLahirController = TextEditingController(text: '23/05/1995');
   final List<String> _riwayatList = ['Alergi Kacang'];
   DateTime? _selectedDate;
   bool _obscurePassword = true;
@@ -48,24 +48,26 @@ class _EditProfileState extends State<EditProfile> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Berhasil'),
-          content: const Text('Data berhasil disimpan.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
+      if (_selectedDate == null) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Berhasil'),
+            content: const Text('Data berhasil disimpan.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
   void _showAddRiwayatModal() {
-    final TextEditingController _inputController = TextEditingController();
+    final TextEditingController inputController = TextEditingController();
 
     showModalBottomSheet(
       context: context,
@@ -74,21 +76,9 @@ class _EditProfileState extends State<EditProfile> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            left: 20,
-            right: 20,
-            top: 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Center(
-                child: Icon(Icons.horizontal_rule, size: 30, color: Colors.grey),
-              ),
-              const Text(
+        return BottomPopup(
+          children: [
+            const Text(
                 "Tambahkan Riwayat Penyakit",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
@@ -97,7 +87,7 @@ class _EditProfileState extends State<EditProfile> {
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: _inputController,
+                      controller: inputController,
                       decoration: InputDecoration(
                         hintText: 'Contoh: Diabetes',
                         border: OutlineInputBorder(
@@ -111,7 +101,7 @@ class _EditProfileState extends State<EditProfile> {
                   const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () {
-                      final newEntry = _inputController.text.trim();
+                      final newEntry = inputController.text.trim();
                       if (newEntry.isNotEmpty &&
                           !_riwayatList.contains(newEntry)) {
                         setState(() {
@@ -163,8 +153,7 @@ class _EditProfileState extends State<EditProfile> {
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
-            ],
-          ),
+          ]
         );
       },
     );
