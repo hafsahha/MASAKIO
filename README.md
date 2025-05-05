@@ -159,7 +159,7 @@ flutter run
 | Laman Forum | <img width="150" src="https://github.com/user-attachments/assets/4578aec0-ee81-4c59-8c3b-214be3e2985e" /> <img width="150" src="https://github.com/user-attachments/assets/54289abd-48b2-45c2-a0ba-72fe12de0873" /> <img width="150" src="https://github.com/user-attachments/assets/7cc6ee65-d402-4c29-81a2-af83c9b8d5fa" /> |
 | Detail Resep | <img width="150" src="https://github.com/user-attachments/assets/1281f882-cb98-4098-a7c5-df463ef90b49" /> |
 | Detail Tips | <img width="150" src="https://github.com/user-attachments/assets/b949cb35-daa5-4a18-b52c-46db3e051f86" /> |
-| Profile | <img width="150" src="https://github.com/user-attachments/assets/29e779ea-be56-4d9c-8f2c-3f43c9cbaf80" /> <img width="150" src="https://github.com/user-attachments/assets/05fc1a18-4d31-4195-af23-daf7d275a364" /> " <img width="150" src="https://github.com/user-attachments/assets/e9162ba9-8734-4f25-bc24-39f30d27ae44 />|
+| Profile | <img width="150" src="https://github.com/user-attachments/assets/29e779ea-be56-4d9c-8f2c-3f43c9cbaf80" /> <img width="150" src="https://github.com/user-attachments/assets/05fc1a18-4d31-4195-af23-daf7d275a364" />  <img width="150" src="https://github.com/user-attachments/assets/e9162ba9-8734-4f25-bc24-39f30d27ae44" />|
 
 
 
