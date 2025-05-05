@@ -22,38 +22,21 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text(
-      //     'Resep Makanan',
-      //     style: TextStyle(fontWeight: FontWeight.bold),
-      //   ),
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.search),
-      //       onPressed: () {},
-      //     ),
-      //     IconButton(
-      //       icon: const Icon(Icons.notifications_none),
-      //       onPressed: () {},
-      //     ),
-      //   ],
-      // ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Banner di atas
+            // ========== Banner ==========
             Container(
               width: double.infinity,
               height: 200,
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-               image: const DecorationImage(
-  image: AssetImage("assets/images/pizza.jpg"),
-  fit: BoxFit.cover,
-),
-
+                image: const DecorationImage(
+                  image: AssetImage("assets/images/pizza.jpg"),
+                  fit: BoxFit.cover,
+                ),
               ),
               child: Stack(
                 children: [
@@ -108,17 +91,17 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // Rekomendasi Section
+            // ========== Rekomendasi ==========
             const RekomendasiSection(),
-            
+
             const SizedBox(height: 16),
-            
-            // Tips dan Trik Section
+
+            // ========== Tips dan Trik ==========
             const TipsDanTrikSection(),
-            
+
             const SizedBox(height: 16),
-            
-            // Kategori Section
+
+            // ========== Kategori ==========
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
@@ -172,41 +155,16 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
-            // Temukan Resep Section
-            const TemukanResepSection(),
+
+            // ========== Temukan Resep ==========
+            TemukanResepSection(
+              categoryFilter: _categories[_selectedCategoryIndex],
+            ),
           ],
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   type: BottomNavigationBarType.fixed,
-      //   currentIndex: 0,
-      //   selectedItemColor: Colors.teal,
-      //   unselectedItemColor: Colors.grey,
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: 'Beranda',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.search),
-      //       label: 'Pencarian',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.bookmark),
-      //       label: 'Tersimpan',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.person),
-      //       label: 'Profil',
-      //     ),
-      //   ],
-      //   onTap: (index) {
-      //     // Handle navigation
-      //   },
-      // ),
     );
   }
 }
