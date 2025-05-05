@@ -12,6 +12,7 @@ class Resep {
   final String authorFollowers;
   final double rating;
   final int reviewCount;
+  final int viewsCount;  // Tambahkan viewsCount
   final int servings;
   final Duration duration;
   final int price;
@@ -32,6 +33,7 @@ class Resep {
     required this.authorFollowers,
     required this.rating,
     required this.reviewCount,
+    required this.viewsCount,  
     required this.servings,
     required this.duration,
     required this.price,
@@ -77,6 +79,7 @@ final List<Resep> dummyResepList = [
     authorFollowers: "10.9k Followers",
     rating: 4.9,
     reviewCount: 3500,
+    viewsCount: 5000,
     servings: 1,
     duration: Duration(minutes: 50),
     price: 30000,
@@ -88,6 +91,7 @@ final List<Resep> dummyResepList = [
     },
     uploadDate: DateTime(2025, 5, 1),
   ),
+  
   Resep(
     title: "Es Kopi Susu Gula Aren",
     description: "Minuman kopi kekinian dengan campuran kopi, susu, dan gula aren yang nikmat.",
@@ -115,6 +119,7 @@ final List<Resep> dummyResepList = [
     authorFollowers: "3.4k Followers",
     rating: 4.7,
     reviewCount: 2800,
+    viewsCount: 4000,
     servings: 1,
     duration: Duration(minutes: 5),
     price: 18000,
@@ -126,6 +131,7 @@ final List<Resep> dummyResepList = [
     },
     uploadDate: DateTime(2025, 5, 4),
   ),
+
   Resep(
     title: "Cokelat Lava Cake",
     description: "Dessert favorit dengan cokelat leleh di dalamnya. Cocok untuk hidangan penutup yang mewah namun mudah.",
@@ -158,6 +164,7 @@ final List<Resep> dummyResepList = [
     authorFollowers: "5.2k Followers",
     rating: 4.8,
     reviewCount: 2400,
+    viewsCount: 3000,
     servings: 2,
     duration: Duration(minutes: 30),
     price: 25000,
@@ -169,7 +176,7 @@ final List<Resep> dummyResepList = [
     },
     uploadDate: DateTime(2025, 5, 3),
   ),
-  // === Sup Jagung Telur ===
+
   Resep(
     title: "Sup Jagung Telur",
     description: "Sup ringan dan sehat dengan rasa manis dari jagung dan tekstur lembut telur.",
@@ -201,6 +208,7 @@ final List<Resep> dummyResepList = [
     authorFollowers: "8.6k Followers",
     rating: 4.6,
     reviewCount: 1950,
+    viewsCount: 2500,
     servings: 3,
     duration: Duration(minutes: 20),
     price: 20000,
@@ -213,7 +221,6 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 5),
   ),
 
-  // === Simple Scrambled Egg ===
   Resep(
     title: "Simple Scrambled Egg",
     description: "Telur orak-arik lembut dengan sedikit mentega, cocok untuk sarapan cepat dan bergizi.",
@@ -247,6 +254,7 @@ final List<Resep> dummyResepList = [
     authorFollowers: "4.2k Followers",
     rating: 4.5,
     reviewCount: 5000,
+    viewsCount: 6000,
     servings: 1,
     duration: Duration(minutes: 10),
     price: 8000,
@@ -259,7 +267,6 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 4),
   ),
 
-  // === Grilled Cheese Sandwich ===
   Resep(
     title: "Grilled Cheese Sandwich",
     description: "Roti lapis isi keju leleh, dipanggang renyah di luar, lembut dan gurih di dalam.",
@@ -291,6 +298,7 @@ final List<Resep> dummyResepList = [
     authorFollowers: "7.5k Followers",
     rating: 4.6,
     reviewCount: 4000,
+    viewsCount: 4500,
     servings: 1,
     duration: Duration(minutes: 8),
     price: 12000,

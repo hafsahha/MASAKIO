@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:masakio/data/dummy_resep.dart';
+import 'package:masakio/data/dummy_resep.dart'; // pastikan path ini sesuai
 
 class CardTemukanResep extends StatelessWidget {
   final String imagePath;
@@ -163,7 +163,7 @@ class TemukanResepSection extends StatelessWidget {
                 imagePath: resep.imageAsset,
                 title: resep.title,
                 subtitle: resep.author,
-                views: resep.reviewCount.toString(),
+                views: resep.viewsCount.toString(),
                 rating: resep.rating.toStringAsFixed(1),
               );
             }).toList(),
@@ -172,7 +172,9 @@ class TemukanResepSection extends StatelessWidget {
         // Tombol "Lihat Semua"
         Center(
           child: TextButton(
-            onPressed: () {},
+            onPressed: () {
+              // aksi lihat semua
+            },
             child: const Text(
               "Lihat Semua",
               style: TextStyle(

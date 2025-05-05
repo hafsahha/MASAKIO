@@ -59,9 +59,15 @@ class CardRekomendasi extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          const Row(
+          // Views Count
+          Row(
             children: [
-              Icon(Icons.visibility, size: 10, color: Colors.grey),
+              const Icon(Icons.visibility, size: 10, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text(
+                "${resep.viewsCount} Views",
+                style: const TextStyle(fontSize: 10, color: Colors.grey),
+              ),
             ],
           ),
         ],
