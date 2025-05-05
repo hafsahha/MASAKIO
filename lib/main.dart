@@ -10,6 +10,7 @@ import 'package:masakio/main_page.dart';
 import 'package:masakio/Profile/edit_profile.dart';
 import 'package:masakio/data/dummy_tips.dart';
 import 'package:masakio/resep_detail.dart';
+import 'package:masakio/splash_screen.dart';
 
 
 void main() {
@@ -64,6 +65,12 @@ class RecipeMenuPage extends StatelessWidget {
         'dest': const LoginPage(),
         'icon': Icons.login,
         'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
+      },
+      {
+        'title': 'Splash Screen',
+        'dest': SplashScreen(),
+        'icon': Icons.spa,
+        'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)],
       },
       {
         'title': 'Homepage',
