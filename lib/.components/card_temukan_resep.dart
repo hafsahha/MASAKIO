@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:masakio/data/dummy_resep.dart'; // Pastikan path ini benar
 
 class CardTemukanResep extends StatelessWidget {
   final String imagePath;
@@ -23,28 +24,24 @@ class CardTemukanResep extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ========== BAGIAN KIRI: GAMBAR ==========
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
+            child: Image.asset(
               imagePath,
-              width: 120, // Ukuran gambar diperbesar
-              height: 120, // Ukuran gambar diperbesar
+              width: 120,
+              height: 120,
               fit: BoxFit.cover,
             ),
           ),
           const SizedBox(width: 12),
-
-          // ========== BAGIAN KANAN: INFORMASI RESEP ==========
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Judul dan Rating
+                // Title & rating
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Judul resep
                     Expanded(
                       child: Text(
                         title,
@@ -56,14 +53,9 @@ class CardTemukanResep extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // Rating dengan ikon bintang
                     Row(
                       children: [
-                        const Icon(
-                          Icons.star,
-                          size: 14,
-                          color: Colors.amber,
-                        ),
+                        const Icon(Icons.star, size: 14, color: Colors.amber),
                         const SizedBox(width: 2),
                         Text(
                           rating,
@@ -77,31 +69,19 @@ class CardTemukanResep extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-
-                // Nama bakery (subtitle)
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
-
-                // Jumlah views dan ikon bookmark
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // View count
                     Row(
                       children: [
-                        const Icon(
-                          Icons.visibility_outlined,
-                          size: 12,
-                          color: Colors.grey,
-                        ),
+                        const Icon(Icons.visibility_outlined, size: 12, color: Colors.grey),
                         const SizedBox(width: 4),
                         Text(
                           "$views views",
@@ -112,15 +92,10 @@ class CardTemukanResep extends StatelessWidget {
                         ),
                       ],
                     ),
-                    // Bookmark icon
                     IconButton(
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      icon: const Icon(
-                        Icons.bookmark_outline,
-                        size: 16,
-                        color: Colors.grey,
-                      ),
+                      icon: const Icon(Icons.bookmark_outline, size: 16, color: Colors.grey),
                       onPressed: () {},
                     ),
                   ],
@@ -139,13 +114,15 @@ class TemukanResepSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ambil hanya 3 resep pertama
+    final List<Resep> temukanResep = dummyResepList.take(3).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Title
         Padding(
           padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-          child: Text(
+          child: const Text(
             "Temukan Resep",
             style: TextStyle(
               fontSize: 16,
@@ -153,36 +130,20 @@ class TemukanResepSection extends StatelessWidget {
             ),
           ),
         ),
-        // Recipe Cards
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
-            children: const [
-              CardTemukanResep(
-                imagePath: 'assets/images/pizza.jpg', // Ganti dengan URL gambar yang sesuai
-                title: "Marinated Grilled pizza",
-                subtitle: "Brown Bakery",
-                views: "700k",
-                rating: "4.5",
-              ),
-              CardTemukanResep(
-                imagePath: 'assets/images/pizza.jpg', // Ganti dengan URL gambar yang sesuai
-                title: "Marinated Grilled pizza",
-                subtitle: "Brown Bakery",
-                views: "700k",
-                rating: "4.5",
-              ),
-              CardTemukanResep(
-                imagePath: 'assets/images/pizza.jpg', // Ganti dengan URL gambar yang sesuai
-                title: "Marinated Grilled pizza",
-                subtitle: "Brown Bakery",
-                views: "700k",
-                rating: "4.5",
-              ),
-            ],
+            children: temukanResep.map((resep) {
+              return CardTemukanResep(
+                imagePath: resep.imageAsset,
+                title: resep.title,
+                subtitle: resep.author,
+                views: resep.reviewCount.toString(), // misalnya views = jumlah review
+                rating: resep.rating.toStringAsFixed(1),
+              );
+            }).toList(),
           ),
         ),
-        // "Lihat Semua" button
         Center(
           child: TextButton(
             onPressed: () {},
