@@ -25,7 +25,7 @@ class _MainPageState extends State<MainPage> {
     const HomePage(),
     const Center(child: Text('Explore Page')),  // ExplorePage(),
     const ForumPage(),
-    // const ProfilePage(pageIndex: 0),
+    const ProfilePage(pageIndex: 0),
   ];
   
   @override

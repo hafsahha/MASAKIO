@@ -219,7 +219,7 @@ class _EditProfileState extends State<EditProfile> {
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  'Username',
+                  'Kucing Sedih',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 24),
