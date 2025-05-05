@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:masakio/data/dummy_tips.dart';  // Ensure the path is correct
+import 'package:masakio/data/dummy_tips.dart';  // Ensure this path is correct
 import 'package:masakio/Tips Trik/detail_tips.dart';  // Page to navigate to for detailed tips
 
-// TipsDanTrikCard widget that takes data and shows it
-class TipsDanTrikCard extends StatelessWidget {
+// Updated Version of Tips Card (V2) for wider display
+class TipsDanTrikCardV2 extends StatelessWidget {
   final String imagePath;
   final String title;
   final String author;
   final String authorImage;
   final VoidCallback onTap;
 
-  const TipsDanTrikCard({
+  const TipsDanTrikCardV2({
     Key? key,
     required this.imagePath,
     required this.title,
@@ -22,67 +22,74 @@ class TipsDanTrikCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap, // Navigate to the detailed page
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image of the tip
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                imagePath,
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-              ),
+        child: Container(
+          width: double.infinity,  // Make the card span the width of the screen
+          height: 120,  // Adjust the height to make it bigger
+          margin: const EdgeInsets.only(right: 12, bottom: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            image: DecorationImage(
+              image: AssetImage(imagePath),  // Image as the background
+              fit: BoxFit.cover,
             ),
-            const SizedBox(width: 12),
-            // Content of the tip
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title of the tip
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  // Author and Avatar
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 10,
-                        backgroundImage: AssetImage(authorImage),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        author,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  Colors.black.withOpacity(0.6),  // Darken the background for text visibility
+                  Colors.transparent,
                 ],
               ),
             ),
-          ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Spacer(),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,  // Larger font size for the title
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 14,  // Adjust size of avatar
+                      backgroundImage: AssetImage(authorImage),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      author,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,  // Slightly larger author text
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-// Section to display Tips and Tricks vertically (Updated layout)
+// Section to display Tips and Tricks (V2) with a wider layout
 class TipsDanTrikSectionV2 extends StatelessWidget {
   const TipsDanTrikSectionV2({super.key});
 
@@ -121,25 +128,25 @@ class TipsDanTrikSectionV2 extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        // This ListView is now vertically scrollable
+        // Display the tips in a vertically stacked list
         SizedBox(
-          height: 180, // Adjust the height to allow for a stack of cards
+          height: 500,  // Increase the height to show cards more prominently
           child: ListView.builder(
-            scrollDirection: Axis.vertical,  // Switch from horizontal to vertical
+            scrollDirection: Axis.vertical,  // Vertical scroll for a stack of cards
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: dummyTipsList.length,  // Fetch the number of items in dummyTipsList
+            itemCount: dummyTipsList.length,  // Populate based on the dummy data list
             itemBuilder: (context, index) {
-              final tip = dummyTipsList[index];  // Access each item in the dummyTipsList
-              return TipsDanTrikCard(
-                imagePath: tip.imageAsset,  // Pass the image asset path
-                title: tip.title,           // Pass the title
-                author: tip.author,         // Pass the author name
-                authorImage: 'assets/images/profile.jpg',  // Example placeholder image for author
+              final tip = dummyTipsList[index];
+              return TipsDanTrikCardV2(
+                imagePath: tip.imageAsset,
+                title: tip.title,
+                author: tip.author,
+                authorImage: 'assets/images/profile.jpg',  // Replace with dynamic author image
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TipsAndTrikPage(tip: tip), // Navigate to detail page
+                      builder: (context) => TipsAndTrikPage(tip: tip),
                     ),
                   );
                 },
