@@ -4,10 +4,7 @@ import 'resep_card.dart';
 class ResepGrid extends StatelessWidget {
   final List reseps;
 
-  const ResepGrid({
-    Key? key,
-    required this.reseps,
-  }) : super(key: key);
+  const ResepGrid({super.key, required this.reseps});
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +31,8 @@ class ResepGrid extends StatelessWidget {
             rating: resep.rating.toString(),
             reviews: resep.reviewCount.toString(),
             imageUrl: resep.imageAsset,
+            isOwned: resep.isOwned,
+            isBookmarked: resep.isBookmarked,
           ),
         );
       },

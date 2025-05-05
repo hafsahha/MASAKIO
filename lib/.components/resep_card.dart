@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:masakio/.components/bottom_popup.dart';
+import 'package:masakio/.components/button.dart';
 
 class ResepCard extends StatelessWidget {
   final String title;
   final String rating;
   final String reviews;
   final String? imageUrl;
+  final bool isOwned;
   final bool isBookmarked; // Parameter baru untuk status bookmark
   final Function()? onBookmarkTap; // Callback untuk aksi bookmark
 
@@ -14,6 +17,7 @@ class ResepCard extends StatelessWidget {
     required this.rating,
     required this.reviews,
     this.imageUrl,
+    this.isOwned = false, // Default: bukan milik pengguna
     this.isBookmarked = false, // Default: tidak di-bookmark
     this.onBookmarkTap,
   }) : super(key: key);
@@ -51,7 +55,31 @@ class ResepCard extends StatelessWidget {
                 bottom: 8,
                 right: 8,
                 child: GestureDetector(
-                  onTap: onBookmarkTap,
+                  onTap: isOwned
+                  ? () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return BottomPopup(
+                            children: [
+                              Text('Apakah anda yakin ingin menghapus resep ini dari resep milikmu?'),
+                              const SizedBox(height: 30),
+                              Button(
+                                onPressed: () => { },
+                                content: 'Ya',
+                                backgroundColor: 0xFFFF0000,
+                              ),
+                              const SizedBox(height: 20),
+                              Button(
+                                onPressed: () => { },
+                                content: 'Tidak',
+                              ),
+                            ]
+                          );
+                        },
+                      );
+                    }
+                  : onBookmarkTap,
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
@@ -59,9 +87,13 @@ class ResepCard extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                      isOwned
+                          ? Icons.delete 
+                          : isBookmarked // Gunakan status bookmark
+                          ? Icons.bookmark
+                          : Icons.bookmark_border,
                       size: 16,
-                      color: Colors.black,
+                      color: isOwned ? Colors.red : Colors.black,
                     ),
                   ),
                 ),
