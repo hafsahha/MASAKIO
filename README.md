@@ -146,7 +146,20 @@ flutter run
 
 ---
 
+## Dokumentasi 
+| Nama Laman | Tampilan Laman |
+|---|---|
+| Main | <img width="150" src="https://github.com/user-attachments/assets/05ff7922-8081-407f-a406-4d0989608936" /> |
+| Splash Screen | <img width="150" src="https://github.com/user-attachments/assets/b15009cd-be09-4285-a57f-e811af0263b6" /> |
+| Home Page | <img width="150" src="https://github.com/user-attachments/assets/4c820cbc-4e59-46b1-bca7-11ed8d30be3e" /> |
+| Explore Page | <img width="150" src="https://github.com/user-attachments/assets/3659c17d-d9c6-460e-9da8-56ec70565877" /> <img width="150" src="https://github.com/user-attachments/assets/b5970210-42b6-484e-bb5b-a51957f9c6fc" /> |
+| Pop Up Tambah Tips & Resep | <img width="150" src="https://github.com/user-attachments/assets/f51354a8-c8fd-4f0c-adc1-b651c15d5542" /> |
+| Form Resep Baru | <img width="150" src="https://github.com/user-attachments/assets/2a405f8a-df73-4eaf-af06-71b73d9a71db" /> <img width="150" src="https://github.com/user-attachments/assets/f1c1e49c-1a10-4412-9307-003504cfd637" /> <img width="150" src="https://github.com/user-attachments/assets/4addf9ed-0f64-4f1e-a4a6-c02ca00254be" /> <img width="150" src="https://github.com/user-attachments/assets/a46b6772-bd8c-4d91-a947-d59724ee3f09" /> <img width="150" src="https://github.com/user-attachments/assets/c04403dc-5a5c-4f27-8b27-843e9b41ae05" /> |
+| Laman Forum | <img width="150" src="https://github.com/user-attachments/assets/4578aec0-ee81-4c59-8c3b-214be3e2985e" /> <img width="150" src="https://github.com/user-attachments/assets/54289abd-48b2-45c2-a0ba-72fe12de0873" /> <img width="150" src="https://github.com/user-attachments/assets/7cc6ee65-d402-4c29-81a2-af83c9b8d5fa" /> |
+| Detail Resep | <img width="150" src="https://github.com/user-attachments/assets/1281f882-cb98-4098-a7c5-df463ef90b49" /> |
+| Detail Tips | <img width="150" src="https://github.com/user-attachments/assets/b949cb35-daa5-4a18-b52c-46db3e051f86" /> 
+
+
 ## Lisensi
 
 MIT License © 2025 Kelompok 20 C1
-
