@@ -103,34 +103,12 @@ class TipsDanTrikSectionV2 extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Tips dan Trik",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  // TODO: Add navigation to "See All" screen
-                },
-                child: const Text(
-                  "Lihat Semua",
-                  style: TextStyle(
-                    color: Colors.teal,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
         const SizedBox(height: 8),
         // Display the tips in a vertically stacked list
         SizedBox(
-          height: 500,  // Increase the height to show cards more prominently
+          height: 720,  // Increase the height to show cards more prominently
           child: ListView.builder(
             scrollDirection: Axis.vertical,  // Vertical scroll for a stack of cards
             padding: const EdgeInsets.symmetric(horizontal: 16),

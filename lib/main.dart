@@ -79,16 +79,10 @@ class RecipeMenuPage extends StatelessWidget {
         'gradient': [const Color(0xFF98C7CA), const Color(0xFF7FABB0)]
       },
       {
-        'title' : 'Discover - Resep',
+        'title' : 'Discover',
         'dest': const MainPage(pageIndex: 1),
         'icon': Icons.search,
         'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)]
-      },
-      {
-        'title': 'Discover - Tips & Trik',
-        'dest': null,
-        'icon': Icons.search,
-        'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
       },
       {
         'title': 'Detail Resep',

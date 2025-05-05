@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '.components/resep_grid.dart';
 import '.components/search_bar.dart';
 import 'data/dummy_resep.dart';
+import '.components/TipsDanTrikCardV2.dart';
 
 class DiscoveryResep extends StatefulWidget {
   const DiscoveryResep({super.key});
@@ -190,18 +191,7 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                 ),
               ),
             ] else ...[
-              // Konten untuk tab Tips & Trik
-              Expanded(
-                child: Center(
-                  child: Text(
-                    "Grid Tip dan Trik",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+              const TipsDanTrikSectionV2(),
             ],
           ],
         ),
