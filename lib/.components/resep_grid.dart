@@ -27,6 +27,7 @@ class ResepGrid extends StatelessWidget {
         final resep = reseps[index];
         return ClipRect(
           child: ResepCard(
+            id: resep.id,
             title: resep.title,
             rating: resep.rating.toString(),
             reviews: resep.reviewCount.toString(),
