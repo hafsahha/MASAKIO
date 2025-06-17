@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:masakio/.components/bottom_popup.dart';
+import 'package:masakio/data/functions.dart';
 import 'package:masakio/.components/button.dart';
+import 'package:masakio/.components/bottom_popup.dart';
 
 class ResepCard extends StatelessWidget {
+  final String id;
   final String title;
   final String rating;
   final String reviews;
   final String? imageUrl;
   final bool isOwned;
   final bool isBookmarked; // Parameter baru untuk status bookmark
-  final Function()? onBookmarkTap; // Callback untuk aksi bookmark
+  final void Function()? onRefresh; // Callback untuk refresh jika diperlukan
 
   const ResepCard({
-    Key? key,
+    super.key,
+    required this.id,
     required this.title,
     required this.rating,
     required this.reviews,
-    this.imageUrl,
+    required this.imageUrl,
     this.isOwned = false, // Default: bukan milik pengguna
     this.isBookmarked = false, // Default: tidak di-bookmark
-    this.onBookmarkTap,
-  }) : super(key: key);
+    this.onRefresh,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +82,38 @@ class ResepCard extends StatelessWidget {
                         },
                       );
                     }
-                  : onBookmarkTap,
+                  : () {
+                      if (isBookmarked) {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return BottomPopup(
+                              children: [
+                                Text('Apakah anda yakin ingin menghapus resep ini dari wishlist?'),
+                                const SizedBox(height: 30),
+                                Button(
+                                    onPressed: () {
+                                    unWish(id);
+                                    Navigator.pop(context);
+                                    onRefresh?.call();
+                                  },
+                                  content: 'Ya',
+                                  backgroundColor: 0xFFCC0000,
+                                ),
+                                const SizedBox(height: 20),
+                                Button(
+                                  onPressed: () { Navigator.pop(context); },
+                                  content: 'Tidak',
+                                ),
+                              ]
+                            );
+                          }
+                        );
+                      } else {
+                        wish(id);
+                        onRefresh?.call();
+                      }
+                    },
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(

@@ -179,7 +179,10 @@ class _HomePageState extends State<HomePage> {
 class TemukanResepSection extends StatelessWidget {
   final String? categoryFilter; // optional category filter
 
-  const TemukanResepSection({Key? key, this.categoryFilter}) : super(key: key);
+  const TemukanResepSection({
+    super.key,
+    this.categoryFilter,
+  });
 
   @override
   Widget build(BuildContext context) {

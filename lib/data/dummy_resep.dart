@@ -1,4 +1,5 @@
 class Resep {
+  final String id;
   final String title;
   final String description;
   final List<String> ingredients;
@@ -22,6 +23,7 @@ class Resep {
   final bool isBookmarked;
 
   Resep({
+    required this.id,
     required this.title,
     required this.description,
     required this.ingredients,
@@ -49,6 +51,7 @@ class Resep {
 final List<Resep> dummyResepList = [
   // Makanan Category (5 recipes)
   Resep(
+    id: "1",
     title: "Sausage Nasi Goreng",
     description: "Nasi goreng dengan sosis dan bumbu sederhana, cocok untuk menu sarapan cepat dan bergizi.",
     ingredients: [
@@ -77,6 +80,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 1),
   ),
   Resep(
+    id: "2",
     title: "Grilled Chicken Rice",
     description: "Ayam panggang dengan nasi putih gurih, hidangan sempurna untuk makan siang.",
     ingredients: [
@@ -104,6 +108,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 2),
   ),
   Resep(
+    id: "2",
     title: "Bakmi Goreng",
     description: "Mie goreng dengan bumbu khas Indonesia yang lezat dan penuh rasa.",
     ingredients: [
@@ -131,6 +136,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 3),
   ),
   Resep(
+    id: "2",
     title: "Ayam Bakar Taliwang",
     description: "Ayam bakar khas Lombok dengan bumbu pedas dan gurih, enak dan nikmat.",
     ingredients: [
@@ -158,6 +164,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 4),
   ),
   Resep(
+    id: "2",
     title: "Nasi Uduk",
     description: "Nasi uduk dengan santan dan rempah khas Indonesia, lembut dan gurih.",
     ingredients: [
@@ -186,6 +193,7 @@ final List<Resep> dummyResepList = [
   ),
    // Minuman Category (5 recipes)
   Resep(
+    id: "2",
     title: "Es Kopi Susu Gula Aren",
     description: "Minuman kopi kekinian dengan campuran kopi, susu, dan gula aren yang nikmat.",
     ingredients: [
@@ -212,6 +220,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 4),
   ),
   Resep(
+    id: "2",
     title: "Teh Tarik",
     description: "Teh susu khas Malaysia yang manis dan kental, populer di kawasan Asia Tenggara.",
     ingredients: [
@@ -239,6 +248,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 3),
   ),
   Resep(
+    id: "2",
     title: "Jus Alpukat",
     description: "Jus sehat dengan alpukat, susu, dan gula aren, menyegarkan dan lezat.",
     ingredients: [
@@ -266,6 +276,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 2),
   ),
   Resep(
+    id: "2",
     title: "Es Kelapa Muda",
     description: "Minuman segar dengan air kelapa muda dan daging kelapa, sempurna untuk cuaca panas.",
     ingredients: [
@@ -293,6 +304,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 4),
   ),
   Resep(
+    id: "2",
     title: "Lemon Tea",
     description: "Teh lemon yang segar dengan sedikit madu untuk rasa manis alami.",
     ingredients: [
@@ -321,6 +333,7 @@ final List<Resep> dummyResepList = [
   ),
     // Cemilan Category (5 recipes)
   Resep(
+    id: "2",
     title: "Grilled Cheese Sandwich",
     description: "Roti lapis isi keju leleh, dipanggang renyah di luar, lembut dan gurih di dalam.",
     ingredients: [
@@ -347,6 +360,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 5),
   ),
   Resep(
+    id: "2",
     title: "Kroket Kentang",
     description: "Kroket kentang dengan isian daging ayam, empuk di luar, gurih di dalam.",
     ingredients: [
@@ -375,6 +389,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 3),
   ),
   Resep(
+    id: "2",
     title: "Pisang Goreng Crispy",
     description: "Pisang goreng dengan balutan tepung crispy, renyah di luar, lembut di dalam.",
     ingredients: [
@@ -402,6 +417,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 2),
   ),
   Resep(
+    id: "2",
     title: "Puding Cokelat",
     description: "Puding cokelat yang lembut dengan lapisan cokelat kental dan nikmat.",
     ingredients: [
@@ -429,6 +445,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 4),
   ),
   Resep(
+    id: "2",
     title: "Kue Cubir",
     description: "Kue cubir dengan lapisan kelapa parut dan isian cokelat di tengahnya, manis dan kenyal.",
     ingredients: [
@@ -457,6 +474,7 @@ final List<Resep> dummyResepList = [
   ),
     // Sup Category (5 recipes)
   Resep(
+    id: "2",
     title: "Sup Jagung Telur",
     description: "Sup ringan dan sehat dengan rasa manis dari jagung dan tekstur lembut telur.",
     ingredients: [
@@ -487,6 +505,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 5),
   ),
   Resep(
+    id: "2",
     title: "Sup Tom Yam",
     description: "Sup pedas asam khas Thailand dengan kaldu yang kaya rasa, bahan utama udang dan jamur.",
     ingredients: [
@@ -515,6 +534,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 3),
   ),
   Resep(
+    id: "2",
     title: "Sup Ayam Kampung",
     description: "Sup ayam kampung yang gurih dan menyehatkan dengan sayuran segar.",
     ingredients: [
@@ -543,6 +563,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 2),
   ),
   Resep(
+    id: "2",
     title: "Sup Kacang Merah",
     description: "Sup kacang merah dengan kaldu gurih, cocok untuk dinikmati di cuaca dingin.",
     ingredients: [
@@ -571,6 +592,7 @@ final List<Resep> dummyResepList = [
     uploadDate: DateTime(2025, 5, 4),
   ),
   Resep(
+    id: "2",
     title: "Sup Buntut Sapi",
     description: "Sup buntut sapi dengan kaldu gurih dan daging yang empuk, cocok untuk makan malam spesial.",
     ingredients: [
@@ -603,6 +625,7 @@ final List<Resep> dummyResepList = [
 final List<Resep> dummyResepListOwned = [
   // Makanan Category (5 recipes)
   Resep(
+    id: "2",
     title: "Sausage Nasi Goreng",
     description: "Nasi goreng dengan sosis dan bumbu sederhana, cocok untuk menu sarapan cepat dan bergizi.",
     ingredients: [
@@ -632,6 +655,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Grilled Chicken Rice",
     description: "Ayam panggang dengan nasi putih gurih, hidangan sempurna untuk makan siang.",
     ingredients: [
@@ -660,6 +684,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Bakmi Goreng",
     description: "Mie goreng dengan bumbu khas Indonesia yang lezat dan penuh rasa.",
     ingredients: [
@@ -688,6 +713,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Ayam Bakar Taliwang",
     description: "Ayam bakar khas Lombok dengan bumbu pedas dan gurih, enak dan nikmat.",
     ingredients: [
@@ -716,6 +742,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Nasi Uduk",
     description: "Nasi uduk dengan santan dan rempah khas Indonesia, lembut dan gurih.",
     ingredients: [
@@ -745,6 +772,7 @@ final List<Resep> dummyResepListOwned = [
   ),
    // Minuman Category (5 recipes)
   Resep(
+    id: "2",
     title: "Es Kopi Susu Gula Aren",
     description: "Minuman kopi kekinian dengan campuran kopi, susu, dan gula aren yang nikmat.",
     ingredients: [
@@ -772,6 +800,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Teh Tarik",
     description: "Teh susu khas Malaysia yang manis dan kental, populer di kawasan Asia Tenggara.",
     ingredients: [
@@ -800,6 +829,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Jus Alpukat",
     description: "Jus sehat dengan alpukat, susu, dan gula aren, menyegarkan dan lezat.",
     ingredients: [
@@ -828,6 +858,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Es Kelapa Muda",
     description: "Minuman segar dengan air kelapa muda dan daging kelapa, sempurna untuk cuaca panas.",
     ingredients: [
@@ -856,6 +887,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Lemon Tea",
     description: "Teh lemon yang segar dengan sedikit madu untuk rasa manis alami.",
     ingredients: [
@@ -885,6 +917,7 @@ final List<Resep> dummyResepListOwned = [
   ),
     // Cemilan Category (5 recipes)
   Resep(
+    id: "2",
     title: "Grilled Cheese Sandwich",
     description: "Roti lapis isi keju leleh, dipanggang renyah di luar, lembut dan gurih di dalam.",
     ingredients: [
@@ -912,6 +945,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Kroket Kentang",
     description: "Kroket kentang dengan isian daging ayam, empuk di luar, gurih di dalam.",
     ingredients: [
@@ -941,6 +975,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Pisang Goreng Crispy",
     description: "Pisang goreng dengan balutan tepung crispy, renyah di luar, lembut di dalam.",
     ingredients: [
@@ -969,6 +1004,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Puding Cokelat",
     description: "Puding cokelat yang lembut dengan lapisan cokelat kental dan nikmat.",
     ingredients: [
@@ -997,6 +1033,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Kue Cubir",
     description: "Kue cubir dengan lapisan kelapa parut dan isian cokelat di tengahnya, manis dan kenyal.",
     ingredients: [
@@ -1026,6 +1063,7 @@ final List<Resep> dummyResepListOwned = [
   ),
     // Sup Category (5 recipes)
   Resep(
+    id: "2",
     title: "Sup Jagung Telur",
     description: "Sup ringan dan sehat dengan rasa manis dari jagung dan tekstur lembut telur.",
     ingredients: [
@@ -1057,6 +1095,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Sup Tom Yam",
     description: "Sup pedas asam khas Thailand dengan kaldu yang kaya rasa, bahan utama udang dan jamur.",
     ingredients: [
@@ -1086,6 +1125,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Sup Ayam Kampung",
     description: "Sup ayam kampung yang gurih dan menyehatkan dengan sayuran segar.",
     ingredients: [
@@ -1115,6 +1155,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Sup Kacang Merah",
     description: "Sup kacang merah dengan kaldu gurih, cocok untuk dinikmati di cuaca dingin.",
     ingredients: [
@@ -1144,6 +1185,7 @@ final List<Resep> dummyResepListOwned = [
     isOwned: true,
   ),
   Resep(
+    id: "2",
     title: "Sup Buntut Sapi",
     description: "Sup buntut sapi dengan kaldu gurih dan daging yang empuk, cocok untuk makan malam spesial.",
     ingredients: [
@@ -1177,6 +1219,7 @@ final List<Resep> dummyResepListOwned = [
 final List<Resep> dummyResepListBookmarked = [
   // Makanan Category (5 recipes)
   Resep(
+    id: "2",
     title: "Sausage Nasi Goreng",
     description: "Nasi goreng dengan sosis dan bumbu sederhana, cocok untuk menu sarapan cepat dan bergizi.",
     ingredients: [
@@ -1206,6 +1249,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Grilled Chicken Rice",
     description: "Ayam panggang dengan nasi putih gurih, hidangan sempurna untuk makan siang.",
     ingredients: [
@@ -1234,6 +1278,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Bakmi Goreng",
     description: "Mie goreng dengan bumbu khas Indonesia yang lezat dan penuh rasa.",
     ingredients: [
@@ -1262,6 +1307,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Ayam Bakar Taliwang",
     description: "Ayam bakar khas Lombok dengan bumbu pedas dan gurih, enak dan nikmat.",
     ingredients: [
@@ -1290,6 +1336,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Nasi Uduk",
     description: "Nasi uduk dengan santan dan rempah khas Indonesia, lembut dan gurih.",
     ingredients: [
@@ -1319,6 +1366,7 @@ final List<Resep> dummyResepListBookmarked = [
   ),
    // Minuman Category (5 recipes)
   Resep(
+    id: "2",
     title: "Es Kopi Susu Gula Aren",
     description: "Minuman kopi kekinian dengan campuran kopi, susu, dan gula aren yang nikmat.",
     ingredients: [
@@ -1346,6 +1394,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Teh Tarik",
     description: "Teh susu khas Malaysia yang manis dan kental, populer di kawasan Asia Tenggara.",
     ingredients: [
@@ -1374,6 +1423,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Jus Alpukat",
     description: "Jus sehat dengan alpukat, susu, dan gula aren, menyegarkan dan lezat.",
     ingredients: [
@@ -1402,6 +1452,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Es Kelapa Muda",
     description: "Minuman segar dengan air kelapa muda dan daging kelapa, sempurna untuk cuaca panas.",
     ingredients: [
@@ -1430,6 +1481,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Lemon Tea",
     description: "Teh lemon yang segar dengan sedikit madu untuk rasa manis alami.",
     ingredients: [
@@ -1459,6 +1511,7 @@ final List<Resep> dummyResepListBookmarked = [
   ),
     // Cemilan Category (5 recipes)
   Resep(
+    id: "2",
     title: "Grilled Cheese Sandwich",
     description: "Roti lapis isi keju leleh, dipanggang renyah di luar, lembut dan gurih di dalam.",
     ingredients: [
@@ -1486,6 +1539,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Kroket Kentang",
     description: "Kroket kentang dengan isian daging ayam, empuk di luar, gurih di dalam.",
     ingredients: [
@@ -1515,6 +1569,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Pisang Goreng Crispy",
     description: "Pisang goreng dengan balutan tepung crispy, renyah di luar, lembut di dalam.",
     ingredients: [
@@ -1543,6 +1598,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Puding Cokelat",
     description: "Puding cokelat yang lembut dengan lapisan cokelat kental dan nikmat.",
     ingredients: [
@@ -1571,6 +1627,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Kue Cubir",
     description: "Kue cubir dengan lapisan kelapa parut dan isian cokelat di tengahnya, manis dan kenyal.",
     ingredients: [
@@ -1600,6 +1657,7 @@ final List<Resep> dummyResepListBookmarked = [
   ),
     // Sup Category (5 recipes)
   Resep(
+    id: "2",
     title: "Sup Jagung Telur",
     description: "Sup ringan dan sehat dengan rasa manis dari jagung dan tekstur lembut telur.",
     ingredients: [
@@ -1631,6 +1689,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Sup Tom Yam",
     description: "Sup pedas asam khas Thailand dengan kaldu yang kaya rasa, bahan utama udang dan jamur.",
     ingredients: [
@@ -1660,6 +1719,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Sup Ayam Kampung",
     description: "Sup ayam kampung yang gurih dan menyehatkan dengan sayuran segar.",
     ingredients: [
@@ -1689,6 +1749,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Sup Kacang Merah",
     description: "Sup kacang merah dengan kaldu gurih, cocok untuk dinikmati di cuaca dingin.",
     ingredients: [
@@ -1718,6 +1779,7 @@ final List<Resep> dummyResepListBookmarked = [
     isBookmarked: true,
   ),
   Resep(
+    id: "2",
     title: "Sup Buntut Sapi",
     description: "Sup buntut sapi dengan kaldu gurih dan daging yang empuk, cocok untuk makan malam spesial.",
     ingredients: [
