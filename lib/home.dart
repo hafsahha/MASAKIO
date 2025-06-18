@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:masakio/data/dummy_resep.dart'; // pastikan path ini sesuai
 import 'package:masakio/.components/card_rekomendasi.dart';
 import 'package:masakio/.components/card_tips_n_trik.dart';
-import 'package:masakio/.components/card_temukan_resep.dart';
+import 'package:masakio/.components/temukan_resep_section.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -160,10 +159,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              const SizedBox(height: 16),
-
-              // ========== Temukan Resep ===========
-              TemukanResepSection(
+              const SizedBox(height: 16),              // ========== Temukan Resep ===========
+              TemukanResepSectionComponent(
                 categoryFilter: _selectedCategoryIndex == 0
                     ? null  // Jika kategori pertama dipilih, tampilkan semua resep
                     : _categories[_selectedCategoryIndex], // Terapkan filter kategori
@@ -176,68 +173,4 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class TemukanResepSection extends StatelessWidget {
-  final String? categoryFilter; // optional category filter
 
-  const TemukanResepSection({
-    super.key,
-    this.categoryFilter,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // Filter kategori jika diberikan
-    final List<Resep> temukanResep = categoryFilter == null
-        ? dummyResepList // Tampilkan semua resep jika kategori null
-        : dummyResepList
-            .where((resep) => resep.categories.contains(categoryFilter))
-            .toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Judul section
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-          child: Text(
-            "Temukan Resep",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        // Daftar resep
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            children: temukanResep.map((resep) {
-              return CardTemukanResep(
-                imagePath: resep.imageAsset,
-                title: resep.title,
-                subtitle: resep.author,
-                views: resep.viewsCount.toString(),
-                rating: resep.rating.toStringAsFixed(1),
-              );
-            }).toList(),
-          ),
-        ),
-        // Tombol "Lihat Semua"
-        Center(
-          child: TextButton(
-            onPressed: () {
-              // aksi lihat semua
-            },
-            child: const Text(
-              "Lihat Semua",
-              style: TextStyle(
-                color: Colors.teal,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}

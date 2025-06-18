@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:masakio/data/dummy_resep.dart';
 
 class ResepDetailPage extends StatefulWidget {
-  const ResepDetailPage({super.key});
+  final Resep resep;
+  
+  const ResepDetailPage({
+    super.key,
+    required this.resep,
+  });
 
   @override
   State<ResepDetailPage> createState() => _ResepDetailPageState();
@@ -12,58 +18,44 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
   bool showAllTools = false;
   bool showAllSteps = false;
 
-  final List<Map<String, String>> ingredients = [
-    {'name': 'Nasi (sesuaikan saja)', 'amount': '2 mangkok'},
-    {'name': 'Sosis, potong', 'amount': '2 buah'},
-    {'name': 'Bawang putih, iris', 'amount': '2 siung'},
-    {'name': 'Bawang merah, iris', 'amount': '1 siung'},
-    {'name': 'Cabe merah, iris', 'amount': '1 buah'},
-  ];
-
-  final List<Map<String, String>> tools = [
-    {'name': 'Wajan', 'description': '1 buah ukuran sedang'},
-    {'name': 'Spatula', 'description': '1 buah'},
-    {'name': 'Piring saji', 'description': '1 buah'},
-    {'name': 'Pisau', 'description': '1 buah'},
-    {'name': 'Talenan', 'description': '1 buah'},
-  ];
-
-  final List<Map<String, dynamic>> cookingSteps = [
-    {
-      'title': 'Persiapan',
-      'duration': '5 menit',
-      'steps': [
-        'Masak nasi jika tidak menggunakan sisa nasi.',
-        'Iris sosis, cincang bawang putih, potong bawang bombay, iris cabai, dan potong dadu wortel.'
-      ]
-    },
-    {
-      'title': 'Masak sosis',
-      'duration': '5 menit',
-      'steps': [
-        'Panaskan 1 sendok makan minyak sayur dalam wajan atau wajan besar dengan api sedang besar.',
-        'Tumis bawang putih dan bawang merah hingga harum.',
-        'Masukkan sosis, aduk hingga sosis matang.'
-      ]
-    },
-    {
-      'title': 'Masak nasi',
-      'duration': '10 menit',
-      'steps': [
-        'Masukkan nasi ke dalam wajan, aduk rata dengan bumbu dan sosis.',
-        'Tambahkan kecap manis, garam, dan merica secukupnya.',
-        'Aduk terus hingga nasi matang merata dan bumbu meresap.'
-      ]
-    },
-  ];
-
-  final List<Map<String, dynamic>> nutrition = [
-    {'name': 'Karbohidrat', 'value': '65 gr', 'icon': Icons.grass_outlined},
-    {'name': 'Protein', 'value': '27 gr protein', 'icon': Icons.egg_outlined},
-    {'name': 'Lemak', 'value': '15 gr', 'icon': Icons.fastfood_outlined},
-    {'name': 'Serat', 'value': '3 gr', 'icon': Icons.local_florist_outlined},
+  late List<Map<String, String>> ingredients;
+  late List<Map<String, String>> tools;
+  late List<Map<String, dynamic>> cookingSteps;
+  @override
+  void initState() {
+    super.initState();
     
-  ];
+    // Convert ingredients list to the required format
+    ingredients = widget.resep.ingredients.map((ingredient) {
+      final parts = ingredient.split(',');
+      final name = parts.isNotEmpty ? parts[0] : ingredient;
+      final amount = parts.length > 1 ? parts[1].trim() : '';
+      return {'name': name, 'amount': amount};
+    }).toList();
+    
+    // Convert tools list to the required format
+    tools = widget.resep.tools.map((tool) {
+      return {'name': tool, 'description': '1 buah'};
+    }).toList();
+    
+    // Use the steps directly from the resep object
+    cookingSteps = widget.resep.steps.map((step) {
+      return {
+        'title': step['title'] as String,
+        'duration': step['duration'] as String,
+        'steps': step['steps'] as List<String>,
+      };
+    }).toList();
+    
+    // Convert nutrition data
+    nutrition = [
+      {'name': 'Karbohidrat', 'value': widget.resep.nutrition['Karbohidrat'] ?? '0 gr', 'icon': Icons.grass_outlined},
+      {'name': 'Protein', 'value': widget.resep.nutrition['Protein'] ?? '0 gr', 'icon': Icons.egg_outlined},
+      {'name': 'Lemak', 'value': widget.resep.nutrition['Lemak'] ?? '0 gr', 'icon': Icons.fastfood_outlined},
+      {'name': 'Kalori', 'value': widget.resep.nutrition['Kalori'] ?? '0 kkal', 'icon': Icons.local_fire_department_outlined},
+    ];
+  }
+  late List<Map<String, dynamic>> nutrition;
 
   @override
   Widget build(BuildContext context) {
@@ -81,9 +73,8 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
         child: ListView(
           children: [
             Stack(
-              children: [
-                Image.asset(
-                  'assets/images/pizza.jpg',
+              children: [                Image.asset(
+                  widget.resep.imageAsset,
                   width: double.infinity,
                   height: 250,
                   fit: BoxFit.cover,
@@ -112,69 +103,68 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    children: const [
+                    children: [
                       Expanded(
                         child: Text(
-                          'Sausage Nasi Goreng',
-                          style: TextStyle(
+                          widget.resep.title,                          style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                      Icon(Icons.star, color: Colors.amber),
-                      SizedBox(width: 4),
-                      Text('4.9'),
+                      ),                      const Icon(Icons.star, color: Colors.amber),
+                      const SizedBox(width: 4),
+                      Text(widget.resep.rating.toString()),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Row(
-                    children: const [
-                      CircleAvatar(
+                  Row(                    children: [
+                      const CircleAvatar(
                         radius: 16,
                         backgroundImage:
                             AssetImage('assets/images/profile.jpg'),
                       ),
-                      SizedBox(width: 8),
-                      Text('Alicia Ramsey · 10.9k Followers'),
+                      const SizedBox(width: 8),
+                      Text('${widget.resep.author} · ${widget.resep.authorFollowers}'),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: const [
-                      Icon(Icons.person_outline),
-                      SizedBox(width: 4),
-                      Text('Porsi 1 Orang'),
+                  Row(                    children: [
+                      const Icon(Icons.person_outline),
+                      const SizedBox(width: 4),Text('Porsi ${widget.resep.servings} Orang'),
                       SizedBox(width: 16),
                       Icon(Icons.access_time),
                       SizedBox(width: 4),
-                      Text('50 Minutes'),
+                      Text('${widget.resep.duration.inMinutes} Minutes'),
                       SizedBox(width: 16),
                       Icon(Icons.monetization_on_outlined),
                       SizedBox(width: 4),
-                      Text('Rp. 30.000'),
+                      Text('Rp. ${widget.resep.price}'),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
-                    children: const [
-                      Chip(
-                        label: Text('Makanan Berat'),
-                        backgroundColor: Color(0xFF83AEB1),
-                        labelStyle: TextStyle(color: Colors.white),
-                        shape: StadiumBorder(
-                          side: BorderSide(color: Colors.transparent),
+                    children: [
+                      for (String category in widget.resep.categories) ...[
+                        Chip(
+                          label: Text(category),
+                          backgroundColor: Color(0xFF83AEB1),
+                          labelStyle: TextStyle(color: Colors.white),
+                          shape: StadiumBorder(
+                            side: BorderSide(color: Colors.transparent),
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 8),
-                      Chip(
-                        label: Text('Asian'),
-                        backgroundColor: Color(0xFF83AEB1),
-                        labelStyle: TextStyle(color: Colors.white),
-                        shape: StadiumBorder(
-                          side: BorderSide(color: Colors.transparent),
+                        SizedBox(width: 8),
+                      ],
+                      for (String tag in widget.resep.tags.take(1)) ...[
+                        Chip(
+                          label: Text(tag),
+                          backgroundColor: Color(0xFF83AEB1),
+                          labelStyle: TextStyle(color: Colors.white),
+                          shape: StadiumBorder(
+                            side: BorderSide(color: Colors.transparent),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -182,9 +172,8 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                     'Deskripsi',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Ini adalah resep kebanggan keluarga. Nasi goreng dengan sosis, telur, dan bumbu yang meresap sempurna. Cocok untuk makan siang keluarga.',
+                  const SizedBox(height: 4),                  Text(
+                    widget.resep.description,
                   ),
                   const SizedBox(height: 16),
                   Column(

@@ -9,6 +9,7 @@ import 'package:masakio/Tips Trik/tambah_tips.dart';
 import 'package:masakio/main_page.dart';
 import 'package:masakio/Profile/edit_profile.dart';
 import 'package:masakio/data/dummy_tips.dart';
+import 'package:masakio/data/dummy_resep.dart';
 import 'package:masakio/resep_detail.dart';
 import 'package:masakio/splash_screen.dart';
 
@@ -83,10 +84,9 @@ class RecipeMenuPage extends StatelessWidget {
         'dest': const MainPage(pageIndex: 1),
         'icon': Icons.search,
         'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)]
-      },
-      {
+      },      {
         'title': 'Detail Resep',
-        'dest': ResepDetailPage(),
+        'dest': ResepDetailPage(resep: dummyResepList[0]), // Use the first dummy recipe as a placeholder
         'icon': Icons.receipt_long,
         'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
       },
