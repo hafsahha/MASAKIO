@@ -474,7 +474,7 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                   context: context,
                   removeBottom: true,
                   child: ResepGrid(
-                    reseps: getFilteredReseps(),
+                    reseps: getFilteredReseps(), // This should now be passing List<Resep>
                   ),
                 ),
               ),

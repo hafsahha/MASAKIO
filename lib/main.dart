@@ -22,8 +22,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context) {    return MaterialApp(
       title: 'MASAKIO | KELOMPOK 20',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -33,7 +32,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const RecipeMenuPage(),
+      home: const SplashScreen(),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/data/dummy_resep.dart';
+import 'package:masakio/review_all_page.dart';
 
 class ResepDetailPage extends StatefulWidget {
   final Resep resep;
@@ -475,26 +476,36 @@ Column(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
+        children: [
           Text(
-            'Ulasan (1.234)',
-            style: TextStyle(
+            'Ulasan (${widget.resep.reviewCount})',
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
           ),
-          Text(
-            'Lihat semua',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.blue,
-              fontWeight: FontWeight.w500,
+          GestureDetector(
+            onTap: () {
+              // Navigate to all reviews page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReviewAllPage(resep: widget.resep),
+                ),
+              );
+            },
+            child: const Text(
+              'Lihat semua',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.blue,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
       ),
-    ),
-    // Card Review
+    ),    // Card Review - Show a sample review
     Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(12),
@@ -508,7 +519,7 @@ Column(
         children: [
           CircleAvatar(
             backgroundColor: Colors.grey.shade300,
-            child: Icon(Icons.person, color: Colors.white),
+            child: const Icon(Icons.person, color: Colors.white),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -528,10 +539,20 @@ Column(
                     const SizedBox(width: 8),
                     Row(
                       children: [
-                        ...List.generate(4, (index) => Icon(Icons.star, color: Colors.amber, size: 16)),
-                        Icon(Icons.star_half, color: Colors.amber, size: 16),
+                        ...List.generate(
+                          5,
+                          (index) => Icon(
+                            index < widget.resep.rating.floor()
+                                ? Icons.star
+                                : (index == widget.resep.rating.floor() && widget.resep.rating % 1 > 0)
+                                    ? Icons.star_half
+                                    : Icons.star_border,
+                            size: 16,
+                            color: Colors.amber,
+                          ),
+                        ),
                         const SizedBox(width: 4),
-                        const Text('4.7', style: TextStyle(fontSize: 13)),
+                        Text(widget.resep.rating.toString(), style: const TextStyle(fontSize: 13)),
                       ],
                     ),
                   ],

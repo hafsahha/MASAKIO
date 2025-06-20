@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:masakio/data/dummy_resep.dart'; // Added import for Resep model
 import 'resep_card.dart';
 
 class ResepGrid extends StatelessWidget {
-  final List reseps;
+  final List<Resep> reseps; // Updated to ensure type safety with List<Resep>
 
   const ResepGrid({super.key, required this.reseps});
 
@@ -34,6 +35,7 @@ class ResepGrid extends StatelessWidget {
             imageUrl: resep.imageAsset,
             isOwned: resep.isOwned,
             isBookmarked: resep.isBookmarked,
+            resep: resep, // Pass the full Resep object to the ResepCard
           ),
         );
       },

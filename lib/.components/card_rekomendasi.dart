@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/data/dummy_resep.dart'; // pastikan path ini sesuai
+import 'package:masakio/resep_detail.dart';
 
 class CardRekomendasi extends StatelessWidget {
   final Resep resep;
@@ -8,69 +9,77 @@ class CardRekomendasi extends StatelessWidget {
     Key? key,
     required this.resep,
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Gambar dengan radius
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Image.asset(
-                resep.imageAsset,
-                height: 95,
-                width: double.infinity,
-                fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResepDetailPage(resep: resep),
+          ),
+        );
+      },
+      child: Container(
+        width: 160,
+        margin: const EdgeInsets.only(right: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Gambar dengan radius
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Image.asset(
+                  resep.imageAsset,
+                  height: 95,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
+            ),            const SizedBox(height: 4),
+            // Judul
+            Text(
+              resep.title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          const SizedBox(height: 4),
-          // Judul
-          Text(
-            resep.title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+            const SizedBox(height: 4),
+            // Rating dan jumlah review
+            Row(
+              children: [
+                const Icon(Icons.star, size: 10, color: Colors.amber),
+                const SizedBox(width: 4),
+                Text(
+                  resep.rating.toStringAsFixed(1),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                ),
+                const SizedBox(width: 2),
+                Text(
+                  "| ${_getReviewCount(resep.rating)} Reviews",
+                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                ),
+              ],
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          // Rating dan jumlah review
-          Row(
-            children: [
-              const Icon(Icons.star, size: 10, color: Colors.amber),
-              const SizedBox(width: 4),
-              Text(
-                resep.rating.toStringAsFixed(1),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-              ),
-              const SizedBox(width: 2),
-              Text(
-                "| ${_getReviewCount(resep.rating)} Reviews",
-                style: const TextStyle(fontSize: 10, color: Colors.grey),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          // Views Count
-          Row(
-            children: [
-              const Icon(Icons.visibility, size: 10, color: Colors.grey),
-              const SizedBox(width: 4),
-              Text(
-                "${resep.viewsCount} Views",
-                style: const TextStyle(fontSize: 10, color: Colors.grey),
-              ),
-            ],
-          ),
-        ],
+            const SizedBox(height: 4),
+            // Views Count
+            Row(
+              children: [
+                const Icon(Icons.visibility, size: 10, color: Colors.grey),
+                const SizedBox(width: 4),
+                Text(
+                  "${resep.viewsCount} Views",
+                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
