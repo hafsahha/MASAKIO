@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:masakio/Auth/masuk.dart';
 import 'package:masakio/Auth/daftar.dart';
 import 'package:masakio/data/functions.dart';
+import 'package:masakio/data/func_profile.dart'; // Add this import for AuthService
 
 /// Widget ini mengecek apakah pengguna sudah login dan menampilkan UI yang sesuai
 /// Digunakan sebagai overlay/popup di halaman profil untuk memastikan pengguna telah terautentikasi

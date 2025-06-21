@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:masakio/data/functions.dart';
+import 'package:masakio/data/func_disease.dart'; // Add this import for DiseaseSuggestion
+import 'package:masakio/data/func_profile.dart'; // Add this import for AuthService
 import 'package:masakio/Auth/masuk.dart';
 import 'package:masakio/Profile/profile.dart';
 

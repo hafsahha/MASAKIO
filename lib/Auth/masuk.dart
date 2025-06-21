@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:masakio/Profile/profile.dart';
 import 'package:masakio/data/functions.dart';
+import 'package:masakio/data/func_profile.dart'; // Import for AuthService and checkServerAvailability
 import 'package:masakio/Auth/daftar.dart';
 import 'package:masakio/utils/ui_helper.dart';
 
@@ -11,7 +12,7 @@ Future<void> testDirectLogin(BuildContext context, String email, String password
   try {
     final loginUrl = 'https://masakio.up.railway.app/login';
     print('Testing direct login to $loginUrl');
-      final client = http.Client();
+    final client = http.Client();
     try {
       final response = await client.post(
         Uri.parse(loginUrl),
@@ -23,24 +24,27 @@ Future<void> testDirectLogin(BuildContext context, String email, String password
       ).timeout(const Duration(seconds: 5));
     
       print('Direct login response status: ${response.statusCode}');
-    print('Direct login response body: ${response.body}');
+      print('Direct login response body: ${response.body}');
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Status: ${response.statusCode}'),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Status: ${response.statusCode}'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      print('Direct login error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
     } finally {
       client.close(); // Tutup client
+    }
   } catch (e) {
-    print('Direct login error: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error: $e'),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    print('Outer error: $e');
   }
 }
 
