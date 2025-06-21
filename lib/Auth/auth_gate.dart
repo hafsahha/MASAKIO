@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:masakio/.components/button.dart';
 import 'dart:ui';
 import 'package:masakio/Auth/masuk.dart';
 import 'package:masakio/Auth/daftar.dart';
-import 'package:masakio/data/functions.dart';
-import 'package:masakio/data/func_profile.dart'; // Add this import for AuthService
+import 'package:masakio/data/func_profile.dart';
 
 /// Widget ini mengecek apakah pengguna sudah login dan menampilkan UI yang sesuai
 /// Digunakan sebagai overlay/popup di halaman profil untuk memastikan pengguna telah terautentikasi
 /// Untuk penggunaan yang lebih mudah, gunakan AuthGateDialog dari auth_popup.dart
 class AuthGate extends StatefulWidget {
-  final Widget child; // The authenticated content to display
+  final Widget childPage; // The authenticated content to display
+  final String pageName; // Name of the page for the auth prompt
+  final IconData icon; // Icon to display in the auth prompt
   
   const AuthGate({
     super.key,
-    required this.child,
+    required this.childPage,
+    required this.pageName,
+    required this.icon,
   });
 
   @override
@@ -53,26 +57,18 @@ class _AuthGateState extends State<AuthGate> {
       MaterialPageRoute(builder: (context) => const DaftarAkunPage())
     );
   }
+  
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return widget.child;
-    }
+    if (_isLoading) return widget.childPage;
 
-    if (_isLoggedIn) {
-      return widget.child;
-    } else {
-      // Show child with overlay
+    if (_isLoggedIn) { return widget.childPage; }
+    else {
       return Stack(
         children: [
-          // Original content (blurred)
-          widget.child,
-          
-          // Blurred background overlay
-          _buildBlurredOverlay(context),
-          
-          // Auth popup
-          _buildAuthPrompt(context),
+          widget.childPage, // Original content
+          _buildBlurredOverlay(context), // Blurred background overlay
+          _buildAuthPrompt(context), // Auth prompt dialog
         ],
       );
     }
@@ -82,7 +78,7 @@ class _AuthGateState extends State<AuthGate> {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: Container(
-        color: Colors.black.withOpacity(0.4),
+        color: Color(0x66000000),
         width: double.infinity,
         height: double.infinity,
       ),
@@ -98,7 +94,7 @@ class _AuthGateState extends State<AuthGate> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: const Color(0x33000000),
               blurRadius: 10,
               spreadRadius: 1,
             ),
@@ -113,22 +109,22 @@ class _AuthGateState extends State<AuthGate> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Icon atau logo
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF83AEB1).withOpacity(0.2),
+                    color: const Color(0x3383AEB1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.person_outline,
+                  child: Icon(
+                    widget.icon,
                     size: 60,
-                    color: Color(0xFF83AEB1),
+                    color: const Color(0xFF83AEB1),
                   ),
-                ),                const SizedBox(height: 16),
+                ),
+                const SizedBox(height: 16),
                 // Judul
-                const Text(
-                  "Akses Profil",
+                Text(
+                  "Akses ${widget.pageName}",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -147,66 +143,18 @@ class _AuthGateState extends State<AuthGate> {
                 ),
                 const SizedBox(height: 24),
                 // Tombol masuk
-                SizedBox(
-                  width: double.infinity,
-                  height: 46,
-                  child: ElevatedButton(
-                    onPressed: () => _navigateToLogin(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF83AEB1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: 2,
-                    ),
-                    child: const Text(
-                      "Masuk",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),                const SizedBox(height: 14),
-                // Tombol daftar
-                SizedBox(
-                  width: double.infinity,
-                  height: 46,
-                  child: ElevatedButton(
-                    onPressed: () => _navigateToRegister(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        side: const BorderSide(color: Color(0xFF83AEB1), width: 2),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      "Daftar",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF83AEB1),
-                      ),
-                    ),
-                  ),
+                Button(
+                  onPressed: () => _navigateToLogin(context),
+                  content: "Masuk",
                 ),
-                const SizedBox(height: 16),                // Tombol tutup (opsional)
-                TextButton(
-                  onPressed: () {                    // Cek apakah dalam konteks yang bisa di-pop
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text(
-                    "Kembali",
-                    style: TextStyle(
-                      color: Color(0xFF666666),
-                      fontSize: 14,
-                    ),
-                  ),
+                const SizedBox(height: 14),
+                // Tombol daftar
+                Button(
+                  onPressed: () => _navigateToRegister(context),
+                  content: "Daftar",
+                  textColor: 0xFF83AEB1,
+                  backgroundColor: 0xFFFFFFFF,
+                  borderColor: 0xFF83AEB1,
                 ),
               ],
             ),
@@ -216,14 +164,3 @@ class _AuthGateState extends State<AuthGate> {
     );
   }
 }
-
-// Untuk penggunaan komponen dialog, gunakan AuthGateDialog dari auth_popup.dart
-// Contoh:
-// import 'package:masakio/Auth/auth_popup.dart';
-// 
-// AuthGateDialog.show(
-//   context, 
-//   onAuthSuccess: () {
-//     // Tindakan setelah autentikasi berhasil
-//   }
-// );
