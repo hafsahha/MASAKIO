@@ -3,9 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Base URL untuk backend
-const url = 'https://masakio.up.railway.app/';
-const profileEndpoint = '${url}user/'; // Endpoint untuk profil
-const authEndpoint = '${url}user'; // Endpoint untuk autentikasi
+const url = 'https://masakio.up.railway.app';
 
 // User model
 class User {
@@ -14,13 +12,15 @@ class User {
   final String email;
   final String? birthDate;
   final String? createdAt;
+  final String? photo;
   
   User({
     required this.id, 
     required this.name, 
     required this.email, 
     this.birthDate, 
-    this.createdAt
+    this.createdAt,
+    this.photo
   });
   
   factory User.fromJson(Map<String, dynamic> json) {
@@ -30,6 +30,7 @@ class User {
       email: json['email'],
       birthDate: json['tanggal_lahir'],
       createdAt: json['created_at'],
+      photo: json['foto'],
     );
   }
   
@@ -40,6 +41,7 @@ class User {
       'email': email,
       'tanggal_lahir': birthDate,
       'created_at': createdAt,
+      'foto': photo,
     };
   }
 }
@@ -47,136 +49,70 @@ class User {
 // Fungsi untuk mengecek ketersediaan server
 Future<bool> checkServerAvailability() async {
   try {
-    final client = http.Client();
-    try {
-      final response = await client.get(Uri.parse(url))
-          .timeout(const Duration(seconds: 5));
-      return response.statusCode == 200;
-    } finally {
-      client.close();
-    }
-  } catch (e) {
-    print('Server connectivity error: $e');
-    return false;
-  }
+    final response = await http.get(Uri.parse(url));
+    return response.statusCode == 200;
+  } catch (e) { return false; }
 }
 
 // Authentication service
 class AuthService {
   static const String _userKey = 'user_data';
-    // Register new user
-  static Future<User> register({
-    required String name, 
-    required String email, 
-    required String password,
-    String? birthDate,
-  }) async {
-    final client = http.Client();
-    try {
-      print('Mencoba register dengan email: $email ke ${authEndpoint}/register');
-      
-      final response = await client.post(
-        Uri.parse('${authEndpoint}/register'),
+  
+  // Register new user
+  static Future<User> register({required String name,  required String email,  required String password, String? birthDate}) async {
+    final isServerAvailable = await checkServerAvailability();
+    if (!isServerAvailable) throw Exception('Server tidak dapat dijangkau.');
+
+    try {      
+      final response = await http.post(Uri.parse('$url/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'nama_user': name,
+          'username': name,
           'email': email,
           'password': password,
-          'tanggal_lahir': birthDate ?? DateTime.now().toIso8601String().split('T')[0],
+          'birth_date': birthDate ?? DateTime.now().toIso8601String().split('T')[0],
         }),
-      ).timeout(const Duration(seconds: 10));
-      
-      print('Status response: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      ).timeout(const Duration(seconds: 10), onTimeout: () => throw Exception('Koneksi timeout. Silakan coba lagi nanti.'));
       
       if (response.statusCode == 201) {
         final userData = json.decode(response.body);
-        final user = User.fromJson(userData['user']);
-        
-        // Save user to local storage
+        final user = User.fromJson(userData);
         await _saveUserToLocal(user);
-        
         return user;
       } else {
-        // Coba parse error message
-        try {
-          final errorData = json.decode(response.body);
-          final error = errorData['error'] ?? 'Registrasi gagal: ${response.statusCode}';
-          throw Exception(error);
-        } catch (e) {
-          throw Exception('Registrasi gagal: ${response.statusCode}. ${response.reasonPhrase}');
-        }
+        final errorData = json.decode(response.body);
+        final error = errorData['error'] ?? 'Registrasi gagal: ${response.statusCode}';
+        throw Exception(error);
       }
-    } catch (e) {
-      print('Error during registration: $e');
-      rethrow;
-    } finally {
-      client.close();
-    }
+    } catch (e) { rethrow; }
   }
-    // Login user
-  static Future<User> login({
-    required String email, 
-    required String password,
-  }) async {
+  
+  // Login user
+  static Future<User> login({required String email, required String password,}) async {
+    final isServerAvailable = await checkServerAvailability();
+    if (!isServerAvailable) throw Exception('Server tidak dapat dijangkau.');
+      
     try {
-      // Cek dulu apakah server tersedia
-      final isServerAvailable = await checkServerAvailability();
-      if (!isServerAvailable) {
-        throw Exception('Server tidak dapat dijangkau. Silakan cek koneksi internet Anda dan coba lagi nanti.');
-      }
+      final response = await http.post(Uri.parse('$url/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      ).timeout(const Duration(seconds: 10), onTimeout: () => throw Exception('Koneksi timeout. Silakan coba lagi nanti.'));
       
-      print('Mencoba login dengan email: $email ke ${authEndpoint}/login');
-      
-      final client = http.Client();
-      try {
-        final response = await client.post(
-          Uri.parse('${authEndpoint}/login'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'email': email,
-            'password': password,
-          }),
-        ).timeout(
-          const Duration(seconds: 10),
-          onTimeout: () => throw Exception('Koneksi timeout. Silakan coba lagi nanti.'),
-        );
-        
-        print('Status response: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        
-        if (response.statusCode == 200) {
-          final userData = json.decode(response.body);
-          
-          // Validasi struktur respons
-          if (userData['user'] == null) {
-            throw Exception('Format respons server tidak valid: user data tidak ditemukan');
-          }
-          
-          final user = User.fromJson(userData['user']);
-          
-          // Save user to local storage
-          await _saveUserToLocal(user);
-          
-          return user;
-        } else {
-          // Coba parse error message
-          try {
-            final errorData = json.decode(response.body);
-            final error = errorData['error'] ?? 'Login gagal: ${response.statusCode}';
-            throw Exception(error);
-          } catch (e) {
-            // Jika tidak bisa parse JSON
-            throw Exception('Login gagal: ${response.statusCode}. ${response.reasonPhrase}');
-          }
-        }
-      } finally {
-        client.close(); // Tutup client HTTP
+      if (response.statusCode == 200) {
+        final userData = json.decode(response.body);
+        if (userData == null) throw Exception('User data tidak ditemukan');
+        final user = User.fromJson(userData);
+        await _saveUserToLocal(user);
+        return user;
+      } else {
+        final errorData = json.decode(response.body);
+        final error = errorData['error'] ?? 'Login gagal: ${response.statusCode}';
+        throw Exception(error);
       }
-    } catch (e) {
-      print('Error during login: $e');
-      rethrow;
-    }
+    } catch (e) { rethrow; }
   }
   
   // Check if user is logged in
@@ -188,9 +124,7 @@ class AuthService {
       if (userJson == null) return false;
       
       return true;
-    } catch (e) {
-      return false;
-    }
+    } catch (e) { return false; }
   }
   
   // Get current user
@@ -203,9 +137,7 @@ class AuthService {
       
       final userData = json.decode(userJson);
       return User.fromJson(userData);
-    } catch (e) {
-      return null;
-    }
+    } catch (e) { return null; }
   }
   
   // Logout user
@@ -222,32 +154,22 @@ class AuthService {
 }
 
 // Fetch user profile
-Future<User?> fetchUserProfile(int userId) async {
-  final client = http.Client();
+Future<User?> fetchUserProfile(int id) async {
   try {
-    final response = await client.get(
-      Uri.parse('${profileEndpoint}${userId}')
-    ).timeout(const Duration(seconds: 10));
+    final response = await http.get(Uri.parse('$url/user/$id')).timeout(const Duration(seconds: 10));
     
     if (response.statusCode == 200) {
       final userData = json.decode(response.body);
       return User.fromJson(userData);
     }
     return null;
-  } catch (e) {
-    print('Error fetching profile: $e');
-    return null;
-  } finally {
-    client.close();
-  }
+  } catch (e) { return null; }
 }
 
 // Update user profile
 Future<bool> updateUserProfile(User user) async {
-  final client = http.Client();
   try {
-    final response = await client.put(
-      Uri.parse('${profileEndpoint}${user.id}'),
+    final response = await http.put(Uri.parse('$url/user/${user.id}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'nama_user': user.name,
@@ -257,17 +179,9 @@ Future<bool> updateUserProfile(User user) async {
     ).timeout(const Duration(seconds: 10));
     
     if (response.statusCode == 200) {
-      // Update local user data
       await AuthService._saveUserToLocal(user);
       return true;
     }
     return false;
-  } catch (e) {
-    print('Error updating profile: $e');
-    return false;
-  } finally {
-    client.close();
-  }
+  } catch (e) {return false; }
 }
-
-// Note: Wishlist functions have been moved to func_wishlist.dart
