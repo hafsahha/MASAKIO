@@ -1,52 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:masakio/Profile/profile.dart';
-import 'package:masakio/data/functions.dart';
-import 'package:masakio/data/func_profile.dart'; // Import for AuthService and checkServerAvailability
+import 'package:masakio/main_page.dart';
 import 'package:masakio/Auth/daftar.dart';
-import 'package:masakio/utils/ui_helper.dart';
-
-// Fungsi untuk debugging login langsung
-Future<void> testDirectLogin(BuildContext context, String email, String password) async {
-  try {
-    final loginUrl = 'https://masakio.up.railway.app/login';
-    print('Testing direct login to $loginUrl');
-    final client = http.Client();
-    try {
-      final response = await client.post(
-        Uri.parse(loginUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
-      ).timeout(const Duration(seconds: 5));
-    
-      print('Direct login response status: ${response.statusCode}');
-      print('Direct login response body: ${response.body}');
-    
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Status: ${response.statusCode}'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    } catch (e) {
-      print('Direct login error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    } finally {
-      client.close(); // Tutup client
-    }
-  } catch (e) {
-    print('Outer error: $e');
-  }
-}
+import 'package:masakio/data/func_profile.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -106,79 +62,54 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         _isLoading = true;
       });
 
-      try {        final user = await AuthService.login(
-          email: _emailC.text.trim(),
-          password: _passC.text,
-        );
-
+      try {
+        await AuthService.login(email: _emailC.text.trim(), password: _passC.text);
         if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-
-          // Navigate to profile page after successful login
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ProfilePage(pageIndex: 0),
-            ),
-          );
-        }      } catch (e) {
+          setState(() => _isLoading = false);
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage(pageIndex: 3)));
+        }
+      } catch (e) {
         if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
+          setState(() => _isLoading = false);
           
           // Ekstrak pesan error
           String errorMessage = e.toString();
-          if (errorMessage.contains('Exception: ')) {
-            errorMessage = errorMessage.replaceFirst('Exception: ', '');
-          }
+          if (errorMessage.contains('Exception: ')) errorMessage = errorMessage.replaceFirst('Exception: ', '');
           
-          print('Login error: $errorMessage');
-            // Tambahkan pemeriksaan koneksi
-          bool hasInternetConnection = true;
-          try {
-            final client = http.Client();
-            try {
-              final result = await client.get(Uri.parse('https://www.google.com'))
-                  .timeout(const Duration(seconds: 3));
-              hasInternetConnection = result.statusCode == 200;
-            } finally {
-              client.close();
-            }
-          } catch (e) {
-            hasInternetConnection = false;
-          }
+          // Tambahkan pemeriksaan koneksi
+          bool hasInternetConnection = false;
+          final result = await http.get(Uri.parse('https://www.google.com'));
+          hasInternetConnection = result.statusCode == 200;
           
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text("Login Gagal"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(errorMessage),
-                  if (!hasInternetConnection) 
-                    const Padding(
-                      padding: EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'Sepertinya Anda tidak terhubung ke internet. '
-                        'Silakan periksa koneksi internet Anda.',
-                        style: TextStyle(color: Colors.red),
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text("Login Gagal"),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(errorMessage),
+                    if (!hasInternetConnection) 
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          'Sepertinya Anda tidak terhubung ke internet. Silakan periksa koneksi internet Anda.',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ),
-                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text("OK"),
+                  ),
                 ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text("OK"),
-                ),
-              ],
-            ),
-          );
+            );
+          }
         }
       }
     }
@@ -213,8 +144,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.3),
-                    Colors.black.withOpacity(0.7),
+                    const Color(0x4D000000),
+                    const Color(0xB3000000),
                   ],
                 ),
               ),
@@ -234,7 +165,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: const Color(0x33FFFFFF),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -274,7 +205,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: const Color(0x33000000),
                                 blurRadius: 10,
                                 offset: const Offset(0, 5),
                               ),
@@ -432,7 +363,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             ),
           ],
         ),
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 36),        child: Column(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 36),
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
@@ -451,7 +383,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         borderRadius: BorderRadius.circular(30),
                       ),
                       elevation: 3,
-                      shadowColor: const Color(0xFF83AEB1).withOpacity(0.5),
+                      shadowColor: const Color(0x8083AEB1),
                     ),
                     onPressed: _login,
                     child: const Text(
@@ -492,7 +424,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 ),
               ],
             ),
-            const SizedBox(height: 20),            Row(
+            const SizedBox(height: 20),
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
@@ -519,83 +452,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
-                ),
-              ],
-            ),
-            
-            // Debug section for development - should be removed in production
-            const SizedBox(height: 20),
-            // Debug tools
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                TextButton.icon(
-                  onPressed: () async {
-                    final isAvailable = await checkServerAvailability();
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Server ${isAvailable ? 'tersedia' : 'tidak tersedia'}'),
-                          backgroundColor: isAvailable ? Colors.green : Colors.red,
-                        ),
-                      );
-                    }
-                  },
-                  icon: const Icon(Icons.network_check, size: 16),
-                  label: const Text('Cek Server', style: TextStyle(fontSize: 12)),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.grey.withOpacity(0.1),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () {
-                    testDirectLogin(context, _emailC.text.trim(), _passC.text);
-                  },
-                  icon: const Icon(Icons.bug_report, size: 16),
-                  label: const Text('Test Login', style: TextStyle(fontSize: 12)),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.grey.withOpacity(0.1),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  ),
-                ),                TextButton.icon(
-                  onPressed: () async {
-                    try {
-                      final client = http.Client();
-                      try {
-                        final result = await client.get(Uri.parse('https://www.google.com'))
-                            .timeout(const Duration(seconds: 5));
-                        final hasConnection = result.statusCode == 200;
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Internet ${hasConnection ? 'connected' : 'disconnected'}'),
-                              backgroundColor: hasConnection ? Colors.green : Colors.red,
-                            ),
-                          );
-                        }
-                      } finally {
-                        client.close();
-                      }
-                    } catch (e) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('No internet connection'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.wifi, size: 16),
-                  label: const Text('Cek Internet', style: TextStyle(fontSize: 12)),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.grey.withOpacity(0.1),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   ),
                 ),
               ],
