@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:masakio/data/functions.dart';
+import 'package:masakio/Auth/masuk.dart';
+import 'package:masakio/Profile/profile.dart';
 
 class DaftarAkunPage extends StatefulWidget {
   const DaftarAkunPage({super.key});
@@ -7,19 +11,183 @@ class DaftarAkunPage extends StatefulWidget {
   State<DaftarAkunPage> createState() => _DaftarAkunPageState();
 }
 
-class _DaftarAkunPageState extends State<DaftarAkunPage> {
+class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _riwayatController = TextEditingController();
+  final TextEditingController _tanggalLahirController = TextEditingController();
+  
   final List<String> _riwayatList = [];
-
+  DateTime? _selectedDate;
+  bool _isLoading = false;
   bool _obscurePassword = true;
+  
+  // Untuk autocomplete
+  List<DiseaseSuggestion> _suggestedDiseases = [];
+  bool _isLoadingDiseases = false;
+  final FocusNode _riwayatFocusNode = FocusNode();
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+
+  // Animasi
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+    
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.2, 0.8, curve: Curves.easeOut),
+      ),
+    );
+    
+    _animationController.forward();
+    
+    // Setup disease suggestions
+    _riwayatFocusNode.addListener(() {
+      if (_riwayatFocusNode.hasFocus) {
+        _fetchDiseases();
+        _showOverlay();
+      } else {
+        _hideOverlay();
+      }
+    });
+    
+    _riwayatController.addListener(() {
+      if (_riwayatFocusNode.hasFocus && _riwayatController.text.isNotEmpty) {
+        _fetchDiseases(_riwayatController.text);
+      } else if (_riwayatController.text.isEmpty && _overlayEntry != null) {
+        _fetchDiseases(); // Show all diseases when text is empty
+      }
+    });
+  }
+  void _fetchDiseases([String? query]) async {
+    setState(() {
+      _isLoadingDiseases = true;
+    });
+    
+    try {
+      // Import fetchDiseases from functions.dart
+      final diseases = await fetchDiseases(query: query);
+      
+      if (mounted) {
+        setState(() {
+          _suggestedDiseases = diseases;
+          _isLoadingDiseases = false;
+        });
+        
+        // Rebuild the overlay to show the updated suggestions
+        if (_overlayEntry != null) {
+          _hideOverlay();
+          _showOverlay();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingDiseases = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load disease suggestions: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showOverlay() {
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final size = renderBox.size;
+    
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: size.width - 110, // Adjusted width to match the field
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: const Offset(0.0, 56.0), // Position below the text field
+          child: Material(
+            elevation: 4.0,
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              constraints: BoxConstraints(
+                maxHeight: 200.0, // Limit the height of suggestions
+              ),
+              child: _isLoadingDiseases
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  : _suggestedDiseases.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text("Tidak ada saran penyakit"),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemCount: _suggestedDiseases.length,
+                          itemBuilder: (context, index) {
+                            final disease = _suggestedDiseases[index];
+                            return ListTile(
+                              title: Text(disease.name),
+                              onTap: () {
+                                _riwayatController.text = disease.name;
+                                _hideOverlay();
+                                _tambahRiwayat(disease.name);
+                              },
+                              dense: true,
+                              visualDensity: const VisualDensity(vertical: -2),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            );
+                          },
+                        ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _hideOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
 
   final OutlineInputBorder border = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+    borderRadius: BorderRadius.circular(16),
+    borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+  );
+
+  final OutlineInputBorder focusedBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(16),
+    borderSide: const BorderSide(color: Color(0xFF83AEB1), width: 2),
   );
 
   final RegExp emailRegExp = RegExp(
@@ -32,6 +200,10 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _riwayatController.dispose();
+    _tanggalLahirController.dispose();
+    _animationController.dispose();
+    _riwayatFocusNode.dispose();
+    _hideOverlay();
     super.dispose();
   }
 
@@ -45,28 +217,131 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     }
   }
 
-  void _submitForm() {
+  void _pickDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF83AEB1),
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF83AEB1),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _tanggalLahirController.text = DateFormat('dd/MM/yyyy').format(picked);
+      });
+    }
+  }
+
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      if (_riwayatList.isEmpty) {
+      if (_selectedDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Minimal 1 riwayat penyakit harus diisi')),
+          const SnackBar(
+            content: Text('Mohon pilih tanggal lahir'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
         return;
       }
 
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Berhasil'),
-          content: const Text('Data berhasil divalidasi!'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+      if (_riwayatList.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Minimal 1 riwayat penyakit harus diisi'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {        final user = await AuthService.register(
+          name: _namaController.text,
+          email: _emailController.text,
+          password: _passwordController.text,
+          birthDate: _selectedDate?.toString(),
+        );
+
+        // Add disease history for each disease in the list
+        if (_riwayatList.isNotEmpty) {
+          for (final disease in _riwayatList) {
+            try {
+              await addDiseaseHistory(user.id, disease);
+            } catch (e) {
+              print("Failed to add disease: $e");
+              // Continue with registration even if disease history failed
+            }
+          }
+        }
+
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          // Navigate to profile page after successful registration
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ProfilePage(pageIndex: 0),
             ),
-          ],
-        ),
-      );
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text(
+                "Registrasi Gagal",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              content: Text("$e"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF83AEB1),
+                  ),
+                  child: const Text("OK"),
+                ),
+              ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -75,7 +350,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background image
+          // Background image dengan gradient
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -84,228 +359,397 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               ),
             ),
             child: Container(
-              color: const Color(0x4D000000),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.3),
+                    Colors.black.withOpacity(0.7),
+                  ],
+                ),
+              ),
             ),
           ),
-          // Main content
+          
+          // Main content dengan animasi
           SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 80),
-                const Text(
-                  "Daftar Akun",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    // Logo atau icon
+                    Container(
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
                       ),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            _buildLabel("Nama Lengkap *"),
-                            const SizedBox(height: 6),
-                            TextFormField(
-                              controller: _namaController,
-                              decoration: _buildInputDecoration("Masukan Nama Lengkap"),
-                              validator: (value) =>
-                                  value == null || value.trim().isEmpty ? 'Nama wajib diisi' : null,
-                            ),
-                            const SizedBox(height: 18),
-
-                            _buildLabel("Email *"),
-                            const SizedBox(height: 6),
-                            TextFormField(
-                              controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: _buildInputDecoration("Masukan Email"),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Email wajib diisi';
-                                }
-                                if (!emailRegExp.hasMatch(value.trim())) {
-                                  return 'Format email tidak valid';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 18),
-
-                            _buildLabel("Riwayat Penyakit"),
-                            const SizedBox(height: 6),
-                            TextFormField(
-                              controller: _riwayatController,
-                              onFieldSubmitted: (value) => _tambahRiwayat(value),
-                              decoration: InputDecoration(
-                                hintText: "Masukan Riwayat Penyakit",
-                                border: border,
-                                enabledBorder: border,
-                                focusedBorder: border,
-                                isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                suffixIcon: IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () => _tambahRiwayat(_riwayatController.text),
+                      child: const Icon(
+                        Icons.app_registration_rounded,
+                        color: Colors.white,
+                        size: 60,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Title dengan typography lebih bagus
+                    const Text(
+                      "Daftar Akun",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Bergabunglah dengan MASAKIO",
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Form scrollable yang lebih estetik
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        physics: const BouncingScrollPhysics(),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 20),
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                _buildLabel("Nama Lengkap", true),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _namaController,
+                                  decoration: _buildInputDecoration(
+                                    "Masukkan nama lengkap", 
+                                    Icons.person_outline
+                                  ),
+                                  validator: (value) =>
+                                      value == null || value.trim().isEmpty ? 'Nama wajib diisi' : null,
                                 ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: _riwayatList
-                                    .map(
-                                      (e) => RawChip(
-                                        label: Text(
-                                          e,
-                                          style: const TextStyle(
-                                            fontFamily: 'Montserrat',
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        deleteIcon: const Icon(Icons.close, color: Colors.white),
-                                        onDeleted: () {
-                                          setState(() {
-                                            _riwayatList.remove(e);
-                                          });
-                                        },
-                                        backgroundColor: const Color(0xFFB6D9D0),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        elevation: 0,
-                                        shadowColor: Colors.transparent,
-                                        side: BorderSide.none,
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                            ),
-                            const SizedBox(height: 18),
+                                const SizedBox(height: 20),
 
-                            _buildLabel("Kata Sandi *"),
-                            const SizedBox(height: 6),
-                            TextFormField(
-                              controller: _passwordController,
-                              obscureText: _obscurePassword,
-                              decoration: InputDecoration(
-                                hintText: "Masukan Kata Sandi",
-                                border: border,
-                                enabledBorder: border,
-                                focusedBorder: border,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                                suffixIcon: IconButton(
-                                  icon: Icon(_obscurePassword
-                                      ? Icons.visibility_off
-                                      : Icons.visibility),
-                                  onPressed: () {
-                                    setState(() => _obscurePassword = !_obscurePassword);
+                                _buildLabel("Email", true),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: _buildInputDecoration(
+                                    "Masukkan email", 
+                                    Icons.email_outlined
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Email wajib diisi';
+                                    }
+                                    if (!emailRegExp.hasMatch(value.trim())) {
+                                      return 'Format email tidak valid';
+                                    }
+                                    return null;
                                   },
                                 ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Kata sandi wajib diisi';
-                                }
-                                if (value.length < 6) {
-                                  return 'Minimal 6 karakter';
-                                }
-                                return null;
-                              },
+                                const SizedBox(height: 20),
+
+                                _buildLabel("Tanggal Lahir", true),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _tanggalLahirController,
+                                  readOnly: true,
+                                  onTap: _pickDate,
+                                  decoration: InputDecoration(
+                                    hintText: "Pilih tanggal lahir",
+                                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                                    prefixIcon: const Icon(Icons.calendar_today, color: Color(0xFF83AEB1)),
+                                    border: border,
+                                    enabledBorder: border,
+                                    focusedBorder: focusedBorder,
+                                    filled: true,
+                                    fillColor: const Color(0xFFF9FAFB),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  ),
+                                  validator: (value) =>
+                                      value == null || value.trim().isEmpty ? 'Tanggal lahir wajib diisi' : null,
+                                ),
+                                const SizedBox(height: 20),
+
+                                _buildLabel("Riwayat Penyakit", false),
+                                const SizedBox(height: 8),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: CompositedTransformTarget(
+                                        link: _layerLink,
+                                        child: TextFormField(
+                                          controller: _riwayatController,
+                                          focusNode: _riwayatFocusNode,
+                                          decoration: InputDecoration(
+                                            hintText: "Masukkan/pilih riwayat penyakit",
+                                            hintStyle: TextStyle(color: Colors.grey.shade400),
+                                            prefixIcon: const Icon(Icons.medical_information_outlined, color: Color(0xFF83AEB1)),
+                                            border: border,
+                                            enabledBorder: border,
+                                            focusedBorder: focusedBorder,
+                                            filled: true,
+                                            fillColor: const Color(0xFFF9FAFB),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                          ),
+                                          onFieldSubmitted: (value) {
+                                            _tambahRiwayat(value);
+                                            _hideOverlay();
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Container(
+                                      height: 56,
+                                      width: 56,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF83AEB1),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: IconButton(
+                                        icon: const Icon(Icons.add, color: Colors.white, size: 24),
+                                        onPressed: () {
+                                          _tambahRiwayat(_riwayatController.text);
+                                          _hideOverlay();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                if (_riwayatList.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF0F7F7),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(color: const Color(0xFFD0E6E6)),
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: _riwayatList
+                                            .map(
+                                              (e) => Chip(
+                                                label: Text(
+                                                  e,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                deleteIcon: const Icon(Icons.close, color: Colors.white, size: 18),
+                                                onDeleted: () {
+                                                  setState(() {
+                                                    _riwayatList.remove(e);
+                                                  });
+                                                },
+                                                backgroundColor: const Color(0xFF83AEB1),
+                                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(30),
+                                                ),
+                                                elevation: 0,
+                                                shadowColor: Colors.transparent,
+                                                side: BorderSide.none,
+                                              ),
+                                            )
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox(height: 20),
+                                
+                                _buildLabel("Kata Sandi", true),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: _obscurePassword,
+                                  decoration: InputDecoration(
+                                    hintText: "Masukkan kata sandi",
+                                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                                    prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF83AEB1)),
+                                    border: border,
+                                    enabledBorder: border,
+                                    focusedBorder: focusedBorder,
+                                    filled: true,
+                                    fillColor: const Color(0xFFF9FAFB),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                        color: const Color(0xFF83AEB1),
+                                      ),
+                                      onPressed: () {
+                                        setState(() => _obscurePassword = !_obscurePassword);
+                                      },
+                                    ),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Kata sandi wajib diisi';
+                                    }
+                                    if (value.length < 6) {
+                                      return 'Minimal 6 karakter';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 8),
+                                // Password hint
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Kata sandi harus minimal 6 karakter",
+                                    style: TextStyle(
+                                      color: Color(0xFF9E9E9E),
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],
       ),
+      // Desain bottom navigation bar yang lebih menarik
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x20000000),
+              blurRadius: 10,
+              offset: Offset(0, -3),
+            ),
+          ],
         ),
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 36),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
               width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF83AEB1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+              height: 54,
+              child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF83AEB1),
+                    ),
+                  )
+                : ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF83AEB1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 3,
+                      shadowColor: const Color(0xFF83AEB1).withOpacity(0.5),
+                    ),
+                    onPressed: _submitForm,
+                    child: const Text(
+                      "Daftar",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
                   ),
-                  elevation: 0,
-                ),
-                onPressed: _submitForm,
-                child: const Text(
-                  "Daftar",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Row(
               children: const [
-                Expanded(child: Divider(thickness: 1, color: Colors.grey)),
+                Expanded(
+                  child: Divider(
+                    color: Color(0xFFE0E0E0),
+                    thickness: 1.5,
+                  )
+                ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
-                    "Or",
+                    "atau",
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Color(0xFF9E9E9E),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-                Expanded(child: Divider(thickness: 1, color: Colors.grey)),
+                Expanded(
+                  child: Divider(
+                    color: Color(0xFFE0E0E0),
+                    thickness: 1.5,
+                  )
+                ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
                   "Sudah punya akun? ",
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF616161),
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginPage(),
+                      ),
+                    );
+                  },
                   child: const Text(
                     "Masuk",
                     style: TextStyle(
-                      color: Color(0xFFB6D9D0),
+                      color: Color(0xFF83AEB1),
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -318,26 +762,40 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     );
   }
 
-  Widget _buildLabel(String label) {
+  Widget _buildLabel(String label, bool isRequired) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
+      child: RichText(
+        text: TextSpan(
+          text: label,
+          style: const TextStyle(
+            color: Color(0xFF444444),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+          children: isRequired
+              ? const [
+                  TextSpan(
+                    text: " *",
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                ]
+              : null,
         ),
       ),
     );
   }
 
-  InputDecoration _buildInputDecoration(String hint) {
+  InputDecoration _buildInputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
+      hintStyle: TextStyle(color: Colors.grey.shade400),
+      prefixIcon: Icon(icon, color: const Color(0xFF83AEB1)),
       border: border,
       enabledBorder: border,
-      focusedBorder: border,
+      focusedBorder: focusedBorder,
+      filled: true,
+      fillColor: const Color(0xFFF9FAFB),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
   }

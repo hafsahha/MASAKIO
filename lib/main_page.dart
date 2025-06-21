@@ -9,6 +9,7 @@ import 'package:masakio/Tips Trik/tambah_tips.dart';
 import 'package:masakio/home.dart';
 import 'package:masakio/Forum/forum_page.dart';
 import 'package:masakio/Profile/profile.dart';
+import 'package:masakio/Auth/auth_gate.dart'; // Import AuthGate
 
 import 'package:masakio/discovery.dart';
 
@@ -23,11 +24,12 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   late int _index;
 
+  // Wrap the ProfilePage with AuthGate
   final _pages = [
     const HomePage(),
     const DiscoveryResep(),  // ExplorePage(),
     const ForumPage(),
-    const ProfilePage(pageIndex: 0),
+    const AuthGate(child: ProfilePage(pageIndex: 0)), // Wrapped with AuthGate
   ];
   
   @override
