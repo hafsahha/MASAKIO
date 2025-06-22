@@ -4,6 +4,7 @@ import 'package:masakio/Profile/edit_profile.dart';
 import 'package:masakio/Profile/history.dart';
 import 'package:masakio/Profile/resep_saya.dart';
 import 'package:masakio/Profile/wishlist.dart';
+import 'package:masakio/data/func_profile.dart';
 
 class ProfilePage extends StatefulWidget {
   final int pageIndex;
@@ -15,6 +16,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late int _index;
+  User ? user;
+  bool isLoggedIn = false;
 
   final List<Map<String, dynamic>> _pages = [
     { 'dest': const ResepSayaPage(), 'text': 'Resep Saya' },
@@ -25,7 +28,14 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _checkAuth();
     _index = widget.pageIndex;
+  }
+
+  Future<void> _checkAuth() async {
+    isLoggedIn = await AuthService.isLoggedIn();
+    user = isLoggedIn ? await AuthService.getCurrentUser() : null;
+    if (mounted) setState(() => isLoggedIn = isLoggedIn);
   }
 
   @override
@@ -51,8 +61,8 @@ class _ProfilePageState extends State<ProfilePage> {
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
-                  const UserAvatar(
-                    imageUrl: 'assets/images/profile.jpg',
+                  UserAvatar(
+                    imageUrl: isLoggedIn ? 'assets/images/${user!.photo}' : '',
                     size: 120,
                   ),
                   Positioned(
@@ -77,8 +87,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
               const SizedBox(height: 15),
-              const Text(
-                'Kucing Sedih',
+              Text(
+                user != null ? user!.name : 'Guest User',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 30),
