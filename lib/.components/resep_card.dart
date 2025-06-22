@@ -6,7 +6,7 @@ import 'package:masakio/data/dummy_resep.dart'; // Added import for Resep model
 import 'package:masakio/resep_detail.dart'; // Added import for ResepDetailPage
 
 class ResepCard extends StatelessWidget {
-  final int id;
+  final String id;  // Changed from int to String
   final String title;
   final String rating;
   final String reviews;
@@ -107,9 +107,8 @@ class ResepCard extends StatelessWidget {
                                 children: [
                                   Text('Apakah anda yakin ingin menghapus resep ini dari wishlist?'),
                                   const SizedBox(height: 30),
-                                  Button(
-                                    onPressed: () async {
-                                      await unwish(id);
+                                  Button(                                    onPressed: () async {
+                                      await unwish(int.parse(id));  // Parse string to int
                                       Navigator.pop(context); // Close bottom sheet
                                       if (context.mounted) showDialog(
                                         context: context,
@@ -139,9 +138,8 @@ class ResepCard extends StatelessWidget {
                                 ]
                               );
                             }
-                          );
-                        } else {
-                          await wish(id);
+                          );                        } else {
+                          await wish(int.parse(id));  // Parse string to int
                           if (context.mounted) showDialog(
                             context: context,
                             builder: (ctx) => AlertDialog(

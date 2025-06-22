@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/data/dummy_resep.dart';
 import 'package:masakio/review_all_page.dart';
+import 'package:masakio/data/func_history.dart';
 
 class ResepDetailPage extends StatefulWidget {
   final Resep resep;
@@ -22,9 +23,30 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
   late List<Map<String, String>> ingredients;
   late List<Map<String, String>> tools;
   late List<Map<String, dynamic>> cookingSteps;
+    // Function to add this recipe to user history
+  Future<void> _addToHistory() async {
+    try {
+      // Convert string ID to int
+      final int recipeId = int.tryParse(widget.resep.id) ?? 0;
+      if (recipeId > 0) {
+        final bool success = await addToHistory(recipeId);
+        if (!success) {
+          print('Failed to add recipe to history');
+        }
+      } else {
+        print('Invalid recipe ID format');
+      }
+    } catch (e) {
+      print('Error adding recipe to history: $e');
+    }
+  }
+  
   @override
   void initState() {
     super.initState();
+    
+    // Add recipe to user history
+    _addToHistory();
     
     // Convert ingredients list to the required format
     ingredients = widget.resep.ingredients.map((ingredient) {
