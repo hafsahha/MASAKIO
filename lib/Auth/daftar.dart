@@ -337,6 +337,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
           email: _emailController.text,
           password: _passwordController.text,
           birthDate: _selectedDate?.toString(),
+          diseases: _riwayatList.map((disease) => _allDiseases.firstWhere((d) => d.name == disease).id).toList(), // Send disease IDs
         );
 
         // Add disease history for each disease in the list

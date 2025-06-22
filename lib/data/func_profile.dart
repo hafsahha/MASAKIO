@@ -59,7 +59,7 @@ class AuthService {
   static const String _userKey = 'user_data';
   
   // Register new user
-  static Future<User> register({required String name,  required String email,  required String password, String? birthDate}) async {
+  static Future<User> register({required String name,  required String email,  required String password, String? birthDate, List<int>? diseases}) async {
     final isServerAvailable = await checkServerAvailability();
     if (!isServerAvailable) throw Exception('Server tidak dapat dijangkau.');
 
@@ -71,6 +71,7 @@ class AuthService {
           'email': email,
           'password': password,
           'birth_date': birthDate ?? DateTime.now().toIso8601String().split('T')[0],
+          'diseases': diseases, // Include diseases in the request body
         }),
       ).timeout(const Duration(seconds: 10), onTimeout: () => throw Exception('Koneksi timeout. Silakan coba lagi nanti.'));
       
