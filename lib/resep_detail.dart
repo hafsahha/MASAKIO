@@ -3,12 +3,16 @@ import 'package:masakio/data/dummy_resep.dart';
 import 'package:masakio/review_all_page.dart';
 
 class ResepDetailPage extends StatefulWidget {
-  final Resep resep;
-  
+  final Resep?
+      resep; // Opsional untuk kompatibilitas dengan kode yang sudah ada
+  final int? id; // ID resep untuk fetch dari API
+
   const ResepDetailPage({
     super.key,
-    required this.resep,
-  });
+    this.resep,
+    this.id,
+  }) : assert(
+            resep != null || id != null, 'Either resep or id must be provided');
 
   @override
   State<ResepDetailPage> createState() => _ResepDetailPageState();
@@ -21,41 +25,90 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
 
   late List<Map<String, String>> ingredients;
   late List<Map<String, String>> tools;
-  late List<Map<String, dynamic>> cookingSteps;
-  @override
+  late List<Map<String, dynamic>> cookingSteps;  @override
   void initState() {
     super.initState();
+
+    // Inisialisasi dengan data default
+    ingredients = [];
+    tools = [];
+    cookingSteps = [];
     
-    // Convert ingredients list to the required format
-    ingredients = widget.resep.ingredients.map((ingredient) {
-      final parts = ingredient.split(',');
-      final name = parts.isNotEmpty ? parts[0] : ingredient;
-      final amount = parts.length > 1 ? parts[1].trim() : '';
-      return {'name': name, 'amount': amount};
-    }).toList();
-    
-    // Convert tools list to the required format
-    tools = widget.resep.tools.map((tool) {
-      return {'name': tool, 'description': '1 buah'};
-    }).toList();
-    
-    // Use the steps directly from the resep object
-    cookingSteps = widget.resep.steps.map((step) {
-      return {
-        'title': step['title'] as String,
-        'duration': step['duration'] as String,
-        'steps': step['steps'] as List<String>,
-      };
-    }).toList();
-    
-    // Convert nutrition data
+    // Hanya proses jika resep tidak null
+    if (widget.resep != null) {
+      // Convert ingredients list to the required format
+      ingredients = widget.resep!.ingredients.map((ingredient) {
+        final parts = ingredient.split(',');
+        final name = parts.isNotEmpty ? parts[0] : ingredient;
+        final amount = parts.length > 1 ? parts[1].trim() : '';
+        return {'name': name, 'amount': amount};
+      }).toList();
+
+      // Convert tools list to the required format
+      tools = widget.resep!.tools.map((tool) {
+        return {'name': tool, 'description': '1 buah'};
+      }).toList();
+
+      // Use the steps directly from the resep object
+      cookingSteps = widget.resep!.steps.map((step) {
+        return {
+          'title': step['title'] as String,
+          'duration': step['duration'] as String,
+          'steps': step['steps'] as List<String>,
+        };
+      }).toList();
+    }
+    // Jika widget.id tidak null, bisa tambahkan kode untuk fetch resep dari API di sini    // Default nutrition data
     nutrition = [
-      {'name': 'Karbohidrat', 'value': widget.resep.nutrition['Karbohidrat'] ?? '0 gr', 'icon': Icons.grass_outlined},
-      {'name': 'Protein', 'value': widget.resep.nutrition['Protein'] ?? '0 gr', 'icon': Icons.egg_outlined},
-      {'name': 'Lemak', 'value': widget.resep.nutrition['Lemak'] ?? '0 gr', 'icon': Icons.fastfood_outlined},
-      {'name': 'Kalori', 'value': widget.resep.nutrition['Kalori'] ?? '0 kkal', 'icon': Icons.local_fire_department_outlined},
+      {
+        'name': 'Karbohidrat',
+        'value': '0 gr',
+        'icon': Icons.grass_outlined
+      },
+      {
+        'name': 'Protein',
+        'value': '0 gr',
+        'icon': Icons.egg_outlined
+      },
+      {
+        'name': 'Lemak',
+        'value': '0 gr',
+        'icon': Icons.fastfood_outlined
+      },
+      {
+        'name': 'Kalori',
+        'value': '0 kkal',
+        'icon': Icons.local_fire_department_outlined
+      },
     ];
+    
+    // Update dengan data dari resep jika tersedia
+    if (widget.resep != null) {
+      nutrition = [
+        {
+          'name': 'Karbohidrat',
+          'value': widget.resep!.nutrition['Karbohidrat'] ?? '0 gr',
+          'icon': Icons.grass_outlined
+        },
+        {
+          'name': 'Protein',
+          'value': widget.resep!.nutrition['Protein'] ?? '0 gr',
+          'icon': Icons.egg_outlined
+        },
+        {
+          'name': 'Lemak',
+          'value': widget.resep!.nutrition['Lemak'] ?? '0 gr',
+          'icon': Icons.fastfood_outlined
+        },
+        {
+          'name': 'Kalori',
+          'value': widget.resep!.nutrition['Kalori'] ?? '0 kkal',
+          'icon': Icons.local_fire_department_outlined
+        },
+      ];
+    }
   }
+
   late List<Map<String, dynamic>> nutrition;
 
   @override
@@ -74,8 +127,9 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
         child: ListView(
           children: [
             Stack(
-              children: [                Image.asset(
-                  widget.resep.imageAsset,
+              children: [
+                Image.asset(
+                  widget.resep?.imageAsset ?? 'assets/images/default_food.jpg',
                   width: double.infinity,
                   height: 250,
                   fit: BoxFit.cover,
@@ -107,45 +161,51 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          widget.resep.title,                          style: const TextStyle(
+                          widget.resep?.title ?? 'Detail Resep',
+                          style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),                      const Icon(Icons.star, color: Colors.amber),
+                      ),
+                      const Icon(Icons.star, color: Colors.amber),
                       const SizedBox(width: 4),
-                      Text(widget.resep.rating.toString()),
+                      Text(widget.resep?.rating.toString() ?? '0.0'),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Row(                    children: [
+                  Row(
+                    children: [
                       const CircleAvatar(
                         radius: 16,
                         backgroundImage:
                             AssetImage('assets/images/profile.jpg'),
                       ),
                       const SizedBox(width: 8),
-                      Text('${widget.resep.author} · ${widget.resep.authorFollowers}'),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(                    children: [
-                      const Icon(Icons.person_outline),
-                      const SizedBox(width: 4),Text('Porsi ${widget.resep.servings} Orang'),
-                      SizedBox(width: 16),
-                      Icon(Icons.access_time),
-                      SizedBox(width: 4),
-                      Text('${widget.resep.duration.inMinutes} Minutes'),
-                      SizedBox(width: 16),
-                      Icon(Icons.monetization_on_outlined),
-                      SizedBox(width: 4),
-                      Text('Rp. ${widget.resep.price}'),
+                      Text(
+                          '${widget.resep?.author ?? 'Anonim'} · ${widget.resep?.authorFollowers ?? '0 pengikut'}'),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      for (String category in widget.resep.categories) ...[
+                      const Icon(Icons.person_outline),
+                      const SizedBox(width: 4),
+                      Text('Porsi ${widget.resep?.servings ?? 1} Orang'),
+                      SizedBox(width: 16),
+                      Icon(Icons.access_time),
+                      SizedBox(width: 4),
+                      Text('${widget.resep?.duration != null ? widget.resep!.duration.inMinutes : 30} Minutes'),
+                      SizedBox(width: 16),
+                      Icon(Icons.monetization_on_outlined),
+                      SizedBox(width: 4),
+                      Text('Rp. ${widget.resep?.price ?? 0}'),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      for (String category in widget.resep?.categories ?? []) ...[
                         Chip(
                           label: Text(category),
                           backgroundColor: Color(0xFF83AEB1),
@@ -156,7 +216,7 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                         ),
                         SizedBox(width: 8),
                       ],
-                      for (String tag in widget.resep.tags.take(1)) ...[
+                      for (String tag in (widget.resep?.tags ?? []).take(1)) ...[
                         Chip(
                           label: Text(tag),
                           backgroundColor: Color(0xFF83AEB1),
@@ -173,53 +233,63 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                     'Deskripsi',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),                  Text(
-                    widget.resep.description,
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.resep?.description ?? 'Tidak ada deskripsi',
                   ),
                   const SizedBox(height: 16),
                   Column(
-  crossAxisAlignment: CrossAxisAlignment.start, // Supaya rata kiri
-  children: [
-    const Text(
-      'Bahan',
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-    ),
-    const SizedBox(height: 8),
-    Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Ini penting agar isi juga rata kiri
-          children: [
-            for (int i = 0; i < visibleIngredients.length; i++) ...[
-              IngredientRow(
-                name: visibleIngredients[i]['name']!,
-                amount: visibleIngredients[i]['amount']!,
-              ),
-              if (i < visibleIngredients.length - 1) const Divider(),
-            ],
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  showAllIngredients = !showAllIngredients;
-                });
-              },
-              child: Text(
-                showAllIngredients ? 'Sembunyikan' : 'Lihat Lainnya',
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  ],
-),
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Supaya rata kiri
+                    children: [
+                      const Text(
+                        'Bahan',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Card(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment
+                                .start, // Ini penting agar isi juga rata kiri
+                            children: [
+                              for (int i = 0;
+                                  i < visibleIngredients.length;
+                                  i++) ...[
+                                IngredientRow(
+                                  name: visibleIngredients[i]['name']!,
+                                  amount: visibleIngredients[i]['amount']!,
+                                ),
+                                if (i < visibleIngredients.length - 1)
+                                  const Divider(),
+                              ],
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    showAllIngredients = !showAllIngredients;
+                                  });
+                                },
+                                child: Text(
+                                  showAllIngredients
+                                      ? 'Sembunyikan'
+                                      : 'Lihat Lainnya',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   const Text(
                     'Alat',
@@ -227,11 +297,12 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                   ),
                   const SizedBox(height: 8),
                   Card(
-                  color: Colors.white, // Warna latar putih
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.grey.shade300), // Border abu-abu
-                  ),
+                    color: Colors.white, // Warna latar putih
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                          color: Colors.grey.shade300), // Border abu-abu
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Column(
@@ -267,11 +338,12 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                   ),
                   const SizedBox(height: 8),
                   Card(
-                  color: Colors.white, // Warna latar putih
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.grey.shade300), // Border abu-abu
-                  ),
+                    color: Colors.white, // Warna latar putih
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                          color: Colors.grey.shade300), // Border abu-abu
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Column(
@@ -305,15 +377,17 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                                    const Text(
+                  const Text(
                     'Nutrisi',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   GridView.builder(
                     shrinkWrap: true, // penting agar tinggi menyesuaikan isi
-                    physics: const NeverScrollableScrollPhysics(), // biar gak bisa di-scroll sendiri
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    physics:
+                        const NeverScrollableScrollPhysics(), // biar gak bisa di-scroll sendiri
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 2.5,
                       crossAxisSpacing: 10,
@@ -386,9 +460,11 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                           side: const BorderSide(color: Colors.grey),
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 21),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 21),
                         ),
-                        icon: const Icon(Icons.bookmark_border, color: Colors.grey),
+                        icon: const Icon(Icons.bookmark_border,
+                            color: Colors.grey),
                         label: const Text(
                           'Simpan Resep',
                           style: TextStyle(color: Colors.grey),
@@ -404,7 +480,8 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                           side: const BorderSide(color: Colors.grey),
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 21),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 21),
                         ),
                         icon: const Icon(Icons.share, color: Colors.grey),
                         label: const Text(
@@ -416,165 +493,180 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                   ),
                   // lanjut disini yang beri ulasan
                   const SizedBox(height: 24),
-Container(
-  padding: const EdgeInsets.all(16),
-  decoration: BoxDecoration(
-    border: Border.all(color: Colors.grey.shade300),
-    borderRadius: BorderRadius.circular(16),
-  ),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'Menurutmu bagaimana resep ini?',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      const SizedBox(height: 12),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(
-          5,
-          (index) => IconButton(
-            icon: Icon(
-              Icons.star_border,
-              color: Colors.grey.shade400,
-              size: 32,
-            ),
-            onPressed: () {
-              // Implementasi logika penilaian
-            },
-          ),
-        ),
-      ),
-      const SizedBox(height: 8),
-      TextField(
-        decoration: InputDecoration(
-          hintText: 'Tulis ulasan...',
-          hintStyle: TextStyle(color: Colors.grey),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          prefixIcon: Icon(Icons.edit, color: Colors.grey),
-          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        ),
-        maxLines: 3,
-        minLines: 1,
-      ),
-    ],
-  ),
-),
-//sampai sini
-// mulai lagi
-Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Ulasan (${widget.resep.reviewCount})',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              // Navigate to all reviews page
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ReviewAllPage(resep: widget.resep),
-                ),
-              );
-            },
-            child: const Text(
-              'Lihat semua',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.blue,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),    // Card Review - Show a sample review
-    Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            backgroundColor: Colors.grey.shade300,
-            child: const Icon(Icons.person, color: Colors.white),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Nama + rating
-                Row(
-                  children: [
-                    const Text(
-                      'Ayu R.',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    const SizedBox(width: 8),
-                    Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ...List.generate(
-                          5,
-                          (index) => Icon(
-                            index < widget.resep.rating.floor()
-                                ? Icons.star
-                                : (index == widget.resep.rating.floor() && widget.resep.rating % 1 > 0)
-                                    ? Icons.star_half
-                                    : Icons.star_border,
-                            size: 16,
-                            color: Colors.amber,
+                        const Text(
+                          'Menurutmu bagaimana resep ini?',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Text(widget.resep.rating.toString(), style: const TextStyle(fontSize: 13)),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            5,
+                            (index) => IconButton(
+                              icon: Icon(
+                                Icons.star_border,
+                                color: Colors.grey.shade400,
+                                size: 32,
+                              ),
+                              onPressed: () {
+                                // Implementasi logika penilaian
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Tulis ulasan...',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade300),
+                            ),
+                            prefixIcon: Icon(Icons.edit, color: Colors.grey),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 12),
+                          ),
+                          maxLines: 3,
+                          minLines: 1,
+                        ),
                       ],
                     ),
-                  ],
-                ),
-                const Text(
-                  'Bergabung sejak Maret 2024',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Resepnya enak dan mudah diikuti. Terima kasih!',
-                  style: TextStyle(fontSize: 14),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  ],
-)
-
+                  ),
+//sampai sini
+// mulai lagi
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Ulasan (${widget.resep?.reviewCount ?? 0})',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                // Navigate to all reviews page
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        widget.resep != null 
+                                          ? ReviewAllPage(resep: widget.resep!)
+                                          : const Center(child: Text('Tidak ada data resep')),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                'Lihat semua',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ), // Card Review - Show a sample review
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.grey.shade300,
+                              child:
+                                  const Icon(Icons.person, color: Colors.white),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Nama + rating
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Ayu R.',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Row(
+                                        children: [                                          ...List.generate(
+                                            5,
+                                            (index) => Icon(
+                                              index <
+                                                      (widget.resep?.rating ?? 0.0)
+                                                          .floor()
+                                                  ? Icons.star
+                                                  : (index ==
+                                                              (widget.resep?.rating ?? 0.0)
+                                                                  .floor() &&
+                                                          (widget.resep?.rating ?? 0.0) %
+                                                                  1 >
+                                                              0)
+                                                      ? Icons.star_half
+                                                      : Icons.star_border,
+                                              size: 16,
+                                              color: Colors.amber,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text((widget.resep?.rating ?? 0.0).toString(),
+                                              style: const TextStyle(
+                                                  fontSize: 13)),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const Text(
+                                    'Bergabung sejak Maret 2024',
+                                    style: TextStyle(
+                                        fontSize: 12, color: Colors.grey),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Resepnya enak dan mudah diikuti. Terima kasih!',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
 
 // sampe  disini
                 ],
