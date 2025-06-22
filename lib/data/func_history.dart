@@ -68,7 +68,8 @@ class HistoryItem {
 }
 
 // Function to fetch user history
-Future<List<Map<String, dynamic>>> fetchUserHistory() async {  try {
+Future<List<Map<String, dynamic>>> fetchUserHistory() async {
+  try {
     // Get user ID using the new method
     final userId = await AuthService.getUserId();
     
@@ -90,10 +91,13 @@ Future<List<Map<String, dynamic>>> fetchUserHistory() async {  try {
       }).toList();
       
       // Convert to format that matches ResepCard expectations
-      return historyItems.map((item) => item.toCardFormat()).toList();    } else {
+      return historyItems.map((item) => item.toCardFormat()).toList();
+    } else {
+      print('Failed to fetch history: ${response.statusCode}');
       return [];
     }
   } catch (e) {
+    print('Error fetching history: $e');
     return [];
   }
 }

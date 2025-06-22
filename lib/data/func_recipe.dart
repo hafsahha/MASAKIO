@@ -458,25 +458,73 @@ Future<int> addRecipe({
 // Return: List resep milik user dalam format sederhana untuk tampilan card/list
 Future<List<Map<String, dynamic>>> fetchUserRecipes(int userId) async {
   try {
-    final response = await http
-        .get(Uri.parse('$url/user/$userId'))
-        .timeout(const Duration(seconds: 10));
-    if (response.statusCode != 200)
-      throw Exception('Failed to load user recipes');
+    print('[DEBUG] Fetching recipes for user ID: $userId');
+    
+    // Try both endpoints (old url and new url2)
+    final String apiUrl1 = 'https://masakio.up.railway.app/recipe/user/$userId';
+    final String apiUrl2 = 'https://masakio.up.railway.app/card_recipe/user/$userId';
+    
+    print('[DEBUG] Trying API URL 1: $apiUrl1');
+    
+    // Try first endpoint
+    http.Response response;
+    try {
+      response = await http
+          .get(Uri.parse(apiUrl1))
+          .timeout(const Duration(seconds: 5));
+      
+      print('[DEBUG] Response 1 status code: ${response.statusCode}');
+      
+      if (response.statusCode != 200) {
+        // If failed, try second endpoint
+        print('[DEBUG] First endpoint failed, trying API URL 2: $apiUrl2');
+        response = await http
+            .get(Uri.parse(apiUrl2))
+            .timeout(const Duration(seconds: 5));
+        
+        print('[DEBUG] Response 2 status code: ${response.statusCode}');
+        
+        if (response.statusCode != 200)
+          throw Exception('Failed to load user recipes from both endpoints');
+      }
+    } catch (e) {
+      // If first endpoint throws, try second endpoint
+      print('[DEBUG] Error with first endpoint: $e');
+      print('[DEBUG] Trying API URL 2: $apiUrl2');
+      response = await http
+          .get(Uri.parse(apiUrl2))
+          .timeout(const Duration(seconds: 5));
+      
+      print('[DEBUG] Response 2 status code: ${response.statusCode}');
+      
+      if (response.statusCode != 200)
+        throw Exception('Failed to load user recipes from both endpoints');
+    }
 
     final List<dynamic> data = json.decode(response.body);
+    print('[DEBUG] Received ${data.length} recipes');
+    if (data.isNotEmpty) {
+      print('[DEBUG] Sample first recipe: ${data[0]}');
+    } else {
+      print('[DEBUG] No recipes found for user $userId');
+    }
+    
     return data
         .map((item) => {
-              'id': item['id_resep'],
-              'title': item['nama_resep'],
+              'id': item['id_resep'].toString(), // Convert to string
+              'title': item['nama_resep'] ?? 'Untitled',
               'reviewCount': item['jumlah_view'] ?? 0,
-              'imageAsset': 'assets/images/${item['thumbnail']}',
+              'rating': '5.0', // Add default rating
+              'imageAsset': item['thumbnail'] != null && item['thumbnail'].toString().isNotEmpty
+                  ? 'assets/images/${item['thumbnail']}' 
+                  : 'assets/images/nasi_goreng.jpeg', // Default if thumbnail is null
               'isOwned': true,
               'isBookmarked': false,
             })
         .toList();
   } catch (e) {
-    rethrow;
+    print('Error fetching user recipes: $e');
+    return [];
   }
 }
 

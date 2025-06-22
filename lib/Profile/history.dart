@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/data/func_history.dart';
 import 'package:masakio/.components/future_resep_grid.dart';
+import 'package:masakio/data/func_profile.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -11,6 +12,8 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   late Future<List<Map<String, dynamic>>> _historyFuture;
+  bool _isLoading = true;
+  
   @override
   void initState() {
     super.initState();
@@ -19,13 +22,23 @@ class _HistoryPageState extends State<HistoryPage> {
   
   Future<void> _loadHistory() async {
     setState(() {
+      _isLoading = true;
       _historyFuture = fetchUserHistory();
     });
+    
+    // Set loading to false after a brief delay
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(      appBar: AppBar(
+    return Scaffold(
+      appBar: AppBar(
         title: const Text(
           'Riwayat',
           style: TextStyle(
@@ -40,14 +53,18 @@ class _HistoryPageState extends State<HistoryPage> {
           ),
         ],
         centerTitle: true,
-      ),      body: Padding(
+      ),
+      body: Padding(
         padding: const EdgeInsets.only(bottom: 100.0),
-        child: Column(          children: [
+        child: Column(
+          children: [
             Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
+              child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : FutureBuilder<List<Map<String, dynamic>>>(
                 future: _historyFuture,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+                  if (snapshot.connectionState == ConnectionState.waiting && _isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(
@@ -94,7 +111,10 @@ class _HistoryPageState extends State<HistoryPage> {
                   }
                   
                   // If we have data, show the grid
-                  return ResepGridF(recipes: Future.value(snapshot.data!));
+                  return ResepGridF(
+                    recipes: Future.value(snapshot.data!),
+                    onRefresh: _loadHistory,
+                  );
                 },
               ),
             ),

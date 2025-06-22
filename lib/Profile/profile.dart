@@ -21,8 +21,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   final List<Map<String, dynamic>> _pages = [
     { 'dest': const ResepSayaPage(), 'text': 'Resep Saya' },
-    { 'dest': const HistoryPage(), 'text': 'History' },
-    { 'dest': const WishlistPage(), 'text': 'Wishlist' },
+    { 'dest': const HistoryPage(), 'text': 'Riwayat' },
+    { 'dest': const WishlistPage(), 'text': 'Koleksi' },
   ];
 
   @override
