@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import '.components/resep_grid.dart';
-import '.components/search_bar.dart';
-import '.components/bottom_popup.dart';
-import 'data/dummy_resep.dart';
-import '.components/TipsDanTrikCardV2.dart';
+import './.components/resep_grid.dart';
+import './.components/search_bar.dart';
+import './.components/bottom_popup.dart';
+import './.components/TipsDanTrikCardV2.dart';
+
+// import function recipe
+import './data/func_recipe.dart' as recipe_api;
+import './utils/api_debug_helper.dart';
 
 class DiscoveryResep extends StatefulWidget {
   const DiscoveryResep({super.key});
@@ -30,14 +33,18 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
   List<String> bahanTidakDiinginkan = [];
 
   final TextEditingController _bahanDiinginkanController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _bahanTidakDiinginkanController =
-  TextEditingController();
-
+      TextEditingController();
   @override
   void initState() {
     super.initState();
     selectedCategory = "Semua";
+
+    // Test API connection saat aplikasi dibuka
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      APIDebugHelper.testAPIConnection();
+    });
   }
 
   @override
@@ -55,45 +62,11 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
     });
   }
 
-  List<Resep> getFilteredReseps() {
-    // 1. Filter kategori
-    List<Resep> filtered = selectedCategory == "Semua"
-        ? dummyResepList
-        : dummyResepList
-        .where((r) => r.categories.contains(selectedCategory))
-        .toList();
-
-    // 2. Filter search query
-    if (searchQuery.isNotEmpty) {
-      filtered = filtered
-          .where((r) =>
-          r.title.toLowerCase().contains(searchQuery.toLowerCase()))
-          .toList();
-    }
-
-    // 3. Filter bahan yang diinginkan
-    if (bahanDiinginkan.isNotEmpty) {
-      filtered = filtered.where((r) {
-        return bahanDiinginkan.every((b) {
-          final bl = b.toLowerCase();
-          return r.ingredientNames
-              .any((ing) => ing.toLowerCase().contains(bl));
-        });
-      }).toList();
-    }
-
-    // 4. Filter bahan yang tidak diinginkan
-    if (bahanTidakDiinginkan.isNotEmpty) {
-      filtered = filtered.where((r) {
-        return !bahanTidakDiinginkan.any((b) {
-          final bl = b.toLowerCase();
-          return r.ingredientNames
-              .any((ing) => ing.toLowerCase().contains(bl));
-        });
-      }).toList();
-    }
-
-    return filtered;
+  // Fungsi ini akan digunakan untuk filter data dummy (jika diperlukan)
+  // Tidak diperlukan lagi untuk grid resep karena menggunakan data dari API
+  List<Map<String, dynamic>> getFilteredReseps() {
+    // Return list kosong - tidak digunakan untuk grid resep
+    return [];
   }
 
   void _showFilterBottomSheet() {
@@ -133,9 +106,9 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                     icon: const Icon(Icons.keyboard_arrow_down),
                     items: categories
                         .map((c) => DropdownMenuItem(
-                      value: c,
-                      child: Text(c),
-                    ))
+                              value: c,
+                              child: Text(c),
+                            ))
                         .toList(),
                     onChanged: (v) {
                       if (v != null) setModalState(() => tempCategory = v);
@@ -191,11 +164,11 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                 spacing: 8,
                 children: tempWanted
                     .map((b) => Chip(
-                  backgroundColor: Colors.teal.shade200,
-                  label: Text(b),
-                  onDeleted: () =>
-                      setModalState(() => tempWanted.remove(b)),
-                ))
+                          backgroundColor: Colors.teal.shade200,
+                          label: Text(b),
+                          onDeleted: () =>
+                              setModalState(() => tempWanted.remove(b)),
+                        ))
                     .toList(),
               ),
 
@@ -232,8 +205,7 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                     IconButton(
                       icon: const Icon(Icons.add, color: Colors.grey),
                       onPressed: () {
-                        final txt =
-                        _bahanTidakDiinginkanController.text.trim();
+                        final txt = _bahanTidakDiinginkanController.text.trim();
                         if (txt.isNotEmpty) {
                           setModalState(() => tempUnwanted.add(txt));
                           _bahanTidakDiinginkanController.clear();
@@ -248,11 +220,11 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                 spacing: 8,
                 children: tempUnwanted
                     .map((b) => Chip(
-                  backgroundColor: Colors.red.shade100,
-                  label: Text(b),
-                  onDeleted: () =>
-                      setModalState(() => tempUnwanted.remove(b)),
-                ))
+                          backgroundColor: Colors.red.shade100,
+                          label: Text(b),
+                          onDeleted: () =>
+                              setModalState(() => tempUnwanted.remove(b)),
+                        ))
                     .toList(),
               ),
 
@@ -282,7 +254,7 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child:ElevatedButton(
+                    child: ElevatedButton(
                       onPressed: () {
                         setState(() {
                           selectedCategory = tempCategory;
@@ -293,8 +265,10 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal.shade300,
-                        foregroundColor: Colors.white, // Mengatur warna text secara eksplisit
-                        elevation: 2, // Menambahkan sedikit elevasi untuk efek visual
+                        foregroundColor: Colors
+                            .white, // Mengatur warna text secara eksplisit
+                        elevation:
+                            2, // Menambahkan sedikit elevasi untuk efek visual
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -327,25 +301,22 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
           children: [
             // Search Bar
             CustomSearchBar(
-              hintText:
-              activeTab == 0 ? "Cari resep" : "Cari tips & trik",
+              hintText: activeTab == 0 ? "Cari resep" : "Cari tips & trik",
               onSearch: (q) => setState(() => searchQuery = q),
             ),
 
             // Tab Navigasi
             Container(
               decoration: BoxDecoration(
-                  border: Border(
-                      bottom:
-                      BorderSide(color: Colors.grey.shade300))),
+                  border:
+                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 children: [
                   Expanded(
                     child: GestureDetector(
                       onTap: () => changeTab(0),
                       child: Container(
-                        padding:
-                        const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
@@ -362,9 +333,8 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                               fontWeight: activeTab == 0
                                   ? FontWeight.bold
                                   : FontWeight.normal,
-                              color: activeTab == 0
-                                  ? Colors.black
-                                  : Colors.grey,
+                              color:
+                                  activeTab == 0 ? Colors.black : Colors.grey,
                             ),
                           ),
                         ),
@@ -375,8 +345,7 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                     child: GestureDetector(
                       onTap: () => changeTab(1),
                       child: Container(
-                        padding:
-                        const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
@@ -393,9 +362,8 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                               fontWeight: activeTab == 1
                                   ? FontWeight.bold
                                   : FontWeight.normal,
-                              color: activeTab == 1
-                                  ? Colors.black
-                                  : Colors.grey,
+                              color:
+                                  activeTab == 1 ? Colors.black : Colors.grey,
                             ),
                           ),
                         ),
@@ -416,13 +384,11 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                     Expanded(
                       child: ListView(
                         scrollDirection: Axis.horizontal,
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         children: categories.map((c) {
                           final sel = selectedCategory == c;
                           return Padding(
-                            padding:
-                            const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: ElevatedButton(
                               onPressed: () =>
                                   setState(() => selectedCategory = c),
@@ -430,13 +396,11 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                                 backgroundColor: sel
                                     ? Colors.teal.shade200
                                     : Colors.grey.shade200,
-                                foregroundColor: sel
-                                    ? Colors.black
-                                    : Colors.black54,
+                                foregroundColor:
+                                    sel ? Colors.black : Colors.black54,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                    BorderRadius.circular(20)),
+                                    borderRadius: BorderRadius.circular(20)),
                               ),
                               child: Text(c),
                             ),
@@ -445,36 +409,87 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: ElevatedButton.icon(
-                        onPressed: _showFilterBottomSheet,
-                        icon: const Icon(Icons.filter_list, size: 18, color: Colors.white),
-                        label: const Text(
-                          "Filter",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                        padding: const EdgeInsets.only(right: 16),
+                        child: ElevatedButton.icon(
+                          onPressed: _showFilterBottomSheet,
+                          icon: const Icon(Icons.filter_list,
+                              size: 18, color: Colors.white),
+                          label: const Text(
+                            "Filter",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF83AEB1),
-                          foregroundColor: Colors.white, // Mengatur warna text secara eksplisit
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                        ),
-                      )
-                    ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF83AEB1),
+                            foregroundColor: Colors
+                                .white, // Mengatur warna text secara eksplisit
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                          ),
+                        )),
                   ],
                 ),
               ),
-              // Grid Resep
+              // Grid Resep dengan data dari API
               Expanded(
                 child: MediaQuery.removePadding(
                   context: context,
                   removeBottom: true,
-                  child: ResepGrid(
-                    reseps: getFilteredReseps(), // This should now be passing List<Resep>
+                  child: FutureBuilder<List<Map<String, dynamic>>>(
+                    // Menggunakan fungsi dengan fallback ke dummy data jika API gagal
+                    future: recipe_api.fetchAllRecipesWithFallback(),
+                    builder: (context, snapshot) {
+                      print(
+                          "[DEBUG] Discovery FutureBuilder: ConnectionState: ${snapshot.connectionState}");
+
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        print(
+                            "[DEBUG] Discovery FutureBuilder: Masih loading...");
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF83AEB1),
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        print(
+                            "[ERROR] Discovery FutureBuilder: Error: ${snapshot.error}");
+                        // Tampilkan error dengan detail lebih jelas untuk debugging
+                        return Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text("Error: ${snapshot.error}"),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {}); // Reload untuk mencoba lagi
+                                },
+                                child: const Text("Coba Lagi"),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        print(
+                            "[WARN] Discovery FutureBuilder: Data kosong: ${snapshot.data}");
+                        return const Center(
+                          child: Text("Tidak ada resep yang tersedia"),
+                        );
+                      } else {
+                        // Data berhasil didapat, tampilkan dengan ResepGrid
+                        print(
+                            "[DEBUG] Discovery FutureBuilder: Data berhasil didapat: ${snapshot.data!.length} item");
+                        print(
+                            "[DEBUG] Discovery FutureBuilder: Contoh data pertama: ${snapshot.data!.isNotEmpty ? snapshot.data![0] : 'Tidak ada data'}");
+
+                        return ResepGrid(
+                          reseps: snapshot.data!,
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
@@ -488,5 +503,3 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
     );
   }
 }
-
-

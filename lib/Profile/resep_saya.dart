@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/.components/future_resep_grid.dart';
 import 'package:masakio/data/func_profile.dart';
-import 'package:masakio/data/func_recipe.dart';
+import 'package:masakio/data/func_recipe.dart' as recipe_api;
 
 class ResepSayaPage extends StatefulWidget {
   const ResepSayaPage({super.key});
@@ -19,11 +19,11 @@ class _ResepSayaPageState extends State<ResepSayaPage> {
     super.initState();
     _myRecipesFuture = AuthService.getCurrentUser().then((u) {
       user = u;
-      return fetchAllUserRecipes(user!.id);
+      return recipe_api.fetchUserRecipes(user!.id);
     });
   }
 
-  void _refreshMyRecipes() => setState(() => _myRecipesFuture = fetchAllUserRecipes(user!.id));
+  void _refreshMyRecipes() { setState(() => _myRecipesFuture = recipe_api.fetchUserRecipes(user!.id));}
 
   @override
   Widget build(BuildContext context) {
