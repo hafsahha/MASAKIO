@@ -8,7 +8,6 @@ import 'package:masakio/Tips Trik/detail_tips.dart';
 import 'package:masakio/Tips Trik/tambah_tips.dart';
 import 'package:masakio/main_page.dart';
 import 'package:masakio/Profile/edit_profile.dart';
-import 'package:masakio/data/dummy_tips.dart';
 import 'package:masakio/data/dummy_resep.dart';
 import 'package:masakio/resep_detail.dart';
 import 'package:masakio/splash_screen.dart';
@@ -97,7 +96,7 @@ class RecipeMenuPage extends StatelessWidget {
       },
       {
         'title': 'Detail Tips & Trik',
-        'dest': TipsAndTrikPage(tip: dummyTipsList[1]),
+        'dest': TipsAndTrikPage(idTips: 1),
         'icon': Icons.info_outline,
         'gradient': [const Color(0xFF8EBDC0), const Color(0xFF75A3A6)]
       },

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:masakio/data/func_tips.dart';
 import 'package:masakio/.components/navbar.dart';
 import 'package:masakio/.components/bottom_popup.dart';
 import 'package:masakio/.components/button.dart';
 import 'package:masakio/Tambah Resep/tambah-resep-1.dart';
 import 'package:masakio/Tips Trik/tambah_tips.dart';
 import 'package:masakio/main_page.dart';
-import 'package:masakio/data/dummy_tips.dart';
-import 'package:intl/intl.dart';
 
 class TipsAndTrikPage extends StatefulWidget {
-  final Tips tip;
-  const TipsAndTrikPage({super.key, required this.tip});
+  final int idTips;
+
+  const TipsAndTrikPage({super.key, required this.idTips});
 
   @override
   State<TipsAndTrikPage> createState() => _TipsAndTrikPageState();
@@ -18,6 +19,8 @@ class TipsAndTrikPage extends StatefulWidget {
 
 class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
   bool _isExpanded = false;
+  bool _isLoading = true;
+  Map<String, dynamic>? _tip;
 
   void _toggleExpansion() {
     setState(() {
@@ -52,9 +55,7 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const TambahResep1Page(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const TambahResep1Page()),
                 );
               },
             ),
@@ -64,9 +65,7 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const TambahTipsPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const TambahTipsPage()),
                 );
               },
             ),
@@ -77,17 +76,50 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadTipDetail();
+  }
+
+  Future<void> _loadTipDetail() async {
+    try {
+      final data = await fetchTipsDetail(widget.idTips);
+      setState(() {
+        _tip = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      // Optionally show an error message/snackbar
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final tip = widget.tip;
-    final formattedDate = DateFormat('MMMM d, yyyy').format(tip.uploadDate);
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_tip == null) {
+      return const Scaffold(
+        body: Center(child: Text('Gagal memuat data tips.')),
+      );
+    }
+
+    final tip = _tip!;
+    final formattedDate = DateFormat('MMMM d, yyyy').format(DateTime.parse(tip['timestamp']));
+    final content = tip['description'] ?? '';
+    final hashtags = List<String>.from(tip['hashtags']);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-        titleSpacing: 0,
         toolbarHeight: 60,
+        titleSpacing: 0,
         title: Padding(
           padding: const EdgeInsets.only(left: 16),
           child: Container(
@@ -109,29 +141,30 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: tip.hashtags.map((tag) => Chip(
-                  label: Text(tag),
-                  backgroundColor: const Color(0xFF83AEB1),
-                  labelStyle: const TextStyle(color: Colors.white),
-                )).toList(),
+            if (hashtags.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: hashtags.map((tag) => Chip(
+                    label: Text(tag),
+                    backgroundColor: const Color(0xFF83AEB1),
+                    labelStyle: const TextStyle(color: Colors.white),
+                  )).toList(),
+                ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                tip.title,
+                tip['title'],
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 16, top: 4, bottom: 8),
               child: Text(
-                'Oleh ${tip.author} • Diunggah: $formattedDate',
+                'Oleh ${tip['uploader']} • Diunggah: $formattedDate',
                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
             ),
@@ -139,8 +172,8 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  tip.imageAsset,
+                child: Image.network(
+                  tip['imageUrl'],
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
@@ -158,7 +191,9 @@ class _TipsAndTrikPageState extends State<TipsAndTrikPage> {
                       border: Border.all(color: const Color(0xFFD8D8D8), width: 1),
                     ),
                     child: Text(
-                      _isExpanded ? tip.content : tip.content.split('. ').take(3).join('. ') + '.',
+                      _isExpanded
+                        ? content
+                        : content.split('. ').take(3).join('. ') + '.',
                       style: const TextStyle(fontSize: 14),
                     ),
                   ),

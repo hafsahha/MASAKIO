@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:masakio/data/dummy_tips.dart';
 import 'package:masakio/Tips Trik/detail_tips.dart';
+import 'package:masakio/data/func_tips.dart';
 
 class TipsDanTrikCard extends StatelessWidget {
-  final String imagePath;
+  final String imageUrl;
   final String title;
   final String author;
-  final String authorImage;
   final VoidCallback onTap;
 
   const TipsDanTrikCard({
     Key? key,
-    required this.imagePath,
+    required this.imageUrl,
     required this.title,
     required this.author,
-    required this.authorImage,
     required this.onTap,
   }) : super(key: key);
 
@@ -29,7 +27,7 @@ class TipsDanTrikCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           image: DecorationImage(
-            image: AssetImage(imagePath),
+            image: NetworkImage(imageUrl), // Gunakan URL dari API
             fit: BoxFit.cover,
           ),
         ),
@@ -63,9 +61,9 @@ class TipsDanTrikCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 10,
-                    backgroundImage: AssetImage(authorImage),
+                    backgroundImage: AssetImage('assets/images/profile.jpg'), // Placeholder
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -85,8 +83,35 @@ class TipsDanTrikCard extends StatelessWidget {
   }
 }
 
-class TipsDanTrikSection extends StatelessWidget {
+class TipsDanTrikSection extends StatefulWidget {
   const TipsDanTrikSection({super.key});
+
+  @override
+  State<TipsDanTrikSection> createState() => _TipsDanTrikSectionState();
+}
+
+class _TipsDanTrikSectionState extends State<TipsDanTrikSection> {
+  List<Map<String, dynamic>> tipsList = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadTips();
+  }
+
+  Future<void> loadTips() async {
+    try {
+      final data = await fetchAllTips();
+      setState(() {
+        tipsList = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      // Tangani error jika perlu
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,28 +150,29 @@ class TipsDanTrikSection extends StatelessWidget {
         const SizedBox(height: 8),
         SizedBox(
           height: 180,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: dummyTipsList.length,
-            itemBuilder: (context, index) {
-              final tip = dummyTipsList[index];
-              return TipsDanTrikCard(
-                imagePath: tip.imageAsset,
-                title: tip.title,
-                author: tip.author,
-                authorImage: 'assets/images/profile.jpg', // ganti jika kamu punya data image
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TipsAndTrikPage(tip: tip),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: tipsList.length,
+                  itemBuilder: (context, index) {
+                    final tip = tipsList[index];
+                    return TipsDanTrikCard(
+                      imageUrl: tip['imageUrl'],
+                      title: tip['title'],
+                      author: tip['uploader'],
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TipsAndTrikPage(idTips: tip['id']),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
         ),
       ],
     );
