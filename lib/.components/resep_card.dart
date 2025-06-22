@@ -6,7 +6,7 @@ import 'package:masakio/data/dummy_resep.dart'; // Added import for Resep model
 import 'package:masakio/resep_detail.dart'; // Added import for ResepDetailPage
 
 class ResepCard extends StatelessWidget {
-  final int id;
+  final String id; // Changed to String to ensure consistency
   final String title;
   final String rating;
   final String reviews;
@@ -15,7 +15,6 @@ class ResepCard extends StatelessWidget {
   bool isBookmarked; // Parameter baru untuk status bookmark
   final void Function()? onRefresh; // Callback untuk refresh jika diperlukan
   final Resep? resep; // Added full Resep object
-
   ResepCard({
     super.key,
     required this.id,
@@ -30,13 +29,12 @@ class ResepCard extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
+    return GestureDetector(      onTap: () {
         // Navigate to recipe detail page with ID
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ResepDetailPage(id: id),
+            builder: (context) => ResepDetailPage(id: int.parse(id)),
           ),
         );
       },
@@ -104,8 +102,7 @@ class ResepCard extends StatelessWidget {
                                           'Apakah anda yakin ingin menghapus resep ini dari wishlist?'),
                                       const SizedBox(height: 30),
                                       Button(
-                                        onPressed: () async {
-                                          await unwish(id);
+                                        onPressed: () async {                                          await unwish(int.parse(id));
                                           Navigator.pop(
                                               context); // Close bottom sheet
                                           if (context.mounted)
@@ -141,7 +138,7 @@ class ResepCard extends StatelessWidget {
                                     ]);
                                   });
                             } else {
-                              await wish(id);
+                              await wish(int.parse(id));
                               if (context.mounted)
                                 showDialog(
                                   context: context,

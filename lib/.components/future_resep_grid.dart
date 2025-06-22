@@ -23,9 +23,30 @@ class ResepGridF extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('Tidak ada data resep.'));
+          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.no_meals, size: 60, color: Colors.grey),
+                const SizedBox(height: 16),
+                const Text(
+                  'Belum ada resep',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Resep yang Anda buat akan muncul di sini',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: onRefresh,
+                  child: const Text('Refresh'),
+                ),
+              ],
+            ),
+          );
         }
         final resepList = snapshot.data!;
         return GridView.builder(
@@ -38,14 +59,19 @@ class ResepGridF extends StatelessWidget {
             childAspectRatio: 0.75,
           ),
           itemCount: resepList.length,
-          itemBuilder: (context, index) {
-            final resep = resepList[index];
+          itemBuilder: (context, index) {            final resep = resepList[index];
+            
+            // Ensure ID is string type
+            String id = resep['id'] is String 
+                ? resep['id'] 
+                : resep['id'].toString();
+            
             return ClipRect(
               child: ResepCard(
-                id: resep['id'],
-                title: resep['title'],
-                rating: resep['rating'].toString(),
-                reviews: resep['reviewCount'].toString(),
+                id: id,
+                title: resep['title'] ?? 'Tanpa judul',
+                rating: resep['rating']?.toString() ?? '0.0',
+                reviews: resep['reviewCount']?.toString() ?? '0',
                 imageUrl: resep['imageAsset'],
                 isOwned: resep['isOwned'] ?? false,
                 isBookmarked: resep['isBookmarked'] ?? false,
