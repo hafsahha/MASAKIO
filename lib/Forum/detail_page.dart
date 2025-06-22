@@ -1,106 +1,186 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/Forum/reply_discussion.dart';
 import 'package:masakio/.components/user_avatar.dart';
+import 'package:masakio/data/func_forum.dart';
 
-class ForumDetailPage extends StatelessWidget {
-  final String username;
-  final String userImage;
-  final String content;
-  final String contentImage;
-  final List<String> hashtags;
-  final int repliesCount;
-  final int likesCount;
+class ForumDetailPage extends StatefulWidget {
+  final int id;
+  const ForumDetailPage({super.key, required this.id});
 
-  const ForumDetailPage({
-    super.key,
-    required this.username,
-    required this.userImage,
-    required this.content,
-    required this.contentImage,
-    required this.hashtags,
-    required this.repliesCount,
-    required this.likesCount,
-  });
+  @override
+  State<ForumDetailPage> createState() => _ForumDetailPageState();
+}
+
+class _ForumDetailPageState extends State<ForumDetailPage> {
+  Future<ForumDetail>? _forumFuture;
+  ForumDetail? forum;
+  final List<String> hashtags = ['#masakio', '#resep', '#masakan'];
+
+  @override
+  void initState() {
+    super.initState();
+    _forumFuture = fetchForumById(widget.id);
+    _forumFuture!.then((f) { forum = f; });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Discussion Forum',
-          style: TextStyle(
-            fontFamily: 'SF Pro Display',
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-            color: Colors.black,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: ListView(
-        children: [
-          // Main post
-          _buildMainPost(context),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
-          // Replies
-          _buildReply(
-            username: 'kiero_d',
-            userHandle: '@kiero_d',
-            userImage: 'assets/images/avatar2.png',
-            content: 'Mantap sekali chef ilmunya, terima kasih besok besok mau dicoba......👌',
-            timeAgo: '2d',
-            replyingTo: '@kokihafas',
-            retweetsCount: 1,
-            likesCount: 1,
-            context: context,
-          ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
-          _buildReply(
-            username: 'karennne',
-            userHandle: '@karennne',
-            userImage: 'assets/images/avatar.png',
-            content: 'Walah begitu toh',
-            timeAgo: '2d',
-            hashtags: ['#barutahu', '#masak'],
-            retweetsCount: 1,
-            likesCount: 1,
-            context: context,
-          ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  'Lihat 1 balasan lainnya',
-                  style: TextStyle(
-                    fontFamily: 'SF Pro Display',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF333333),
-                  ),
-                ),
+    return FutureBuilder<ForumDetail>(
+      future: _forumFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        } else if (snapshot.hasError) {
+          return Scaffold(body: Center(child: Text('Error: ${snapshot.error}')));
+        }
+        forum = snapshot.data!;
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: const Text(
+              'Postingan Forum',
+              style: TextStyle(
+                fontFamily: 'montserrat',
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                color: Colors.black,
               ),
             ),
+            centerTitle: true,
           ),
-        ],
-      ),
+          body: ListView(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // User info
+                        Row(
+                          children: [
+                            UserAvatar(imageUrl: forum!.authorPhoto != null ? 'assets/images/${forum!.authorPhoto}' : 'assets/images/avatar.png', size: 40),
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  forum!.author,
+                                  style: const TextStyle(
+                                    fontFamily: 'montserrat',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 25,
+                                    color: Color(0xFF333333),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Content
+                        Text(
+                          forum!.content,
+                          style: const TextStyle(
+                            fontFamily: 'montserrat',
+                            fontSize: 20,
+                            height: 1.5,
+                            color: Color(0xFF333333),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Hashtags
+                        Wrap(
+                          spacing: 4,
+                          children: hashtags.map((tag) => Text(
+                            tag,
+                            style: const TextStyle(
+                              fontFamily: 'montserrat',
+                              color: Colors.blue,
+                              fontSize: 14,
+                            ),
+                          )).toList(),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Image Content (if exists)
+                        if (forum!.image != null)
+                            Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.asset(
+                              'assets/images/${forum!.image!}',
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              ),
+                            ),
+                            ),
+                        
+                        const SizedBox(height: 16),
+
+                        // Action buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildActionButton(Icons.favorite_border, '${forum!.likes} Suka', () async { }),
+                            _buildActionButton(Icons.chat_bubble_outline, '${forum!.comments} Balasan', () {
+                              showReplyBottomSheet(context, 'Berikan Balasan');
+                            }),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+              (forum!.replies == null || forum!.replies!.isEmpty)
+              ? const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Belum ada balasan.',
+                    style: TextStyle(
+                      fontFamily: 'montserrat',
+                      fontSize: 16,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                )
+              : Column(
+                children: forum!.replies!.map((reply) {
+                  return Column(
+                    children: [
+                      _buildReply(
+                        username: reply.author,
+                        userImage: reply.authorPhoto != null ? 'assets/images/${reply.authorPhoto}' : 'assets/images/avatar.png',
+                        content: reply.caption,
+                        timeAgo: '${DateTime.now().difference(reply.timestamp).inDays}d',
+                        replyingTo: forum!.author,
+                        hashtags: [],
+                        likesCount: reply.likes,
+                        repliesCount: reply.comments,
+                        context: context,
+                      ),
+                    const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -113,167 +193,22 @@ class ForumDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMainPost(BuildContext context) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // User info
-            Row(
-              children: [
-                UserAvatar(imageUrl: userImage, size: 30),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      username,
-                      style: const TextStyle(
-                        fontFamily: 'SF Pro Display',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                        color: Color(0xFF333333),
-                      ),
-                    ),
-                    Text(
-                      '@$username',
-                      style: const TextStyle(
-                        fontFamily: 'SF Pro Display',
-                        color: Color(0xFF666666),
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Content
-            Text(
-              content,
-              style: const TextStyle(
-                fontFamily: 'SF Pro Display',
-                fontSize: 15,
-                height: 1.5,
-                color: Color(0xFF333333),
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Image Content (if exists)
-            if (contentImage.isNotEmpty) 
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Image.asset(
-                  contentImage,
-                  fit: BoxFit.cover,
-                  width: double.infinity, // You can adjust the height as needed
-                ),
-              ),
-            
-            const SizedBox(height: 8),
-
-            // Hashtags
-            Wrap(
-              spacing: 4,
-              children: hashtags.map((tag) => Text(
-                tag,
-                style: const TextStyle(
-                  fontFamily: 'SF Pro Display',
-                  color: Colors.blue,
-                  fontSize: 14,
-                ),
-              )).toList(),
-            ),
-            const SizedBox(height: 16),
-
-            // Stats
-            Row(
-              children: [
-                // User avatars (small)
-                SizedBox(
-                  width: 60,
-                  child: Stack(
-                    children: [
-                      UserAvatar(imageUrl: userImage, size: 20),
-                      Positioned(
-                        left: 12,
-                        child: UserAvatar(imageUrl: userImage, size: 20),
-                      ),
-                      Positioned(
-                        left: 24,
-                        child: UserAvatar(imageUrl: userImage, size: 20),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                Text(
-                  '$repliesCount Replies',
-                  style: const TextStyle(
-                    fontFamily: 'SF Pro Display',
-                    color: Color(0xFF666666),
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  '$likesCount Likes',
-                  style: const TextStyle(
-                    fontFamily: 'SF Pro Display',
-                    color: Color(0xFF666666),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Action buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildActionButton(Icons.chat_bubble_outline, '', () {
-                  showReplyBottomSheet(context, 'Berikan Balasan');
-                }),
-                _buildActionButton(Icons.repeat, '', () {
-                }),
-                _buildActionButton(Icons.favorite_border, '', () {
-                }),
-                _buildActionButton(Icons.share_outlined, '', () {
-                }),
-              ],
-            ),
-          ],
-        ),
-      ),
-    ],
-  );
-}
-
   Widget _buildReply({
     required BuildContext context,
     required String username,
-    required String userHandle,
     required String userImage,
     required String content,
     required String timeAgo,
     String? replyingTo,
     List<String> hashtags = const [],
-    required int retweetsCount,
     required int likesCount,
+    required int repliesCount,
   }) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // User info with timestamp
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -288,7 +223,7 @@ class ForumDetailPage extends StatelessWidget {
                         Text(
                           username,
                           style: const TextStyle(
-                            fontFamily: 'SF Pro Display',
+                            fontFamily: 'montserrat',
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                             color: Color(0xFF333333),
@@ -296,18 +231,9 @@ class ForumDetailPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 5),
                         Text(
-                          userHandle,
-                          style: const TextStyle(
-                            fontFamily: 'SF Pro Display',
-                            color: Color(0xFF666666),
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
                           '· $timeAgo',
                           style: const TextStyle(
-                            fontFamily: 'SF Pro Display',
+                            fontFamily: 'montserrat',
                             color: Color(0xFF666666),
                             fontSize: 13,
                           ),
@@ -320,7 +246,7 @@ class ForumDetailPage extends StatelessWidget {
                         child: Text(
                           'Membalas kepada $replyingTo',
                           style: const TextStyle(
-                            fontFamily: 'SF Pro Display',
+                            fontFamily: 'montserrat',
                             color: Colors.blue,
                             fontSize: 13,
                           ),
@@ -338,14 +264,14 @@ class ForumDetailPage extends StatelessWidget {
             padding: const EdgeInsets.only(left: 34),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                children: [
                 Text(
                   content,
                   style: const TextStyle(
-                    fontFamily: 'SF Pro Display',
-                    fontSize: 13,
-                    height: 1.4,
-                    color: Color(0xFF333333),
+                  fontFamily: 'montserrat',
+                  fontSize: 13,
+                  height: 1.4,
+                  color: Color(0xFF333333),
                   ),
                 ),
                 if (hashtags.isNotEmpty) 
@@ -353,30 +279,30 @@ class ForumDetailPage extends StatelessWidget {
                 Wrap(
                   spacing: 4,
                   children: hashtags.map((tag) => Text(
-                    tag,
-                    style: const TextStyle(
-                      fontFamily: 'SF Pro Display',
-                      color: Colors.blue,
-                      fontSize: 13,
-                    ),
+                  tag,
+                  style: const TextStyle(
+                    fontFamily: 'montserrat',
+                    color: Colors.blue,
+                    fontSize: 13,
+                  ),
                   )).toList(),
                 ),
                 const SizedBox(height: 12),
                 
                 // Action buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Padding(
+                  padding: const EdgeInsets.only(left: 0, right: 16), // Add right padding for spacing
+                  child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    _buildReplyActionButton(Icons.chat_bubble_outline, onPressed: () {
-                    showReplyBottomSheet(context, "Ini isi diskusi yang ingin dibalas.");                      
-                    }),
-                    _buildReplyActionButton(Icons.repeat, count: retweetsCount, onPressed: () {
-                    }),
                     _buildReplyActionButton(Icons.favorite_border, count: likesCount, onPressed: () {
                     }),
-                    _buildReplyActionButton(Icons.share_outlined, onPressed: () {
+                    const SizedBox(width: 16), // Add space between buttons
+                    _buildReplyActionButton(Icons.chat_bubble_outline, count: repliesCount, onPressed: () {
+                    showReplyBottomSheet(context, "Ini isi diskusi yang ingin dibalas.");
                     }),
                   ],
+                  ),
                 ),
               ],
             ),
@@ -391,15 +317,15 @@ class ForumDetailPage extends StatelessWidget {
       onTap: onPressed,
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey),
+          Icon(icon, size: 24, color: Colors.grey),
           if (label.isNotEmpty) 
             const SizedBox(width: 5),
           if (label.isNotEmpty)
             Text(
               label,
               style: const TextStyle(
-                fontFamily: 'SF Pro Display',
-                fontSize: 13,
+                fontFamily: 'montserrat',
+                fontSize: 15,
                 color: Colors.grey,
               ),
             ),
@@ -420,8 +346,8 @@ class ForumDetailPage extends StatelessWidget {
               child: Text(
                 '$count',
                 style: const TextStyle(
-                  fontFamily: 'SF Pro Display',
-                  fontSize: 13,
+                  fontFamily: 'montserrat',
+                  fontSize: 14,
                   color: Colors.grey,
                 ),
               ),
