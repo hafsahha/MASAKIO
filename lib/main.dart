@@ -13,7 +13,6 @@ import 'package:masakio/data/dummy_resep.dart';
 import 'package:masakio/resep_detail.dart';
 import 'package:masakio/splash_screen.dart';
 
-
 void main() {
   runApp(const MyApp());
 }
@@ -22,7 +21,8 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {    return MaterialApp(
+  Widget build(BuildContext context) {
+      return MaterialApp(
       title: 'MASAKIO | KELOMPOK 20',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -114,17 +114,17 @@ class RecipeMenuPage extends StatelessWidget {
         'gradient': [const Color(0xFFA3D0D3), const Color(0xFF8AB5B8)]
       },
       {
-        'title' : 'Detail Forum Diskusi',
-        'dest': ForumDetailPage(
-          username: 'kokihafas',
-          userImage: 'assets/images/avatar.png',
-          content: 'Untuk merebus kentang dengan baik dan menjaga nutrisinya, gunakan air secukupnya, jangan kupas kulitnya, tambahkan sedikit garam, rebus dengan api sedang, dan jangan menusuk terlalu sering. Angkat setelah matang. #kentang #masakio #masakioforum',
-          contentImage: 'assets/images/kentang.png',
-          hashtags: hashtagsFromContent('Untuk merebus kentang dengan baik dan menjaga nutrisinya, gunakan air secukupnya, jangan kupas kulitnya, tambahkan sedikit garam, rebus dengan api sedang, dan jangan menusuk terlalu sering. Angkat setelah matang. #kentang #masakio #masakioforum'),
-          repliesCount: 6,
-          likesCount: 15),
-        'icon': Icons.forum_outlined,
-        'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
+        // 'title' : 'Detail Forum Diskusi',
+        // 'dest': ForumDetailPage(
+        //   username: 'kokihafas',
+        //   userImage: 'assets/images/avatar.png',
+        //   content: 'Untuk merebus kentang dengan baik dan menjaga nutrisinya, gunakan air secukupnya, jangan kupas kulitnya, tambahkan sedikit garam, rebus dengan api sedang, dan jangan menusuk terlalu sering. Angkat setelah matang. #kentang #masakio #masakioforum',
+        //   contentImage: 'assets/images/kentang.png',
+        //   hashtags: hashtagsFromContent('Untuk merebus kentang dengan baik dan menjaga nutrisinya, gunakan air secukupnya, jangan kupas kulitnya, tambahkan sedikit garam, rebus dengan api sedang, dan jangan menusuk terlalu sering. Angkat setelah matang. #kentang #masakio #masakioforum'),
+        //   repliesCount: 6,
+        //   likesCount: 15),
+        // 'icon': Icons.forum_outlined,
+        // 'gradient': [const Color(0xFF83AEB1), const Color(0xFF6A9598)]
       },
       {
         'title' : 'Profile',
