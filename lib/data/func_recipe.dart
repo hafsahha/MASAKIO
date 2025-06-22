@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 
 // Base URL untuk backend API resep
 const url = 'https://masakio.up.railway.app/recipe'; // URL utama API resep
-const url2 =
-    'https://masakio.up.railway.app/card_recipe'; // URL alternatif API resep
+const url2 ='https://masakio.up.railway.app/card_recipe'; // URL alternatif API resep
+const urlFilter = 'https://masakio.up.railway.app/card_recipe/filter'; // URL untuk filter resep
 
 // Print URL untuk debugging
 final bool _debugPrintUrls = true; // set ke false di production
@@ -480,31 +480,116 @@ Future<List<Map<String, dynamic>>> fetchUserRecipes(int userId) async {
   }
 }
 
-// Fungsi untuk mencari resep berdasarkan kata kunci
-// Digunakan untuk: Halaman pencarian, saat user mengetik di kotak pencarian
-// Return: List resep yang sesuai dengan pencarian dalam format untuk tampilan card/list
-Future<List<Map<String, dynamic>>> searchRecipes(String query) async {
+// Fungsi untuk mengambil resep berdasarkan filter (kategori, bahan yang diinginkan, bahan yang dihindari)
+// Digunakan untuk: Halaman pencarian/filter resep, membantu user menemukan resep sesuai preferensi
+// Return: List resep yang sesuai dengan filter dalam format untuk tampilan card/list
+// Parameter:
+// - categoryId: ID kategori resep (opsional)
+// - includeIngredients: List bahan yang harus ada dalam resep (opsional)
+// - excludeIngredients: List bahan yang tidak boleh ada dalam resep (opsional)
+Future<List<Map<String, dynamic>>> fetchRecipesByFilter({
+  int? categoryId,
+  List<String>? includeIngredients,
+  List<String>? excludeIngredients,
+}) async {
   try {
-    final response = await http
-        .get(Uri.parse('$url/search?q=$query'))
-        .timeout(const Duration(seconds: 10));
+    // Validasi parameter - minimal satu parameter harus ada
+    if (categoryId == null && 
+        (includeIngredients == null || includeIngredients.isEmpty) && 
+        (excludeIngredients == null || excludeIngredients.isEmpty)) {
+      throw Exception('At least one filter parameter must be provided');
+    }
 
-    if (response.statusCode != 200) throw Exception('Failed to search recipes');
-
+    // Membangun query parameters
+    final queryParams = <String, String>{};
+    
+    // Tambahkan category_id jika ada
+    if (categoryId != null) {
+      queryParams['category_id'] = categoryId.toString();
+    }
+    
+    // Tambahkan include ingredients jika ada (gabungkan dengan koma)
+    if (includeIngredients != null && includeIngredients.isNotEmpty) {
+      queryParams['include'] = includeIngredients.join(',');
+    }
+    
+    // Tambahkan exclude ingredients jika ada (gabungkan dengan koma)
+    if (excludeIngredients != null && excludeIngredients.isNotEmpty) {
+      queryParams['exclude'] = excludeIngredients.join(',');
+    }
+    
+    // Bangun URL dengan parameter
+    final uri = Uri.parse(urlFilter).replace(queryParameters: queryParams);
+    
+    _printDebugUrl(uri.toString());
+    print("[DEBUG] fetchRecipesByFilter: Memulai request API ke $uri");
+    
+    // Lakukan request
+    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    
+    print("[DEBUG] fetchRecipesByFilter: Status response: ${response.statusCode}");
+    
+    if (response.statusCode != 200) {
+      print("[ERROR] fetchRecipesByFilter: Response error dengan kode ${response.statusCode}");
+      print("[ERROR] fetchRecipesByFilter: Body: ${response.body}");
+      throw Exception('Failed to filter recipes with status code: ${response.statusCode}');
+    }
+    
+    print("[DEBUG] fetchRecipesByFilter: Response berhasil");
+    
     final List<dynamic> data = json.decode(response.body);
-    return data
-        .map((item) => {
-              'id': item['id_resep'],
-              'title': item['nama_resep'],
-              'reviewCount': item['jumlah_view'] ?? 0,
-              'imageAsset': 'assets/images/${item['thumbnail']}',
-              'isBookmarked': false,
-            })
-        .toList();
+    print("[DEBUG] fetchRecipesByFilter: Jumlah data resep: ${data.length}");
+    
+    if (data.isEmpty) {
+      print("[WARN] fetchRecipesByFilter: Data resep kosong");
+      return [];
+    }
+    
+    // Transform data ke format UI yang konsisten dengan fungsi-fungsi lain
+    final result = data.map((item) => {
+      'id': item['id_resep'] is int
+          ? item['id_resep']
+          : int.tryParse(item['id_resep'].toString()) ?? 0,
+      'title': item['nama_resep'],
+      'reviewCount': item['jumlah_view'] ?? 0,
+      'imageAsset': 'assets/images/${item['thumbnail']}',
+      'isBookmarked': false,
+    }).toList();
+    
+    print("[DEBUG] fetchRecipesByFilter: Hasil transformasi data: ${result.length} item");
+    
+    return result;
   } catch (e) {
-    throw Exception('Failed to search recipes: $e');
+    print("[ERROR] fetchRecipesByFilter: Exception: $e");
+    throw Exception('Failed to filter recipes: $e');
   }
 }
+
+// // Fungsi untuk mencari resep berdasarkan kata kunci
+// // Digunakan untuk: Halaman pencarian, saat user mengetik di kotak pencarian
+// // Return: List resep yang sesuai dengan pencarian dalam format untuk tampilan card/list
+// Future<List<Map<String, dynamic>>> searchRecipes(String query) async {
+//   try {
+//     final response = await http
+//         .get(Uri.parse('$url/search?q=$query'))
+//         .timeout(const Duration(seconds: 10));
+
+//     if (response.statusCode != 200) throw Exception('Failed to search recipes');
+
+//     final List<dynamic> data = json.decode(response.body);
+//     return data
+//         .map((item) => {
+//               'id': item['id_resep'],
+//               'title': item['nama_resep'],
+//               'reviewCount': item['jumlah_view'] ?? 0,
+//               'imageAsset': 'assets/images/${item['thumbnail']}',
+//               'isBookmarked': false,
+//             })
+//         .toList();
+//   } catch (e) {
+//     throw Exception('Failed to search recipes: $e');
+//   }
+// }
 
 // Fungsi alternatif untuk menghasilkan data dummy jika API gagal
 List<Map<String, dynamic>> _generateDummyRecipes() {

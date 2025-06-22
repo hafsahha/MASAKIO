@@ -23,10 +23,11 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
 
   final List<String> categories = [
     "Semua",
-    "Makanan",
-    "Cemilan",
+    "Makanan Berat",
     "Minuman",
-    "Sup",
+    "Hidangan Pembuka",
+    "Hidangan Penutup",
+    "Jamu"
   ];
 
   List<String> bahanDiinginkan = [];
@@ -62,11 +63,58 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
     });
   }
 
-  // Fungsi ini akan digunakan untuk filter data dummy (jika diperlukan)
-  // Tidak diperlukan lagi untuk grid resep karena menggunakan data dari API
-  List<Map<String, dynamic>> getFilteredReseps() {
-    // Return list kosong - tidak digunakan untuk grid resep
-    return [];
+  // Mengkonversi nama kategori ke ID kategori
+  int? _getCategoryIdFromName(String categoryName) {
+    // Mapping dari nama kategori ke ID
+    // Sesuaikan dengan ID kategori di database
+    switch (categoryName) {
+      case "Makanan Berat":
+        return 1;
+      case "Minuman":
+        return 2;
+      case "Hidangan Pembuka":
+        return 3;
+      case "Hidangan Penutup":
+        return 4;
+      case "Jamu":
+        return 5;
+      case "Semua":
+        return null; // Tidak perlu filter kategori
+      default:
+        return null;
+    }
+  }
+
+  // Fungsi untuk mendapatkan resep berdasarkan filter yang dipilih
+  Future<List<Map<String, dynamic>>> _fetchFilteredRecipes() async {
+    try {
+      // Jika tidak ada filter yang aktif, kembalikan semua resep
+      if (selectedCategory == "Semua" &&
+          bahanDiinginkan.isEmpty &&
+          bahanTidakDiinginkan.isEmpty) {
+        print(
+            "[DEBUG] _fetchFilteredRecipes: Tidak ada filter aktif, mengembalikan semua resep");
+        return recipe_api.fetchAllRecipesWithFallback();
+      }
+
+      // Konversi nama kategori ke ID kategori
+      final categoryId = _getCategoryIdFromName(selectedCategory);
+
+      print("[DEBUG] _fetchFilteredRecipes: Memanggil filter dengan kategori ID: $categoryId");
+      print("[DEBUG] _fetchFilteredRecipes: Bahan diinginkan: $bahanDiinginkan");
+      print("[DEBUG] _fetchFilteredRecipes: Bahan tidak diinginkan: $bahanTidakDiinginkan");
+
+      // Panggil fungsi filter
+      return await recipe_api.fetchRecipesByFilter(
+        categoryId: categoryId,
+        includeIngredients: bahanDiinginkan.isNotEmpty ? bahanDiinginkan : null,
+        excludeIngredients: bahanTidakDiinginkan.isNotEmpty ? bahanTidakDiinginkan : null,
+      );
+    } catch (e) {
+      print("[ERROR] _fetchFilteredRecipes: $e");
+      // Fallback ke semua resep jika filter gagal
+      return recipe_api.fetchAllRecipesWithFallback();
+    }
   }
 
   void _showFilterBottomSheet() {
@@ -234,12 +282,13 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
+                    child: OutlinedButton(                      onPressed: () {
                         setState(() {
                           selectedCategory = 'Semua';
                           bahanDiinginkan.clear();
                           bahanTidakDiinginkan.clear();
+                          // State update akan memicu rebuilding FutureBuilder
+                          // dan kembali ke tampilan semua resep
                         });
                         Navigator.pop(ctx);
                       },
@@ -254,12 +303,13 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
+                    child: ElevatedButton(                      onPressed: () {
                         setState(() {
                           selectedCategory = tempCategory;
                           bahanDiinginkan = List.from(tempWanted);
                           bahanTidakDiinginkan = List.from(tempUnwanted);
+                          // State update akan memicu rebuilding FutureBuilder
+                          // dan memanggil _fetchFilteredRecipes()
                         });
                         Navigator.pop(ctx);
                       },
@@ -388,10 +438,13 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                         children: categories.map((c) {
                           final sel = selectedCategory == c;
                           return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: ElevatedButton(
-                              onPressed: () =>
-                                  setState(() => selectedCategory = c),
+                            padding: const EdgeInsets.symmetric(horizontal: 4),                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedCategory = c;
+                                  // Force rebuild untuk memanggil _fetchFilteredRecipes
+                                });
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: sel
                                     ? Colors.teal.shade200
@@ -432,15 +485,14 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                         )),
                   ],
                 ),
-              ),
-              // Grid Resep dengan data dari API
+              ),              // Grid Resep dengan data dari API
               Expanded(
                 child: MediaQuery.removePadding(
                   context: context,
                   removeBottom: true,
                   child: FutureBuilder<List<Map<String, dynamic>>>(
-                    // Menggunakan fungsi dengan fallback ke dummy data jika API gagal
-                    future: recipe_api.fetchAllRecipesWithFallback(),
+                    // Menggunakan filter berdasarkan pilihan kategori dan filter lainnya
+                    future: _fetchFilteredRecipes(),
                     builder: (context, snapshot) {
                       print(
                           "[DEBUG] Discovery FutureBuilder: ConnectionState: ${snapshot.connectionState}");
