@@ -9,7 +9,7 @@ class DiscoveryResep extends StatefulWidget {
   const DiscoveryResep({super.key});
 
   @override
-  State<DiscoveryResep> createState() => _DiscoveryResepState();
+  _DiscoveryResepState createState() => _DiscoveryResepState();
 }
 
 class _DiscoveryResepState extends State<DiscoveryResep> {

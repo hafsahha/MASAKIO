@@ -1,74 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:masakio/data/func_review.dart';
 import 'package:masakio/data/dummy_resep.dart';
 
-class ReviewAllPage extends StatelessWidget {
+class ReviewAllPage extends StatefulWidget {
   final Resep resep;
-
   const ReviewAllPage({super.key, required this.resep});
 
   @override
-  Widget build(BuildContext context) {
-    // Dummy review data
-    final List<Map<String, dynamic>> reviews = [
-      {
-        'name': 'Ayu R.',
-        'date': 'Maret 2024',
-        'rating': 4.7,
-        'comment': 'Resepnya enak dan mudah diikuti. Terima kasih!',
-        'image': null, // Using null for default avatar
-      },
-      {
-        'name': 'Budi S.',
-        'date': 'April 2024',
-        'rating': 5.0,
-        'comment':
-            'Luar biasa! Semua keluarga saya suka dengan resep ini. Akan sering saya buat lagi.',
-        'image': 'assets/images/profile.jpg',
-      },
-      {
-        'name': 'Citra L.',
-        'date': 'Februari 2024',
-        'rating': 4.0,
-        'comment':
-            'Rasanya enak, tapi perlu sedikit tambahan garam menurut saya.',
-        'image': null,
-      },
-      {
-        'name': 'Deni P.',
-        'date': 'Mei 2024',
-        'rating': 4.5,
-        'comment':
-            'Langkah-langkahnya sangat jelas dan mudah diikuti. Hasilnya juga memuaskan!',
-        'image': 'assets/images/profile.jpg',
-      },
-      {
-        'name': 'Eva M.',
-        'date': 'Juni 2024',
-        'rating': 3.5,
-        'comment':
-            'Lumayan, tapi menurut saya bumbunya kurang terasa. Mungkin perlu ditambahkan.',
-        'image': null,
-      },
-      {
-        'name': 'Feri W.',
-        'date': 'Mei 2024',
-        'rating': 5.0,
-        'comment': 'Sempurna! Tidak ada yang perlu diubah dari resep ini.',
-        'image': null,
-      },
-      {
-        'name': 'Gita K.',
-        'date': 'April 2024',
-        'rating': 4.8,
-        'comment':
-            'Saya suka sekali! Anak-anak juga suka dan minta dibuatkan lagi.',
-        'image': 'assets/images/profile.jpg',
-      },
-    ];
+  State<ReviewAllPage> createState() => _ReviewAllPageState();
+}
 
+class _ReviewAllPageState extends State<ReviewAllPage> {
+  List<Review> _reviews = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReviews();
+  }
+
+  Future<void> _fetchReviews() async {
+    setState(() => _isLoading = true);
+    try {
+      final recipeId = int.tryParse(widget.resep.id) ?? 0;
+      final reviews = await getRecipeReviews(recipeId);
+      setState(() => _reviews = reviews);
+    } catch (e) {
+      print('Error fetching reviews: $e');
+    }
+    setState(() => _isLoading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ulasan ${resep.title}'),
+        title: Text('Ulasan ${widget.resep.title}'),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
@@ -80,34 +48,28 @@ class ReviewAllPage extends StatelessWidget {
         children: [
           // Filter options
           Padding(
-            padding: const EdgeInsets.all(16), // diperkecil dari 16
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 const Text(
                   'Filter: ',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ), // diperkecil
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                 ),
                 FilterChip(
-                  label: const Text(
-                    'Terbaru',
-                    style: TextStyle(fontSize: 12),
-                  ), // diperkecil
+                  label: const Text('Terbaru', style: TextStyle(fontSize: 12)),
                   selected: true,
                   onSelected: (bool value) {},
                   selectedColor: Colors.teal.withOpacity(0.15),
                   checkmarkColor: Colors.teal,
-                  visualDensity: VisualDensity.compact, // lebih rapat
+                  visualDensity: VisualDensity.compact,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                const SizedBox(width: 6), // diperkecil
+                const SizedBox(width: 6),
                 FilterChip(
                   label: const Text(
                     'Rating Tertinggi',
                     style: TextStyle(fontSize: 12),
-                  ), // diperkecil
+                  ),
                   selected: false,
                   onSelected: (bool value) {},
                   selectedColor: Colors.teal.withOpacity(0.15),
@@ -117,23 +79,27 @@ class ReviewAllPage extends StatelessWidget {
               ],
             ),
           ),
-
           // Reviews list
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: reviews.length,
-              itemBuilder: (context, index) {
-                final review = reviews[index];
-                return ReviewCard(
-                  name: review['name'],
-                  date: review['date'],
-                  rating: review['rating'],
-                  comment: review['comment'],
-                  imagePath: review['image'],
-                );
-              },
-            ),
+            child:
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _reviews.isEmpty
+                    ? Center(child: Text('Belum ada ulasan untuk resep ini.'))
+                    : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _reviews.length,
+                      itemBuilder: (context, index) {
+                        final review = _reviews[index];
+                        return ReviewCard(
+                          name: review.userName ?? 'User',
+                          date: review.createdAt,
+                          rating: review.rating,
+                          comment: review.comment,
+                          imagePath: null,
+                        );
+                      },
+                    ),
           ),
         ],
       ),

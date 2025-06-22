@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/data/dummy_resep.dart';
+import 'package:masakio/data/func_review.dart';
 import 'package:masakio/review_all_page.dart';
 
 class ResepDetailPage extends StatefulWidget {
@@ -20,6 +21,7 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
   late List<Map<String, String>> tools;
   late List<Map<String, dynamic>> cookingSteps;
   int _selectedRating = 0;
+  final TextEditingController _reviewController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -67,9 +69,9 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
         'icon': Icons.fastfood_outlined,
       },
       {
-        'name': 'Kalori',
-        'value': widget.resep.nutrition['Kalori'] ?? '0 kkal',
-        'icon': Icons.local_fire_department_outlined,
+        'name': 'Serat',
+        'value': widget.resep.nutrition['Serat'] ?? '0 gr',
+        'icon': Icons.spa_outlined,
       },
     ];
   }
@@ -122,23 +124,21 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.resep.title,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Icon(Icons.star, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text(widget.resep.rating.toString()),
-                    ],
+                  // Nama Resep
+                  Text(
+                    widget.resep.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
+                  // Deskripsi
+                  Text(
+                    widget.resep.description,
+                    style: const TextStyle(fontSize: 16, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       const CircleAvatar(
@@ -200,7 +200,8 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                     'Deskripsi',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4), Text(widget.resep.description),
+                  const SizedBox(height: 4),
+                  Text(widget.resep.description),
                   const SizedBox(height: 16),
                   Column(
                     crossAxisAlignment:
@@ -516,6 +517,7 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                         ),
                         const SizedBox(height: 8),
                         TextField(
+                          controller: _reviewController,
                           decoration: InputDecoration(
                             hintText: 'Tulis ulasan...',
                             hintStyle: TextStyle(color: Colors.grey),
@@ -532,8 +534,17 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                             ),
                             suffixIcon: IconButton(
                               icon: const Icon(Icons.send, color: Colors.teal),
-                              onPressed: () {
+                              onPressed: () async {
                                 // Tambah logika untuk mengirim ulasan di sini
+                                print(
+                                  'userId: $userId, recipeId: ${int.tryParse(widget.resep.id) ?? 0}, rating: ${_selectedRating.toDouble()}, comment: ${_reviewController.text.trim()}',
+                                );
+                                await addReview(
+                                  userId: userId,
+                                  recipeId: int.tryParse(widget.resep.id) ?? 0,
+                                  rating: _selectedRating.toDouble(),
+                                  comment: _reviewController.text.trim(),
+                                );
                               },
                             ),
                           ),
@@ -793,3 +804,5 @@ class CookingStepItem extends StatelessWidget {
     );
   }
 }
+
+int userId = 1; // Ganti dengan id user login yang benar
