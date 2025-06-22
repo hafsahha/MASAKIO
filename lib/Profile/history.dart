@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:masakio/data/functions.dart';
+import 'package:masakio/data/func_recipe.dart';
 import 'package:masakio/.components/future_resep_grid.dart';
 
 class HistoryPage extends StatefulWidget {
