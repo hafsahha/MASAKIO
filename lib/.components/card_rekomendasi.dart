@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/data/dummy_resep.dart'; // pastikan path ini sesuai
 import 'package:masakio/resep_detail.dart';
+import 'package:masakio/discovery.dart'; // pastikan path-nya benar
 
 class CardRekomendasi extends StatelessWidget {
   final Resep resep;
 
-  const CardRekomendasi({
-    Key? key,
-    required this.resep,
-  }) : super(key: key);
+  const CardRekomendasi({Key? key, required this.resep}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -38,14 +36,12 @@ class CardRekomendasi extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-            ),            const SizedBox(height: 4),
+            ),
+            const SizedBox(height: 4),
             // Judul
             Text(
               resep.title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -57,7 +53,10 @@ class CardRekomendasi extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   resep.rating.toStringAsFixed(1),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                  ),
                 ),
                 const SizedBox(width: 2),
                 Text(
@@ -98,7 +97,8 @@ class RekomendasiSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rekomendasiList = dummyResepList.take(5).toList(); // ambil 5 teratas atau sesuaikan
+    final rekomendasiList =
+        dummyResepList.take(5).toList(); // ambil 5 teratas atau sesuaikan
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,9 +114,18 @@ class RekomendasiSection extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // aksi lihat semua
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => DiscoveryResep()),
+                  );
                 },
-                child: const Text("Lihat Semua"),
+                child: Text(
+                  "Lihat Semua",
+                  style: TextStyle(
+                    color: Colors.teal,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),

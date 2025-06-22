@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/data/dummy_resep.dart';
 import 'package:masakio/.components/card_temukan_resep.dart';
+import 'package:masakio/discovery.dart';
 
 class TemukanResepSectionComponent extends StatelessWidget {
   final String? categoryFilter; // optional category filter
 
-  const TemukanResepSectionComponent({
-    super.key,
-    this.categoryFilter,
-  });
+  const TemukanResepSectionComponent({super.key, this.categoryFilter});
 
   @override
   Widget build(BuildContext context) {
     // Filter kategori jika diberikan
-    final List<Resep> temukanResep = categoryFilter == null
-        ? dummyResepList // Tampilkan semua resep jika kategori null
-        : dummyResepList
-            .where((resep) => resep.categories.contains(categoryFilter))
-            .toList();
+    final List<Resep> temukanResep =
+        categoryFilter == null
+            ? dummyResepList // Tampilkan semua resep jika kategori null
+            : dummyResepList
+                .where((resep) => resep.categories.contains(categoryFilter))
+                .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [        // Header
+      children: [
+        // Header
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
@@ -29,14 +29,16 @@ class TemukanResepSectionComponent extends StatelessWidget {
             children: [
               const Text(
                 "Temukan Resep",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               TextButton(
                 onPressed: () {
-                  // TODO: Tambah navigasi ke halaman "Lihat Semua"
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DiscoveryResep(),
+                    ),
+                  );
                 },
                 child: const Text(
                   "Lihat Semua",
@@ -54,30 +56,31 @@ class TemukanResepSectionComponent extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
-            children: temukanResep.map((resep) {
-              return CardTemukanResep(
-                imagePath: resep.imageAsset,
-                title: resep.title,
-                subtitle: resep.author,
-                views: resep.viewsCount.toString(),
-                rating: resep.rating.toStringAsFixed(1),
-                resep: resep, // Pass the full resep object
-              );
-            }).toList(),
+            children:
+                temukanResep.map((resep) {
+                  return CardTemukanResep(
+                    imagePath: resep.imageAsset,
+                    title: resep.title,
+                    subtitle: resep.author,
+                    views: resep.viewsCount.toString(),
+                    rating: resep.rating.toStringAsFixed(1),
+                    resep: resep, // Pass the full resep object
+                  );
+                }).toList(),
           ),
         ),
         // Tombol "Lihat Semua"
         Center(
           child: TextButton(
             onPressed: () {
-              // aksi lihat semua
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const DiscoveryResep()),
+              );
             },
             child: const Text(
               "Lihat Semua",
-              style: TextStyle(
-                color: Colors.teal,
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(color: Colors.teal, fontWeight: FontWeight.w500),
             ),
           ),
         ),

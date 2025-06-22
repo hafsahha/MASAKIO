@@ -21,28 +21,32 @@ class ReviewAllPage extends StatelessWidget {
         'name': 'Budi S.',
         'date': 'April 2024',
         'rating': 5.0,
-        'comment': 'Luar biasa! Semua keluarga saya suka dengan resep ini. Akan sering saya buat lagi.',
+        'comment':
+            'Luar biasa! Semua keluarga saya suka dengan resep ini. Akan sering saya buat lagi.',
         'image': 'assets/images/profile.jpg',
       },
       {
         'name': 'Citra L.',
         'date': 'Februari 2024',
         'rating': 4.0,
-        'comment': 'Rasanya enak, tapi perlu sedikit tambahan garam menurut saya.',
+        'comment':
+            'Rasanya enak, tapi perlu sedikit tambahan garam menurut saya.',
         'image': null,
       },
       {
         'name': 'Deni P.',
         'date': 'Mei 2024',
         'rating': 4.5,
-        'comment': 'Langkah-langkahnya sangat jelas dan mudah diikuti. Hasilnya juga memuaskan!',
+        'comment':
+            'Langkah-langkahnya sangat jelas dan mudah diikuti. Hasilnya juga memuaskan!',
         'image': 'assets/images/profile.jpg',
       },
       {
         'name': 'Eva M.',
         'date': 'Juni 2024',
         'rating': 3.5,
-        'comment': 'Lumayan, tapi menurut saya bumbunya kurang terasa. Mungkin perlu ditambahkan.',
+        'comment':
+            'Lumayan, tapi menurut saya bumbunya kurang terasa. Mungkin perlu ditambahkan.',
         'image': null,
       },
       {
@@ -56,7 +60,8 @@ class ReviewAllPage extends StatelessWidget {
         'name': 'Gita K.',
         'date': 'April 2024',
         'rating': 4.8,
-        'comment': 'Saya suka sekali! Anak-anak juga suka dan minta dibuatkan lagi.',
+        'comment':
+            'Saya suka sekali! Anak-anak juga suka dan minta dibuatkan lagi.',
         'image': 'assets/images/profile.jpg',
       },
     ];
@@ -73,112 +78,41 @@ class ReviewAllPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Summary section
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Rating Rata-rata',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          resep.rating.toString(),
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Icon(Icons.star, color: Colors.amber, size: 22),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 24),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Berdasarkan ulasan',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${resep.reviewCount} pengguna',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    // Navigate to write review form
-                    // This could be implemented later
-                  },
-                  icon: const Icon(Icons.rate_review, size: 16),
-                  label: const Text('Tulis Ulasan'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.teal,
-                    side: const BorderSide(color: Colors.teal),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           // Filter options
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16), // diperkecil dari 16
             child: Row(
               children: [
                 const Text(
                   'Filter: ',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ), // diperkecil
                 ),
                 FilterChip(
-                  label: const Text('Terbaru'),
+                  label: const Text(
+                    'Terbaru',
+                    style: TextStyle(fontSize: 12),
+                  ), // diperkecil
                   selected: true,
                   onSelected: (bool value) {},
                   selectedColor: Colors.teal.withOpacity(0.15),
                   checkmarkColor: Colors.teal,
+                  visualDensity: VisualDensity.compact, // lebih rapat
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6), // diperkecil
                 FilterChip(
-                  label: const Text('Rating Tertinggi'),
+                  label: const Text(
+                    'Rating Tertinggi',
+                    style: TextStyle(fontSize: 12),
+                  ), // diperkecil
                   selected: false,
                   onSelected: (bool value) {},
                   selectedColor: Colors.teal.withOpacity(0.15),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ],
             ),
@@ -250,12 +184,16 @@ class ReviewCard extends StatelessWidget {
               CircleAvatar(
                 radius: 24,
                 backgroundColor: Colors.grey.shade300,
-                backgroundImage: imagePath != null ? AssetImage(imagePath!) : null,
-                child: imagePath == null ? const Icon(Icons.person, color: Colors.white) : null,
+                backgroundImage:
+                    imagePath != null ? AssetImage(imagePath!) : null,
+                child:
+                    imagePath == null
+                        ? const Icon(Icons.person, color: Colors.white)
+                        : null,
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // User details and rating
               Expanded(
                 child: Column(
@@ -281,11 +219,11 @@ class ReviewCard extends StatelessWidget {
                         ...List.generate(
                           5,
                           (index) => Icon(
-                            index < rating.floor() 
-                                ? Icons.star 
-                                : (index == rating.floor() && rating % 1 > 0) 
-                                    ? Icons.star_half 
-                                    : Icons.star_border,
+                            index < rating.floor()
+                                ? Icons.star
+                                : (index == rating.floor() && rating % 1 > 0)
+                                ? Icons.star_half
+                                : Icons.star_border,
                             size: 16,
                             color: Colors.amber,
                           ),
@@ -303,51 +241,21 @@ class ReviewCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Review date
               Text(
                 '15 hari lalu',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade500,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Review comment
-          Text(
-            comment,
-            style: const TextStyle(fontSize: 15),
-          ),
-          
+          Text(comment, style: const TextStyle(fontSize: 15)),
+
           const SizedBox(height: 12),
-          
-          // Like and reply actions
-          Row(
-            children: [
-              TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.thumb_up_outlined, size: 16),
-                label: const Text('Suka'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.grey.shade700,
-                  textStyle: const TextStyle(fontSize: 13),
-                ),
-              ),
-              TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.chat_bubble_outline, size: 16),
-                label: const Text('Balas'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.grey.shade700,
-                  textStyle: const TextStyle(fontSize: 13),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
