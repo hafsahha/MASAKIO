@@ -28,20 +28,17 @@ class ResepCard extends StatelessWidget {
     this.onRefresh,
     this.resep, // Added parameter for Resep object
   });
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (resep != null) {
-          // Navigate to recipe detail page with recipe data
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ResepDetailPage(resep: resep!),
-            ),
-          );
-        }
+        // Navigate to recipe detail page with ID
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResepDetailPage(id: id),
+          ),
+        );
       },
       child: Container(
         width: 160,
@@ -58,15 +55,15 @@ class ResepCard extends StatelessWidget {
                     aspectRatio: 1,
                     child: imageUrl != null
                         ? Image.asset(
-                      imageUrl!,
-                      height: 95,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
+                            imageUrl!,
+                            height: 95,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
                         : Container(
-                      color: Colors.grey.shade300,
-                      child: const Icon(Icons.image, color: Colors.grey),
-                    ),
+                            color: Colors.grey.shade300,
+                            child: const Icon(Icons.image, color: Colors.grey),
+                          ),
                   ),
                 ),
                 // Tombol bookmark di pojok kanan bawah
@@ -75,91 +72,96 @@ class ResepCard extends StatelessWidget {
                   right: 8,
                   child: GestureDetector(
                     onTap: isOwned
-                    ? () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (context) {
-                            return BottomPopup(
-                              children: [
-                                Text('Apakah anda yakin ingin menghapus resep ini dari resep milikmu?'),
-                                const SizedBox(height: 30),
-                                Button(
-                                  onPressed: () => { },
-                                  content: 'Ya',
-                                  backgroundColor: 0xFFFF0000,
-                                ),
-                                const SizedBox(height: 20),
-                                Button(
-                                  onPressed: () => { },
-                                  content: 'Tidak',
-                                ),
-                              ]
-                            );
-                          },
-                        );
-                    }
-                    : () async{
-                        if (isBookmarked) {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              return BottomPopup(
-                                children: [
-                                  Text('Apakah anda yakin ingin menghapus resep ini dari wishlist?'),
+                        ? () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (context) {
+                                return BottomPopup(children: [
+                                  Text(
+                                      'Apakah anda yakin ingin menghapus resep ini dari resep milikmu?'),
                                   const SizedBox(height: 30),
                                   Button(
-                                    onPressed: () async {
-                                      await unwish(id);
-                                      Navigator.pop(context); // Close bottom sheet
-                                      if (context.mounted) showDialog(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                        title: const Text("Resep Dihapus"),
-                                        content: const Text("Resep berhasil dihapus dari wishlist."),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(ctx);
-                                              this.isBookmarked = true;
-                                            },
-                                            child: const Text("OK"),
-                                          ),
-                                        ],
-                                        ),
-                                      );
-                                    },
+                                    onPressed: () => {},
                                     content: 'Ya',
-                                    backgroundColor: 0xFFCC0000,
+                                    backgroundColor: 0xFFFF0000,
                                   ),
                                   const SizedBox(height: 20),
                                   Button(
-                                    onPressed: () { Navigator.pop(context); },
+                                    onPressed: () => {},
                                     content: 'Tidak',
                                   ),
-                                ]
-                              );
+                                ]);
+                              },
+                            );
+                          }
+                        : () async {
+                            if (isBookmarked) {
+                              showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) {
+                                    return BottomPopup(children: [
+                                      Text(
+                                          'Apakah anda yakin ingin menghapus resep ini dari wishlist?'),
+                                      const SizedBox(height: 30),
+                                      Button(
+                                        onPressed: () async {
+                                          await unwish(id);
+                                          Navigator.pop(
+                                              context); // Close bottom sheet
+                                          if (context.mounted)
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title:
+                                                    const Text("Resep Dihapus"),
+                                                content: const Text(
+                                                    "Resep berhasil dihapus dari wishlist."),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(ctx);
+                                                      this.isBookmarked = true;
+                                                    },
+                                                    child: const Text("OK"),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                        },
+                                        content: 'Ya',
+                                        backgroundColor: 0xFFCC0000,
+                                      ),
+                                      const SizedBox(height: 20),
+                                      Button(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        content: 'Tidak',
+                                      ),
+                                    ]);
+                                  });
+                            } else {
+                              await wish(id);
+                              if (context.mounted)
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text("Resep Tersimpan"),
+                                    content: const Text(
+                                        "Resep berhasil ditambahkan ke wishlist."),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(ctx);
+                                          if (onRefresh != null) onRefresh!();
+                                        },
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
+                                  ),
+                                );
                             }
-                          );
-                        } else {
-                          await wish(id);
-                          if (context.mounted) showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text("Resep Tersimpan"),
-                              content: const Text("Resep berhasil ditambahkan ke wishlist."),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(ctx);
-                                    if (onRefresh != null) onRefresh!();
-                                  },
-                                  child: const Text("OK"),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                      },
+                          },
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
@@ -168,10 +170,10 @@ class ResepCard extends StatelessWidget {
                       ),
                       child: Icon(
                         isOwned
-                            ? Icons.delete 
+                            ? Icons.delete
                             : isBookmarked // Gunakan status bookmark
-                            ? Icons.bookmark
-                            : Icons.bookmark_border,
+                                ? Icons.bookmark
+                                : Icons.bookmark_border,
                         size: 16,
                         color: isOwned ? Colors.red : Colors.black,
                       ),

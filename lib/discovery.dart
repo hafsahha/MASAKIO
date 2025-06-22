@@ -493,7 +493,10 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                   ),
                 ),
               ),
-            ] else ...[ const Expanded(child: TipsDanTrikSectionV2()) ],
+            ] else ...[
+              // Tips & Trik Section
+              const TipsDanTrikSectionV2(),
+            ],
           ],
         ),
       ),

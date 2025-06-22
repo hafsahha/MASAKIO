@@ -554,3 +554,107 @@ Future<List<Map<String, dynamic>>> fetchAllRecipesWithFallback() async {
     return _generateDummyRecipes();
   }
 }
+
+// Function to fetch recipe by ID with fallback to dummy data
+Future<Map<String, dynamic>> fetchRecipeByIdWithFallback(int id) async {
+  try {
+    print("[DEBUG] Mencoba mengambil resep dengan ID $id dari API...");
+    _printDebugUrl('$url/$id');
+
+    final response = await http
+        .get(Uri.parse('$url/$id'))
+        .timeout(const Duration(seconds: 10));
+
+    print("[DEBUG] fetchRecipeById: Status response: ${response.statusCode}");
+
+    if (response.statusCode != 200) {
+      print(
+          "[ERROR] fetchRecipeById: Response error dengan kode ${response.statusCode}");
+      throw Exception('Failed to load recipe details');
+    }
+
+    print("[DEBUG] fetchRecipeById: Response berhasil");
+    final data = json.decode(response.body);
+
+    // Transform API data to UI format
+    final Recipe recipe = Recipe.fromJson(data);
+    print("[DEBUG] fetchRecipeById: Berhasil membuat objek Recipe");
+
+    // Convert recipe to UI display format
+    return _convertRecipeToUiFormat(recipe);
+  } catch (e) {
+    print("[ERROR] fetchRecipeById: Exception: $e");
+    print("[DEBUG] Menggunakan data dummy karena API gagal");
+
+    // Return dummy recipe that matches the requested ID if available
+    final dummyData = _generateDummyRecipes();
+    final matchingRecipe = dummyData.firstWhere(
+      (recipe) => recipe['id'] == id,
+      orElse: () => dummyData.first,
+    );
+
+    print(
+        "[DEBUG] fetchRecipeById: Menggunakan data dummy: ${matchingRecipe['title']}");
+    return matchingRecipe;
+  }
+}
+
+// Helper method to convert Recipe object to UI format
+// Returns a cleaned Map that can be safely used in the UI
+Map<String, dynamic> _convertRecipeToUiFormat(Recipe recipe) {
+  // Extract ingredients with amounts - ensure we have a List<String>
+  final List<String> ingredients = recipe.bahan.map((bahan) {
+    return "${bahan.name}, ${bahan.jumlah} ${bahan.namaSatuan}";
+  }).toList();
+
+  // Extract tools - ensure we have a List<String>
+  final List<String> tools = recipe.alat.map((alat) => alat.name).toList();
+  // Extract steps
+  final steps = recipe.prosedur.map((prosedur) {
+    // Explicitly create a Map<String, dynamic>
+    Map<String, dynamic> step = {};
+    step['title'] = prosedur.name;
+    step['duration'] = '${prosedur.durasiMenit} menit';
+
+    // Explicitly convert to List<String>
+    List<String> langkahList =
+        prosedur.langkah.map((langkah) => langkah.name).toList();
+    step['steps'] = langkahList;
+
+    return step;
+  }).toList(); // Calculate average cooking time
+  final totalMinutes =
+      recipe.prosedur.fold<int>(0, (sum, proc) => sum + proc.durasiMenit);
+  final Duration duration = Duration(minutes: totalMinutes);
+  // Extract tags - ensure we have a List<String>
+  final List<String> tags = recipe.tag.map((tag) => tag.name).toList();
+  // Extract nutrition - explicitly cast to Map<String, String>
+  final Map<String, String> nutrition = {
+    'Karbohidrat': '${recipe.info.karbohidrat} gr',
+    'Protein': '${recipe.info.protein} gr',
+    'Lemak': '${recipe.info.lemak} gr',
+    'Kalori':
+        '${recipe.info.serat} gr', // Note: using serat for now as calorie data isn't available
+  };
+
+  // Convert to UI format
+  return {
+    'id': recipe.info.id,
+    'title': recipe.info.name,
+    'imageAsset': 'assets/images/${recipe.info.thumbnail}',
+    'author': recipe.info.pembuat,
+    'authorFollowers': 'Premium Member',
+    'rating': 4.7, // Placeholder as rating is not in the API
+    'reviewCount': recipe.info.jumlahView,
+    'servings': recipe.info.servings,
+    'duration': duration,
+    'price': 25000, // Placeholder as price is not in the API
+    'categories': <String>[recipe.info.namaKategori],
+    'tags': tags,
+    'description': recipe.info.description,
+    'ingredients': ingredients,
+    'tools': tools,
+    'steps': steps,
+    'nutrition': nutrition,
+  };
+}
