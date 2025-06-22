@@ -55,13 +55,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     _animationController.dispose();
     super.dispose();
   }
-
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-
+      
       try {
         await AuthService.login(email: _emailC.text.trim(), password: _passC.text);
         if (mounted) {
@@ -76,35 +75,57 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           String errorMessage = e.toString();
           if (errorMessage.contains('Exception: ')) errorMessage = errorMessage.replaceFirst('Exception: ', '');
           
-          // Tambahkan pemeriksaan koneksi
-          bool hasInternetConnection = false;
-          final result = await http.get(Uri.parse('https://www.google.com'));
-          hasInternetConnection = result.statusCode == 200;
+          // Konfigurasi untuk dialog
+          String title = "Login Gagal";
+          Widget icon = const Icon(Icons.error_outline, color: Colors.red, size: 50);
+          String userFriendlyMessage;
           
-          if (mounted) {
+          // Semua error autentikasi dibuat sama tanpa membedakan email atau password
+          if (errorMessage.toLowerCase().contains('email atau password salah')) {
+            userFriendlyMessage = "Email atau password yang Anda masukkan tidak sesuai. Silakan periksa kembali.";
+          } 
+          else if (errorMessage.toLowerCase().contains('server tidak dapat dijangkau') || 
+                  errorMessage.toLowerCase().contains('koneksi timeout')) {
+            userFriendlyMessage = "Terjadi masalah koneksi. Silakan coba lagi nanti.";
+          }
+          else {
+            userFriendlyMessage = errorMessage;
+          }          if (mounted) {
             showDialog(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: const Text("Login Gagal"),
+                title: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(errorMessage),
-                    if (!hasInternetConnection) 
-                      const Padding(
-                        padding: EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          'Sepertinya Anda tidak terhubung ke internet. Silakan periksa koneksi internet Anda.',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
+                    icon,
+                    const SizedBox(height: 16),
+                    Text(
+                      userFriendlyMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ],
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: const Text("OK"),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFF83AEB1),
+                    ),
+                    child: const Text(
+                      "OK", 
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
