@@ -107,19 +107,17 @@ class TipsDanTrikSectionV2 extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         // Display the tips in a vertically stacked list
-        SizedBox(
-          height: 640,  // Increase the height to show cards more prominently
+        Expanded(
           child: ListView.builder(
-            scrollDirection: Axis.vertical,  // Vertical scroll for a stack of cards
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: dummyTipsList.length,  // Populate based on the dummy data list
+            itemCount: dummyTipsList.length,
             itemBuilder: (context, index) {
               final tip = dummyTipsList[index];
               return TipsDanTrikCardV2(
                 imagePath: tip.imageAsset,
                 title: tip.title,
                 author: tip.author,
-                authorImage: 'assets/images/profile.jpg',  // Replace with dynamic author image
+                authorImage: 'assets/images/profile.jpg',
                 onTap: () {
                   Navigator.push(
                     context,
