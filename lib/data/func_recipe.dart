@@ -212,7 +212,8 @@ Future<int> addRecipe(Recipe recipe) async {
 // Fetch all recipes by user ID
 Future<List<Map<String, dynamic>>> fetchAllUserRecipes(int userId) async {
   try {
-    final response = await http.get(Uri.parse('$url/user/$userId')).timeout(const Duration(seconds: 10));
+    // Using the correct endpoint for fetching user's recipes
+    final response = await http.get(Uri.parse('https://masakio.up.railway.app/card_recipe/user/$userId')).timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) throw Exception('Failed to load user recipes');
 
     final List<dynamic> data = json.decode(response.body);
@@ -220,9 +221,9 @@ Future<List<Map<String, dynamic>>> fetchAllUserRecipes(int userId) async {
       'id': item['id_resep'],
       'title': item['nama_resep'],
       'rating': item['rating'] ?? 0.0,
-      'reviewCount': item['review_count'] ?? 0,
+      'reviewCount': item['jumlah_review'] ?? 0,
       'imageAsset': 'assets/images/${item['thumbnail']}',
-      'isOwned': false,
+      'isOwned': true,
       'isBookmarked': false,
     }).toList();
   } catch (e) { rethrow; }

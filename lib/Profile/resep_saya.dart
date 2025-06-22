@@ -23,7 +23,7 @@ class _ResepSayaPageState extends State<ResepSayaPage> {
     });
   }
 
-  void _refreshMyRecipes() { setState(() => _myRecipesFuture = fetchAllUserRecipes(user!.id));}
+  void _refreshMyRecipes() => setState(() => _myRecipesFuture = fetchAllUserRecipes(user!.id));
 
   @override
   Widget build(BuildContext context) {
