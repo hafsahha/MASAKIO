@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:masakio/data/func_disease.dart'; // Add this import for DiseaseSuggestion
+import 'package:masakio/data/func_disease.dart'; // Import for Disease model and functions
 import 'package:masakio/data/func_profile.dart'; // Add this import for AuthService
 import 'package:masakio/Auth/masuk.dart';
 import 'package:masakio/main_page.dart';
@@ -24,9 +24,9 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
   DateTime? _selectedDate;
   bool _isLoading = false;
   bool _obscurePassword = true;
-  
   // Untuk autocomplete
-  List<DiseaseSuggestion> _suggestedDiseases = [];
+  List<Disease> _allDiseases = []; // Menyimpan semua penyakit dari database
+  List<Disease> _suggestedDiseases = []; // Penyakit yang disaring berdasarkan pencarian
   bool _isLoadingDiseases = false;
   final FocusNode _riwayatFocusNode = FocusNode();
   final LayerLink _layerLink = LayerLink();
@@ -36,7 +36,6 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -61,10 +60,12 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
     
     _animationController.forward();
     
+    // Load all diseases immediately when the page is opened
+    _fetchDiseases();
+    
     // Setup disease suggestions
     _riwayatFocusNode.addListener(() {
       if (_riwayatFocusNode.hasFocus) {
-        _fetchDiseases();
         _showOverlay();
       } else {
         _hideOverlay();
@@ -72,33 +73,66 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
     });
     
     _riwayatController.addListener(() {
-      if (_riwayatFocusNode.hasFocus && _riwayatController.text.isNotEmpty) {
-        _fetchDiseases(_riwayatController.text);
-      } else if (_riwayatController.text.isEmpty && _overlayEntry != null) {
-        _fetchDiseases(); // Show all diseases when text is empty
+      if (_riwayatFocusNode.hasFocus) {
+        if (_riwayatController.text.isNotEmpty) {
+          // Filter locally instead of making a new API call
+          _filterDiseases(_riwayatController.text);
+        } else {
+          // Reset to show all diseases
+          _resetDiseases();
+        }
       }
     });
   }
-  void _fetchDiseases([String? query]) async {
+  
+  // Filter diseases locally based on search text
+  void _filterDiseases(String query) {
+    if (_allDiseases.isEmpty) return;
+    
+    setState(() {
+      if (query.isEmpty) {
+        _suggestedDiseases = List.from(_allDiseases);
+      } else {
+        _suggestedDiseases = _allDiseases
+            .where((disease) => disease.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+    
+    // Update overlay if visible
+    if (_overlayEntry != null) {
+      _hideOverlay();
+      _showOverlay();
+    }
+  }
+  
+  // Reset to show all diseases
+  void _resetDiseases() {
+    setState(() {
+      _suggestedDiseases = List.from(_allDiseases);
+    });
+    
+    // Update overlay if visible
+    if (_overlayEntry != null) {
+      _hideOverlay();
+      _showOverlay();
+    }
+  }  // Fetch all diseases from the database once
+  void _fetchDiseases() async {
     setState(() {
       _isLoadingDiseases = true;
     });
     
     try {
-      // Import fetchDiseases from functions.dart
-      final diseases = await fetchDiseases(query: query);
+      // Import fetchDiseases from functions.dart - fetch all diseases without filter
+      final diseases = await fetchDiseases();
       
       if (mounted) {
         setState(() {
-          _suggestedDiseases = diseases;
+          _allDiseases = diseases; // Store all diseases for local filtering
+          _suggestedDiseases = diseases; // Initially show all diseases
           _isLoadingDiseases = false;
         });
-        
-        // Rebuild the overlay to show the updated suggestions
-        if (_overlayEntry != null) {
-          _hideOverlay();
-          _showOverlay();
-        }
       }
     } catch (e) {
       if (mounted) {
@@ -153,13 +187,17 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
                           padding: EdgeInsets.zero,
                           itemCount: _suggestedDiseases.length,
                           itemBuilder: (context, index) {
-                            final disease = _suggestedDiseases[index];
+                            final disease = _suggestedDiseases[index];                            final bool isAlreadySelected = _riwayatList.contains(disease.name);
                             return ListTile(
                               title: Text(disease.name),
+                              trailing: isAlreadySelected 
+                                  ? const Icon(Icons.check_circle, color: Color(0xFF83AEB1))
+                                  : const Icon(Icons.add_circle_outline),
                               onTap: () {
-                                _riwayatController.text = disease.name;
-                                _hideOverlay();
+                                // Langsung menambahkan penyakit ketika diklik (tidak perlu set ke text field)
                                 _tambahRiwayat(disease.name);
+                                // Clear focus setelah item dipilih
+                                FocusScope.of(context).unfocus();
                               },
                               dense: true,
                               visualDensity: const VisualDensity(vertical: -2),
@@ -207,14 +245,31 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
     _hideOverlay();
     super.dispose();
   }
-
+  // Menambahkan riwayat penyakit dengan validasi database
   void _tambahRiwayat(String text) {
     final newText = text.trim();
-    if (newText.isNotEmpty && !_riwayatList.contains(newText)) {
+    if (newText.isEmpty) return;
+    
+    // Jika penyakit sudah ada di list, tidak perlu ditambahkan lagi
+    if (_riwayatList.contains(newText)) return;
+    
+    // Periksa apakah penyakit terdapat dalam database (dari _suggestedDiseases)
+    final bool isValidDisease = _suggestedDiseases.any((disease) => disease.name.toLowerCase() == newText.toLowerCase());
+    
+    if (isValidDisease) {
       setState(() {
         _riwayatList.add(newText);
         _riwayatController.clear();
       });
+    } else {
+      // Tampilkan pesan jika penyakit tidak ada di database
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Penyakit tidak terdaftar dalam database. Silakan pilih dari daftar yang tersedia.'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -322,6 +377,16 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
         }
       }
     }
+  }
+
+  // Memeriksa apakah teks yang dimasukkan terdapat dalam database penyakit
+  bool _isValidInput() {
+    final inputText = _riwayatController.text.trim();
+    if (inputText.isEmpty) return false;
+    
+    return _allDiseases.any(
+      (disease) => disease.name.toLowerCase() == inputText.toLowerCase()
+    );
   }
 
   @override
@@ -479,12 +544,11 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
                                   children: [
                                     Expanded(
                                       child: CompositedTransformTarget(
-                                        link: _layerLink,
-                                        child: TextFormField(
+                                        link: _layerLink,                                          child: TextFormField(
                                           controller: _riwayatController,
                                           focusNode: _riwayatFocusNode,
                                           decoration: InputDecoration(
-                                            hintText: "Masukkan/pilih riwayat penyakit",
+                                            hintText: "Pilih dari daftar penyakit",
                                             hintStyle: TextStyle(color: Colors.grey.shade400),
                                             prefixIcon: const Icon(Icons.medical_information_outlined, color: Color(0xFF83AEB1)),
                                             border: border,
@@ -493,28 +557,45 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
                                             filled: true,
                                             fillColor: const Color(0xFFF9FAFB),
                                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                            helperText: "Hanya penyakit dalam database yang dapat dipilih",
+                                            helperStyle: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey.shade600,
+                                              fontStyle: FontStyle.italic,
+                                            ),
                                           ),
                                           onFieldSubmitted: (value) {
-                                            _tambahRiwayat(value);
-                                            _hideOverlay();
+                                            if (_isValidInput()) {
+                                              _tambahRiwayat(value);
+                                              _hideOverlay();
+                                            } else {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('Silakan pilih penyakit dari daftar yang tersedia'),
+                                                  backgroundColor: Colors.red,
+                                                  behavior: SnackBarBehavior.floating,
+                                                ),
+                                              );
+                                            }
                                           },
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 10),
-                                    Container(
+                                    const SizedBox(width: 10),                                    Container(
                                       height: 56,
                                       width: 56,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF83AEB1),
+                                        color: _isValidInput() ? const Color(0xFF83AEB1) : Colors.grey.shade400,
                                         borderRadius: BorderRadius.circular(16),
                                       ),
                                       child: IconButton(
                                         icon: const Icon(Icons.add, color: Colors.white, size: 24),
-                                        onPressed: () {
-                                          _tambahRiwayat(_riwayatController.text);
-                                          _hideOverlay();
-                                        },
+                                        onPressed: _isValidInput() 
+                                          ? () {
+                                              _tambahRiwayat(_riwayatController.text);
+                                              _hideOverlay();
+                                            }
+                                          : null,
                                       ),
                                     ),
                                   ],

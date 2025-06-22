@@ -85,13 +85,58 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 15),
+              ),              const SizedBox(height: 15),
               Text(
                 user != null ? user!.name : 'Guest User',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 5),
+              ElevatedButton.icon(
+                icon: Icon(Icons.logout, color: Colors.white),
+                label: Text('Logout', style: TextStyle(color: Colors.white)),
+                onPressed: () async {
+                  // Show confirmation dialog
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Logout'),
+                        content: Text('Apakah anda yakin ingin logout?'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('Batal'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Ya', style: TextStyle(color: Colors.red)),
+                            onPressed: () async {
+                              await AuthService.logout();
+                              Navigator.of(context).pop();
+                              // Redirect to login or home page
+                              if (context.mounted) {
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/', 
+                                  (Route<dynamic> route) => false
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF83AEB1),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               Row (
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(_pages.length, (index) {
