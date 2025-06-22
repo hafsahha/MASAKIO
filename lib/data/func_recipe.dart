@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 // Base URL untuk backend
-const url = 'https://masakio.up.railway.app/';
-const recipesEndpoint = '${url}recipes/'; // Endpoint untuk resep
+const url = 'https://masakio.up.railway.app/recipes';
 
 // Recipe model
 class Recipe {
@@ -94,7 +93,7 @@ class Recipe {
       'title': name,
       'rating': rating ?? 0.0,
       'reviewCount': reviewCount ?? 0,
-      'imageAsset': 'assets/images/${thumbnail}',
+      'imageAsset': 'assets/images/$thumbnail',
       'isBookmarked': false,
     };
   }
@@ -166,16 +165,14 @@ class Step {
 
 // Fetch all recipes
 Future<List<Map<String, dynamic>>> fetchAllRecipes() async {
-  final client = http.Client();
   try {
-    final response = await client.get(Uri.parse(recipesEndpoint))
-      .timeout(const Duration(seconds: 10));
+    final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
     
     if (response.statusCode != 200) throw Exception('Failed to load recipes');
     
     final List<dynamic> data = json.decode(response.body);
     return data.map((item) => {
-      'id': item['id_resep'].toString(),
+      'id': item['id_resep'],
       'title': item['nama_resep'],
       'rating': item['rating'] ?? 0.0,
       'reviewCount': item['review_count'] ?? 0,
@@ -183,39 +180,24 @@ Future<List<Map<String, dynamic>>> fetchAllRecipes() async {
       'isOwned': false,
       'isBookmarked': false,
     }).toList();
-  } catch (e) {
-    print('Error fetching recipes: $e');
-    throw Exception('Failed to load recipes: $e');
-  } finally {
-    client.close();
-  }
+  } catch (e) { throw Exception('Failed to load recipes: $e'); }
 }
 
 // Fetch recipe details by ID
-Future<Recipe> fetchRecipeById(int recipeId) async {
-  final client = http.Client();
+Future<Recipe> fetchRecipeById(int id) async {
   try {
-    final response = await client.get(Uri.parse('$recipesEndpoint$recipeId'))
-      .timeout(const Duration(seconds: 10));
-    
+    final response = await http.get(Uri.parse('$url/$id')).timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) throw Exception('Failed to load recipe details');
     
     final data = json.decode(response.body);
     return Recipe.fromJson(data);
-  } catch (e) {
-    print('Error fetching recipe details: $e');
-    rethrow;
-  } finally {
-    client.close();
-  }
+  } catch (e) { rethrow; }
 }
 
 // Add a new recipe
 Future<int> addRecipe(Recipe recipe) async {
-  final client = http.Client();
   try {
-    final response = await client.post(
-      Uri.parse(recipesEndpoint),
+    final response = await http.post(Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(recipe.toJson()),
     ).timeout(const Duration(seconds: 15));
@@ -224,10 +206,5 @@ Future<int> addRecipe(Recipe recipe) async {
     
     final data = json.decode(response.body);
     return data['recipeId'];
-  } catch (e) {
-    print('Error adding recipe: $e');
-    rethrow;
-  } finally {
-    client.close();
-  }
+  } catch (e) { rethrow; }
 }

@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:masakio/data/functions.dart';
+import 'package:masakio/data/func_wishlist.dart';
 import 'package:masakio/.components/button.dart';
 import 'package:masakio/.components/bottom_popup.dart';
 import 'package:masakio/data/dummy_resep.dart'; // Added import for Resep model
 import 'package:masakio/resep_detail.dart'; // Added import for ResepDetailPage
 
 class ResepCard extends StatelessWidget {
-  final String id;
+  final int id;
   final String title;
   final String rating;
   final String reviews;
   final String? imageUrl;
   final bool isOwned;
-  final bool isBookmarked; // Parameter baru untuk status bookmark
+  bool isBookmarked; // Parameter baru untuk status bookmark
   final void Function()? onRefresh; // Callback untuk refresh jika diperlukan
   final Resep? resep; // Added full Resep object
 
-  const ResepCard({
+  ResepCard({
     super.key,
     required this.id,
     required this.title,
@@ -98,7 +98,7 @@ class ResepCard extends StatelessWidget {
                           },
                         );
                     }
-                    : () {
+                    : () async{
                         if (isBookmarked) {
                           showModalBottomSheet(
                             context: context,
@@ -108,10 +108,25 @@ class ResepCard extends StatelessWidget {
                                   Text('Apakah anda yakin ingin menghapus resep ini dari wishlist?'),
                                   const SizedBox(height: 30),
                                   Button(
-                                      onPressed: () {
-                                      unWish(id);
-                                      Navigator.pop(context);
-                                      onRefresh?.call();
+                                    onPressed: () async {
+                                      await unwish(id);
+                                      Navigator.pop(context); // Close bottom sheet
+                                      if (context.mounted) showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                        title: const Text("Resep Dihapus"),
+                                        content: const Text("Resep berhasil dihapus dari wishlist."),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(ctx);
+                                              this.isBookmarked = true;
+                                            },
+                                            child: const Text("OK"),
+                                          ),
+                                        ],
+                                        ),
+                                      );
                                     },
                                     content: 'Ya',
                                     backgroundColor: 0xFFCC0000,
@@ -126,8 +141,23 @@ class ResepCard extends StatelessWidget {
                             }
                           );
                         } else {
-                          wish(id);
-                          onRefresh?.call();
+                          await wish(id);
+                          if (context.mounted) showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text("Resep Tersimpan"),
+                              content: const Text("Resep berhasil ditambahkan ke wishlist."),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(ctx);
+                                    if (onRefresh != null) onRefresh!();
+                                  },
+                                  child: const Text("OK"),
+                                ),
+                              ],
+                            ),
+                          );
                         }
                       },
                     child: Container(

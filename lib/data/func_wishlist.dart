@@ -1,76 +1,60 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:masakio/data/func_profile.dart';
 
 // Base URL untuk backend
-const url = 'https://masakio.up.railway.app/';
-const wishlistEndpoint = '${url}wishlist/'; // Endpoint untuk wishlist
+const url = 'https://masakio.up.railway.app/wishlist'; // Endpoint untuk wishlist
 
 // Fetch user wishlist
-Future<List<Map<String, dynamic>>> fetchWishlist(int userId) async {
-  final client = http.Client();
+Future<List<Map<String, dynamic>>> fetchWishlist(int id) async {
   try {
-    final response = await http.get(Uri.parse('${wishlistEndpoint}${userId}'))
-      .timeout(const Duration(seconds: 10));
-      
+    final response = await http.get(Uri.parse('$url/$id')).timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) throw Exception('Failed to load wishlist');
     
     final List<dynamic> data = json.decode(response.body);
     return data.map((item) => {
-      'id': item['id_resep'].toString(),
+      'id': item['id_resep'],
       'title': item['nama_resep'],
       'rating': item['rating'] ?? 0.0,
       'reviewCount': item['review_count'] ?? 0,
       'imageAsset': 'assets/images/${item['thumbnail']}',
       'isBookmarked': true,
     }).toList();
-  } catch (e) {
-    print('Error fetching wishlist: $e');
-    rethrow;
-  } finally {
-    client.close();
-  }
+  } catch (e) { rethrow; }
 }
 
 // Add to wishlist
-Future<bool> addToWishlist(int userId, int recipeId) async {
-  final client = http.Client();
+Future<bool> wish(int recipeId) async {
+  final user = await AuthService.getCurrentUser();
+  final userId = user!.id;
+
   try {
-    final response = await client.post(
-      Uri.parse('${wishlistEndpoint}add'),
+    final response = await http.post(Uri.parse('$url/add'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'id_user': userId,
-        'id_resep': recipeId,
+        'user_id': userId,
+        'recipe_id': recipeId,
       }),
     ).timeout(const Duration(seconds: 10));
     
     return response.statusCode == 200 || response.statusCode == 201;
-  } catch (e) {
-    print('Error adding to wishlist: $e');
-    return false;
-  } finally {
-    client.close();
-  }
+  } catch (e) { return false; }
 }
 
 // Remove from wishlist
-Future<bool> removeFromWishlist(int userId, int recipeId) async {
-  final client = http.Client();
+Future<bool> unwish(int recipeId) async {
+  final user = await AuthService.getCurrentUser();
+  final userId = user!.id;
+
   try {
-    final response = await client.delete(
-      Uri.parse('${wishlistEndpoint}remove'),
+    final response = await http.delete(Uri.parse('$url/remove'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'id_user': userId,
-        'id_resep': recipeId,
+        'user_id': userId,
+        'recipe_id': recipeId,
       }),
     ).timeout(const Duration(seconds: 10));
-    
+
     return response.statusCode == 200;
-  } catch (e) {
-    print('Error removing from wishlist: $e');
-    return false;
-  } finally {
-    client.close();
-  }
+  } catch (e) { return false; }
 }

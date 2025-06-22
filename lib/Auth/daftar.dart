@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:masakio/data/functions.dart';
 import 'package:masakio/data/func_disease.dart'; // Add this import for DiseaseSuggestion
 import 'package:masakio/data/func_profile.dart'; // Add this import for AuthService
 import 'package:masakio/Auth/masuk.dart';
-import 'package:masakio/Profile/profile.dart';
+import 'package:masakio/main_page.dart';
 
 class DaftarAkunPage extends StatefulWidget {
   const DaftarAkunPage({super.key});
@@ -275,11 +274,10 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
         return;
       }
 
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
-      try {        final user = await AuthService.register(
+      try {
+        final user = await AuthService.register(
           name: _namaController.text,
           email: _emailController.text,
           password: _passwordController.text,
@@ -287,46 +285,25 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
         );
 
         // Add disease history for each disease in the list
-        if (_riwayatList.isNotEmpty) {
-          for (final disease in _riwayatList) {
-            try {
-              await addDiseaseHistory(user.id, disease);
-            } catch (e) {
-              print("Failed to add disease: $e");
-              // Continue with registration even if disease history failed
-            }
-          }
-        }
+        if (_riwayatList.isNotEmpty) for (final disease in _riwayatList) { await addDiseaseHistory(user.id, disease); }
 
         if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
+          setState(() => _isLoading = false);
 
           // Navigate to profile page after successful registration
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => const ProfilePage(pageIndex: 0),
-            ),
+            MaterialPageRoute(builder: (context) => const MainPage(pageIndex: 3)),
           );
         }
       } catch (e) {
         if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
+          setState(() => _isLoading = false);
           
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text(
-                "Registrasi Gagal",
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              title: const Text("Registrasi Gagal"),
               content: Text("$e"),
               actions: [
                 TextButton(
@@ -366,8 +343,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.3),
-                    Colors.black.withOpacity(0.7),
+                    const Color(0x4D000000),
+                    const Color(0xB3000000),
                   ],
                 ),
               ),
@@ -387,7 +364,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Color(0x33FFFFFF),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -429,7 +406,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Color(0x33000000),
                                 blurRadius: 10,
                                 offset: const Offset(0, 5),
                               ),
@@ -685,7 +662,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> with SingleTickerProvid
                         borderRadius: BorderRadius.circular(30),
                       ),
                       elevation: 3,
-                      shadowColor: const Color(0xFF83AEB1).withOpacity(0.5),
+                      shadowColor: const Color(0x8083AEB1),
                     ),
                     onPressed: _submitForm,
                     child: const Text(

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:masakio/main_page.dart'; // ganti sesuai lokasi HomePage-mu
+import 'package:masakio/main_page.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -26,12 +26,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // bisa diganti sesuai tema
+      backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset(
-          'assets/images/masakio.png',
-          width: 180,
-        ),
+        child: Image.asset('assets/images/masakio.png', width: 250),
       ),
     );
   }

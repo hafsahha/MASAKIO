@@ -27,9 +27,13 @@ class _MainPageState extends State<MainPage> {
   // Wrap the ProfilePage with AuthGate
   final _pages = [
     const HomePage(),
-    const DiscoveryResep(),  // ExplorePage(),
+    const DiscoveryResep(),
     const ForumPage(),
-    const AuthGate(child: ProfilePage(pageIndex: 0)), // Wrapped with AuthGate
+    const AuthGate(
+      childPage: ProfilePage(pageIndex: 0),
+      pageName: "Profil",
+      icon: Icons.person
+    )
   ];
   
   @override

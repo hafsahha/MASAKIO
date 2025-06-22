@@ -28,7 +28,9 @@ class AuthGateDialog extends StatelessWidget {
       elevation: 0,
       insetPadding: EdgeInsets.zero,
       child: AuthGate(
-        child: Container(), // Container kosong karena yang dibutuhkan hanya auth popup
+        childPage: Container(), // Container kosong karena yang dibutuhkan hanya auth popup
+        pageName: "Autentikasi",
+        icon: Icons.lock,
       ),
     );
   }

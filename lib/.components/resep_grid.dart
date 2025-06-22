@@ -3,7 +3,7 @@ import 'package:masakio/data/dummy_resep.dart'; // Added import for Resep model
 import 'resep_card.dart';
 
 class ResepGrid extends StatelessWidget {
-  final List<Resep> reseps; // Updated to ensure type safety with List<Resep>
+  final List<dynamic> reseps; // Updated to ensure type safety with List<Resep>
 
   const ResepGrid({super.key, required this.reseps});
 

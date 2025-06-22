@@ -36,12 +36,12 @@ class UserAvatar extends StatelessWidget {
           imageUrl,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => CircleAvatar(
-            backgroundColor: Colors.grey[300],
+            backgroundColor: Color(0x3383AEB1),
             radius: size / 2,
             child: Icon(
               Icons.person,
               size: size * 0.6,
-              color: Colors.grey[600],
+              color: Color(0xFF83AEB1),
             ),
           ),
         ),
