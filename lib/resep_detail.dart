@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:masakio/data/dummy_resep.dart';
+import 'package:masakio/data/func_review.dart';
 import 'package:masakio/review_all_page.dart';
+import 'package:masakio/data/func_profile.dart';
 
 class ResepDetailPage extends StatefulWidget {
   final Resep resep;
@@ -20,9 +22,16 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
   late List<Map<String, String>> tools;
   late List<Map<String, dynamic>> cookingSteps;
   int _selectedRating = 0;
+  final TextEditingController _reviewController = TextEditingController();
+  
+  // Review-related state
+  List<Review> _reviews = [];
+  bool _isLoadingReviews = false;
+  
   @override
   void initState() {
     super.initState();
+    _loadReviews();
 
     // Convert ingredients list to the required format
     ingredients =
@@ -60,18 +69,37 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
         'name': 'Protein',
         'value': widget.resep.nutrition['Protein'] ?? '0 gr',
         'icon': Icons.egg_outlined,
-      },
-      {
+      },      {
         'name': 'Lemak',
         'value': widget.resep.nutrition['Lemak'] ?? '0 gr',
         'icon': Icons.fastfood_outlined,
       },
       {
-        'name': 'Kalori',
-        'value': widget.resep.nutrition['Kalori'] ?? '0 kkal',
-        'icon': Icons.local_fire_department_outlined,
-      },
-    ];
+        'name': 'Serat',
+        'value': widget.resep.nutrition['Serat'] ?? '0 gr',
+        'icon': Icons.eco_outlined,
+      },    ];
+  }
+
+  // Load reviews from backend
+  Future<void> _loadReviews() async {
+    setState(() {
+      _isLoadingReviews = true;
+    });
+
+    try {
+      final int recipeId = int.tryParse(widget.resep.id) ?? 0;
+      final reviews = await getRecipeReviews(recipeId);
+      setState(() {
+        _reviews = reviews;
+        _isLoadingReviews = false;
+      });
+    } catch (e) {
+      print('Error loading reviews: $e');
+      setState(() {
+        _isLoadingReviews = false;
+      });
+    }
   }
 
   late List<Map<String, dynamic>> nutrition;
@@ -122,23 +150,21 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.resep.title,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Icon(Icons.star, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text(widget.resep.rating.toString()),
-                    ],
+                  // Nama Resep
+                  Text(
+                    widget.resep.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
+                  // Deskripsi
+                  Text(
+                    widget.resep.description,
+                    style: const TextStyle(fontSize: 16, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       const CircleAvatar(
@@ -200,7 +226,8 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                     'Deskripsi',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4), Text(widget.resep.description),
+                  const SizedBox(height: 4),
+                  Text(widget.resep.description),
                   const SizedBox(height: 16),
                   Column(
                     crossAxisAlignment:
@@ -516,6 +543,7 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                         ),
                         const SizedBox(height: 8),
                         TextField(
+                          controller: _reviewController,
                           decoration: InputDecoration(
                             hintText: 'Tulis ulasan...',
                             hintStyle: TextStyle(color: Colors.grey),
@@ -531,9 +559,64 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                               horizontal: 12,
                             ),
                             suffixIcon: IconButton(
-                              icon: const Icon(Icons.send, color: Colors.teal),
-                              onPressed: () {
-                                // Tambah logika untuk mengirim ulasan di sini
+                              icon: const Icon(Icons.send, color: Colors.teal),                              onPressed: () async {
+                                try {
+                                  // Check if user is logged in first
+                                  final currentUser = await AuthService.getCurrentUser();
+                                  if (currentUser == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Silakan login terlebih dahulu untuk memberikan review'),
+                                        backgroundColor: Colors.orange,
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  // Validate review content
+                                  if (_reviewController.text.trim().isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Silakan tulis review terlebih dahulu'),
+                                        backgroundColor: Colors.orange,
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  // Add review
+                                  await addReview(
+                                    userId: currentUser.id,
+                                    recipeId: int.tryParse(widget.resep.id) ?? 0,
+                                    rating: _selectedRating.toDouble(),
+                                    comment: _reviewController.text.trim(),
+                                  );
+                                  
+                                  // Clear the input and reset rating
+                                  _reviewController.clear();
+                                  setState(() {
+                                    _selectedRating = 5;
+                                  });
+                                  
+                                  // Reload reviews to show the new one
+                                  await _loadReviews();
+                                  
+                                  // Show success message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Review berhasil ditambahkan!'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } catch (e) {
+                                  // Show error message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Gagal menambahkan review: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
                               },
                             ),
                           ),
@@ -585,91 +668,107 @@ class _ResepDetailPageState extends State<ResepDetailPage> {
                               ),
                             ),
                           ],
-                        ),
-                      ), // Card Review - Show a sample review
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.grey.shade300,
-                              child: const Icon(
-                                Icons.person,
-                                color: Colors.white,
-                              ),
+                        ),                      ), // Card Review - Show real reviews from backend
+                      
+                      // Display reviews from backend
+                      if (_isLoadingReviews)
+                        const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      else if (_reviews.isEmpty)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: const Text(
+                            'Belum ada review untuk resep ini.',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontStyle: FontStyle.italic,
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Nama + rating
-                                  Row(
-                                    children: [
-                                      const Text(
-                                        'Ayu R.',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
+                          ),
+                        )
+                      else
+                        ..._reviews.take(2).map((review) => Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Colors.grey.shade300,
+                                child: Text(
+                                  review.userName.isNotEmpty 
+                                    ? review.userName[0].toUpperCase()
+                                    : 'U',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Nama + rating
+                                    Row(
+                                      children: [
+                                        Text(
+                                          review.userName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Row(
-                                        children: [
-                                          ...List.generate(
-                                            5,
-                                            (index) => Icon(
-                                              index <
-                                                      widget.resep.rating
-                                                          .floor()
-                                                  ? Icons.star
-                                                  : (index ==
-                                                          widget.resep.rating
-                                                              .floor() &&
-                                                      widget.resep.rating % 1 >
-                                                          0)
-                                                  ? Icons.star_half
-                                                  : Icons.star_border,
-                                              size: 16,
-                                              color: Colors.amber,
+                                        const SizedBox(width: 8),
+                                        Row(
+                                          children: [
+                                            ...List.generate(
+                                              5,
+                                              (index) => Icon(
+                                                index < review.rating.floor()
+                                                    ? Icons.star
+                                                    : (index == review.rating.floor() &&
+                                                        review.rating % 1 > 0)
+                                                    ? Icons.star_half
+                                                    : Icons.star_border,
+                                                size: 16,
+                                                color: Colors.amber,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            widget.resep.rating.toString(),
-                                            style: const TextStyle(
-                                              fontSize: 13,
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              review.rating.toString(),
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  const Text(
-                                    'Bergabung sejak Maret 2024',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    'Resepnya enak dan mudah diikuti. Terima kasih!',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                ],
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      review.comment,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
+                            ],
+                          ),
+                        )).toList(),
                     ],
                   ),
 
