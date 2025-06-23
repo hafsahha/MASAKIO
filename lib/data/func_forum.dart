@@ -55,7 +55,7 @@ class ForumDetail {
   final String? image;
   final String content;
   final DateTime timestamp;
-  final int likes;
+  int likes;
   final int comments;
   final List<ForumReply>? replies;
 
@@ -166,5 +166,57 @@ Future<bool> addForumPost(String content, File? image) async {
 
     if (response.statusCode != 201) throw Exception('Failed to create forum post');
     return response.statusCode == 200 || response.statusCode == 201;
+  } catch (e) { rethrow; }
+}
+
+// Reply to a forum post
+Future<bool> addForumReply(int postId, String content, File? image) async {
+  final user = await AuthService.getCurrentUser();
+  final userId = user!.id;
+
+  try {
+    final response = await http.post(Uri.parse('$url/reply'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'id_user': userId,
+        'gambar': image,
+        'caption': content,
+        'reply_to': postId,
+      }),
+    ).timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 201) throw Exception('Failed to reply to forum post');
+    return response.statusCode == 200 || response.statusCode == 201;
+  } catch (e) { rethrow; }
+}
+
+Future<bool> isLikedForumPost(int postId) async {
+  final user = await AuthService.getCurrentUser();
+  final userId = user!.id;
+
+  try {
+    final response = await http.get(Uri.parse('$url/like?user_id=$userId&post_id=$postId'))
+      .timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 200) throw Exception('Failed to check like status');
+    return json.decode(response.body)['liked'] as bool;
+  } catch (e) { rethrow; }
+}
+
+Future<bool> likeForumPost(int postId) async {
+  final user = await AuthService.getCurrentUser();
+  final userId = user!.id;
+
+  try {
+    final response = await http.post(Uri.parse('$url/like'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'id_user': userId,
+        'id_discuss': postId,
+      }),
+    ).timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 200) throw Exception('Failed to like forum post');
+    return response.statusCode == 200;
   } catch (e) { rethrow; }
 }

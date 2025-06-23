@@ -83,33 +83,52 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
       default:
         return null;
     }
-  }
-
-  // Fungsi untuk mendapatkan resep berdasarkan filter yang dipilih
+  }  // Fungsi untuk mendapatkan resep berdasarkan filter yang dipilih
   Future<List<Map<String, dynamic>>> _fetchFilteredRecipes() async {
     try {
-      // Jika tidak ada filter yang aktif, kembalikan semua resep
-      if (selectedCategory == "Semua" &&
-          bahanDiinginkan.isEmpty &&
-          bahanTidakDiinginkan.isEmpty) {
-        print(
-            "[DEBUG] _fetchFilteredRecipes: Tidak ada filter aktif, mengembalikan semua resep");
-        return recipe_api.fetchAllRecipesWithFallback();
+      List<Map<String, dynamic>> recipes;
+      
+      // Cek apakah ada filter kategori atau bahan
+      bool hasFilterCriteriaExceptSearch = selectedCategory != "Semua" || 
+          bahanDiinginkan.isNotEmpty || 
+          bahanTidakDiinginkan.isNotEmpty;
+      
+      // Jika hanya ada search query, tapi tidak ada filter lain
+      if (!hasFilterCriteriaExceptSearch) {
+        print("[DEBUG] _fetchFilteredRecipes: Hanya search query atau tidak ada filter, mengembalikan semua resep");
+        recipes = await recipe_api.fetchAllRecipesWithFallback();
+      } else {
+        // Ada filter kategori atau bahan, gunakan fetchRecipesByFilter
+        // Konversi nama kategori ke ID kategori
+        final categoryId = _getCategoryIdFromName(selectedCategory);
+
+        print("[DEBUG] _fetchFilteredRecipes: Memanggil filter dengan kategori ID: $categoryId");
+        print("[DEBUG] _fetchFilteredRecipes: Bahan diinginkan: $bahanDiinginkan");
+        print("[DEBUG] _fetchFilteredRecipes: Bahan tidak diinginkan: $bahanTidakDiinginkan");
+        
+        // Panggil fungsi filter
+        recipes = await recipe_api.fetchRecipesByFilter(
+          categoryId: categoryId,
+          includeIngredients: bahanDiinginkan.isNotEmpty ? bahanDiinginkan : null,
+          excludeIngredients: bahanTidakDiinginkan.isNotEmpty ? bahanTidakDiinginkan : null,
+        );
       }
-
-      // Konversi nama kategori ke ID kategori
-      final categoryId = _getCategoryIdFromName(selectedCategory);
-
-      print("[DEBUG] _fetchFilteredRecipes: Memanggil filter dengan kategori ID: $categoryId");
-      print("[DEBUG] _fetchFilteredRecipes: Bahan diinginkan: $bahanDiinginkan");
-      print("[DEBUG] _fetchFilteredRecipes: Bahan tidak diinginkan: $bahanTidakDiinginkan");
-
-      // Panggil fungsi filter
-      return await recipe_api.fetchRecipesByFilter(
-        categoryId: categoryId,
-        includeIngredients: bahanDiinginkan.isNotEmpty ? bahanDiinginkan : null,
-        excludeIngredients: bahanTidakDiinginkan.isNotEmpty ? bahanTidakDiinginkan : null,
-      );
+      
+      // Filter berdasarkan search query jika ada
+      if (searchQuery.isNotEmpty) {
+        print("[DEBUG] _fetchFilteredRecipes: Menerapkan search filter: '$searchQuery'");
+        
+        final query = searchQuery.toLowerCase();
+        recipes = recipes.where((recipe) {
+          // Cari di judul resep
+          final title = recipe['title'].toString().toLowerCase();
+          return title.contains(query);
+        }).toList();
+        
+        print("[DEBUG] _fetchFilteredRecipes: Hasil search filter: ${recipes.length} resep ditemukan");
+      }
+      
+      return recipes;
     } catch (e) {
       print("[ERROR] _fetchFilteredRecipes: $e");
       // Fallback ke semua resep jika filter gagal

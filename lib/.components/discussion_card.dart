@@ -12,6 +12,7 @@ class DiscussionCard extends StatelessWidget {
   final String content;
   final int likesCount;
   final int repliesCount;
+  final DateTime timestamp;
 
   const DiscussionCard({
     super.key,
@@ -22,6 +23,7 @@ class DiscussionCard extends StatelessWidget {
     required this.content,
     required this.likesCount,
     required this.repliesCount,
+    required this.timestamp,
   });
 
   @override
@@ -62,6 +64,24 @@ class DiscussionCard extends StatelessWidget {
                       fontFamily: 'montserrat',
                       fontWeight: FontWeight.w600,
                       fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '· ${(() {
+                      final diff = DateTime.now().difference(timestamp);
+                      if (diff.inSeconds < 60) { return '${diff.inSeconds} dtk'; }
+                      else if (diff.inMinutes < 60) { return '${diff.inMinutes} mnt'; }
+                      else if (diff.inHours < 24) { return '${diff.inHours} j'; }
+                      else if (diff.inDays < 7) { return '${diff.inDays} hr'; }
+                      else if (diff.inDays < 30) { return '${(diff.inDays / 7).floor()} mg'; }
+                      else if (diff.inDays < 365) { return '${(diff.inDays / 30).floor()} bln'; }
+                      else { return '${(diff.inDays / 365).floor()} thn'; }
+                    })()}',
+                    style: const TextStyle(
+                      fontFamily: 'montserrat',
+                      fontSize: 16,
                       color: Colors.white,
                     ),
                   ),

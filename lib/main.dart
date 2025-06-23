@@ -12,11 +12,6 @@ import 'package:masakio/main_page.dart';
 import 'package:masakio/Profile/edit_profile.dart';
 import 'package:masakio/data/dummy_resep.dart';
 import 'package:masakio/resep_detail.dart';
-import 'package:masakio/splash_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:masakio/Tambah Resep/recipe_form_provider.dart';
-
-
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
