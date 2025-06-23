@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:masakio/home.dart';
+import 'package:masakio/main_page.dart';
+import 'package:provider/provider.dart';
+import 'recipe_form_provider.dart';
+import 'dart:io';
 
 class ValidasiResepPage extends StatelessWidget {
   const ValidasiResepPage({super.key});
+  
+  // Helper method to calculate total time from procedures
+  int _calculateTotalTime(List<Map<String, dynamic>> procedures) {
+    return procedures.fold(0, (sum, procedure) => sum + (procedure['durasi_menit'] as int? ?? 0));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +43,8 @@ class ValidasiResepPage extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 16),
+            child: const Icon(Icons.arrow_back_ios_new,
+                color: Colors.black, size: 16),
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -45,99 +56,108 @@ class ValidasiResepPage extends StatelessWidget {
             children: [
               // Updated Progress indicator
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: _buildStepIndicator(),
                 ),
-              ),
-              
-              // Video preview
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                height: 200,
-                width: double.infinity,
-                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    image: const DecorationImage(
-                      image: AssetImage('assets/images/gambar1.jpg'),  // Pastikan path ini benar
-                      fit: BoxFit.cover,
+              ),              // Video or thumbnail preview
+              Consumer<RecipeFormProvider>(
+                builder: (context, provider, _) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    height: 200,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      image: provider.thumbnailImage != null
+                          ? DecorationImage(
+                              image: FileImage(provider.thumbnailImage!),
+                              fit: BoxFit.cover,
+                            )
+                          : const DecorationImage(
+                              image: AssetImage('assets/images/nasi_goreng.jpeg'),
+                              fit: BoxFit.cover,
+                            ),
                     ),
-                  ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Play button
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        size: 40,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    // Duration indicator
-                    Positioned(
-                      bottom: 10,
-                      right: 10,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Text(
-                          '12:08',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                    child: provider.videoFile != null
+                        ? Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Play button for video
+                              Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.7),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.play_arrow,
+                                  size: 40,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          )
+                        : null,
+                  );
+                },
               ),
-              const SizedBox(height: 20),
-              
-              // Recipe information sections
-              _buildInfoSection(
-                'Nama Resep',
-                'Chicken Ramen',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),              // Recipe information sections from provider
+              Consumer<RecipeFormProvider>(
+                builder: (context, provider, _) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildInfoSection(
+                        'Nama Resep',
+                        provider.recipeName,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      
+                      _buildInfoSection(
+                        'Deskripsi',
+                        provider.description,
+                      ),
+
+                      _buildInfoSection(
+                        'Porsi',
+                        '${provider.portions} porsi',
+                      ),
+                      
+                      // Calculate total time based on procedures
+                      _buildInfoSection(
+                        'Estimasi Waktu',
+                        '${_calculateTotalTime(provider.procedures)} menit',
+                      ),
+                    ],
+                  );
+                },
               ),
-              
-              _buildInfoSection(
-                'Estimasi Waktu',
-                '45 Menit',
-              ),
-              
+
               // Ingredients section
               _buildSectionTitle('Bahan'),
               _buildIngredientsTable(),
-              
+
               // Equipment section
               _buildSectionTitle('Alat & Perlengkapan'),
               _buildEquipmentList(),
-              
+
               // Cooking Instructions
               _buildSectionTitle('Cara Memasak'),
               _buildCookingInstructions(),
-              
+
               // Categories
               _buildSectionTitle('Categories'),
               _buildCategoriesChips(),
-              
+
               // Tags
               _buildSectionTitle('Tags'),
               _buildTagsChips(),
-              
+
               // Publish button
               Container(
                 padding: const EdgeInsets.all(20),
@@ -145,8 +165,96 @@ class ValidasiResepPage extends StatelessWidget {
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Handle publish action
+                    onPressed: () async {
+                      // Show loading dialog
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+
+                      try {
+                        // Get the provider
+                        final provider = Provider.of<RecipeFormProvider>(
+                            context,
+                            listen: false);
+
+                        // Temporarily hardcode user ID for testing - in a real app, get this from auth
+                        provider.setUserId(1);
+
+                        // Submit recipe to backend
+                        final result = await provider.submitRecipe();
+
+                        // Close loading dialog
+                        Navigator.pop(context);
+
+                        if (result['success']) {
+                          // Show success dialog and navigate back to home
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Sukses'),
+                              content: const Text('Resep berhasil dipublish!'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    // Clear provider data
+                                    provider.resetForm();
+
+                                    // Close dialog
+                                    Navigator.pop(context);
+
+                                    // Navigate back to home (or wherever)
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => MainPage(pageIndex: 0,)),
+                                      (route) => false,
+                                    );
+
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          // Show error dialog
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Error'),
+                              content: Text(
+                                  'Failed to publish recipe: ${result['message']}'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        // Close loading dialog
+                        Navigator.pop(context);
+
+                        // Show error dialog
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Error'),
+                            content: Text('An error occurred: $e'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF83AEB1),
@@ -166,7 +274,7 @@ class ValidasiResepPage extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               // Bottom navigation placeholder
               Container(
                 height: 5,
@@ -179,12 +287,12 @@ class ValidasiResepPage extends StatelessWidget {
       ),
     );
   }
-  
+
   // Updated step indicator to match TambahResep4Page but with step 5 colored
   List<Widget> _buildStepIndicator() {
     final _totalSteps = 5;
     final _currentStep = 4; // Step kelima (indeks 4)
-    
+
     return List.generate(
       _totalSteps,
       (index) => Row(
@@ -194,7 +302,9 @@ class ValidasiResepPage extends StatelessWidget {
             height: 28,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: index <= _currentStep ? const Color(0xFF83AEB1) : Colors.grey[300],
+              color: index <= _currentStep
+                  ? const Color(0xFF83AEB1)
+                  : Colors.grey[300],
             ),
             child: Center(
               child: Text(
@@ -210,14 +320,17 @@ class ValidasiResepPage extends StatelessWidget {
             Container(
               width: 40,
               height: 1,
-              color: index < _currentStep ? const Color(0xFF83AEB1) : Colors.grey[300],
+              color: index < _currentStep
+                  ? const Color(0xFF83AEB1)
+                  : Colors.grey[300],
             ),
         ],
       ),
     );
   }
-  
-  Widget _buildInfoSection(String title, String content, {double fontSize = 16, FontWeight fontWeight = FontWeight.w500}) {
+
+  Widget _buildInfoSection(String title, String content,
+      {double fontSize = 16, FontWeight fontWeight = FontWeight.w500}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -245,7 +358,7 @@ class ValidasiResepPage extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildSectionTitle(String title) {
     return Container(
       width: double.infinity,
@@ -260,296 +373,267 @@ class ValidasiResepPage extends StatelessWidget {
       ),
     );
   }
-  
+  // Updated method to display ingredients from the provider
   Widget _buildIngredientsTable() {
-    final ingredients = [
-      {'name': 'Kaldu Ayam', 'amount': '8 gelas'},
-      {'name': 'Kecap', 'amount': '1 sdt'},
-      {'name': 'Miso pasta (Opsional)', 'amount': '1 sdt'},
-      {'name': 'Bawang Merah, haluskan', 'amount': '1 pc'},
-      {'name': 'Cabai Merah, iris', 'amount': '1 pc'},
-    ];
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 3,
-            spreadRadius: 1,
+    return Consumer<RecipeFormProvider>(builder: (context, provider, child) {
+      if (provider.ingredients.isEmpty) {
+        return const Padding(
+          padding: EdgeInsets.all(12.0),
+          child: Text('No ingredients added',
+              style: TextStyle(fontStyle: FontStyle.italic)),
+        );
+      }
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Table(
+          columnWidths: const {
+            0: FlexColumnWidth(3),
+            1: FlexColumnWidth(1),
+            2: FlexColumnWidth(1),
+          },
+          border: TableBorder.all(
+            color: Colors.grey[300]!,
+            width: 1,
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          ...ingredients.map((ingredient) => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.withOpacity(0.2),
-                  width: 1,
-                ),
+          children: [
+            const TableRow(
+              decoration: BoxDecoration(
+                color: Color(0xFFE8F3F3),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  ingredient['name']!,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'Bahan',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(
-                  ingredient['amount']!,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'Jumlah',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
-          )).toList(),
-          // "Lihat Lainnya" button
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Lihat Lainnya',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.orange[400],
+            ...provider.ingredients.map((ingredient) {
+              return TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(ingredient['nama_bahan'] ?? ''),
                   ),
-                ),
-                const SizedBox(width: 5),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 18,
-                  color: Colors.orange[400],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                        '${ingredient['jumlah'] ?? 0} ${_getSatuanName(ingredient['id_satuan'])}'),
+                  ),
+                ],
+              );
+            }).toList(),
+          ],
+        ),
+      );
+    });
   }
-  
+
+  String _getSatuanName(int? id) {
+    switch (id) {
+      case 1:
+        return 'gram';
+      case 2:
+        return 'sdm';
+      case 3:
+        return 'sdt';
+      case 4:
+        return 'buah';
+      case 5:
+        return 'potong';
+      case 6:
+        return 'siung';
+      case 7:
+        return 'ml';
+      case 8:
+        return 'liter';
+      case 9:
+        return 'cup';
+      default:
+        return '';
+    }
+  }
+
   Widget _buildEquipmentList() {
-    final equipment = [
-      'Panci masak',
-      'Sendok sop',
-      'Talenan',
-      'Chopper',
-      'Mangkok',
-    ];
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 3,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          ...equipment.map((item) => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.withOpacity(0.2),
-                  width: 1,
-                ),
-              ),
-            ),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              item,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
-            ),
-          )).toList(),
-          // "Lihat Lainnya" button
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Lihat Lainnya',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.orange[400],
+    return Consumer<RecipeFormProvider>(builder: (context, provider, child) {
+      if (provider.tools.isEmpty) {
+        return const Padding(
+          padding: EdgeInsets.all(12.0),
+          child: Text('No equipment added',
+              style: TextStyle(fontStyle: FontStyle.italic)),
+        );
+      }
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: provider.tools.map((tool) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Text(
+                    '• ${tool['nama_alat']}',
+                    style: const TextStyle(fontSize: 16),
                   ),
-                ),
-                const SizedBox(width: 5),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 18,
-                  color: Colors.orange[400],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+                  const SizedBox(width: 8),
+                  Text(
+                    '(${tool['jumlah']} buah)',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
-  
+
   Widget _buildCookingInstructions() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 3,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '1. Persiapan (15 Menit)',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 10),
-          ...const [
-            '- Dalam panci besar, panaskan minyak wijen dengan api sedang.',
-            '- Tambahkan bawang putih cincang, jahe parut, dan daun bawang cincang. Tumis selama 2-3 menit hingga harum.',
-            '- Tuang kaldu ayam dan didihkan.',
-          ].map((step) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              step,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
-            ),
-          )).toList(),
-          // "Lihat Lainnya" button
-          Container(
-            padding: const EdgeInsets.only(top: 10),
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+    return Consumer<RecipeFormProvider>(builder: (context, provider, child) {
+      if (provider.procedures.isEmpty) {
+        return const Padding(
+          padding: EdgeInsets.all(12.0),
+          child: Text('No procedures added',
+              style: TextStyle(fontStyle: FontStyle.italic)),
+        );
+      }
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: provider.procedures.asMap().entries.map((entry) {
+            final index = entry.key;
+            final procedure = entry.value;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Lihat Lainnya',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.orange[400],
+                // Procedure title
+                if (procedure['nama_prosedur'] != null &&
+                    procedure['nama_prosedur'].toString().isNotEmpty)
+                  Text(
+                    '${index + 1}. ${procedure['nama_prosedur']}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 5),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 18,
-                  color: Colors.orange[400],
-                ),
+                const SizedBox(height: 8),
+                // Procedure steps
+                ...((procedure['langkah'] as List?) ?? [])
+                    .asMap()
+                    .entries
+                    .map((entry) {
+                  final stepIndex = entry.key;
+                  final step = entry.value;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 16, bottom: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${stepIndex + 1}. '),
+                        Expanded(
+                          child: Text(step['nama_langkah'] ?? ''),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                const SizedBox(height: 16),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
-  
+
   Widget _buildCategoriesChips() {
-    return Container( 
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Wrap(
-        children: [
-          _buildCategoryChip('Makanan Berat', true),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildTagsChips() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          _buildCategoryChip('Asian', true),
-          const SizedBox(width: 10),
-          _buildCategoryChip('Halal', true),
-          const SizedBox(width: 10),
-          _buildAddChip(),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildCategoryChip(String label, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: Material(
-        color: isSelected ? const Color(0xFF83AEB1) : Colors.grey[200],
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              color: isSelected ? Colors.white : Colors.black87,
-              fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+    return Consumer<RecipeFormProvider>(builder: (context, provider, child) {
+      String categoryName = 'Unknown';
+      Color chipColor = Colors.grey;
+
+      // Convert category ID to name
+      switch (provider.categoryId) {
+        case 1:
+          categoryName = 'Makanan Berat';
+          chipColor = Colors.redAccent;
+          break;
+        case 2:
+          categoryName = 'Minuman';
+          chipColor = Colors.blueAccent;
+          break;
+        case 3:
+          categoryName = 'Hidangan Pembuka';
+          chipColor = Colors.orangeAccent;
+          break;
+        case 4:
+          categoryName = 'Hidangan Penutup';
+          chipColor = Colors.purpleAccent;
+          break;
+        case 5:
+          categoryName = 'Jamu';
+          chipColor = Colors.greenAccent;
+          break;
+      }
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            Chip(
+              label: Text(
+                categoryName,
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: chipColor,
             ),
-          ),
+          ],
         ),
-      ),
-    );
+      );
+    });
   }
-  
-  Widget _buildAddChip() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        elevation: 1,
-        child: const Padding(
-          padding: EdgeInsets.all(8),
-          child: Icon(
-            Icons.add,
-            size: 20,
-            color: Colors.grey,
-          ),
+
+  Widget _buildTagsChips() {
+    return Consumer<RecipeFormProvider>(builder: (context, provider, child) {
+      if (provider.tags.isEmpty) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Text('No tags added',
+              style: TextStyle(fontStyle: FontStyle.italic)),
+        );
+      }
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: provider.tags.map((tag) {
+            return Chip(
+              label: Text(tag),
+              backgroundColor: Colors.grey[200],
+            );
+          }).toList(),
         ),
-      ),
-    );
+      );
+    });
   }
 }

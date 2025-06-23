@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'recipe_form_provider.dart';
 import 'validasi-resep.dart';
 
 // This file should be saved as 'tambah_resep_4.dart'
@@ -48,7 +50,8 @@ class _TambahResep4PageState extends State<TambahResep4Page> {
               color: Colors.grey[100],
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 16),
+            child: const Icon(Icons.arrow_back_ios_new,
+                color: Colors.black, size: 16),
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -69,9 +72,7 @@ class _TambahResep4PageState extends State<TambahResep4Page> {
                 ),
               ),
             ),
-            _buildBottomButton(
-              
-            ),
+            _buildBottomButton(),
           ],
         ),
       ),
@@ -90,7 +91,9 @@ class _TambahResep4PageState extends State<TambahResep4Page> {
               height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: index <= _currentStep ? const Color(0xFF83AEB1) : Colors.grey[300],
+                color: index <= _currentStep
+                    ? const Color(0xFF83AEB1)
+                    : Colors.grey[300],
               ),
               child: Center(
                 child: Text(
@@ -106,7 +109,9 @@ class _TambahResep4PageState extends State<TambahResep4Page> {
               Container(
                 width: 40,
                 height: 1,
-                color: index < _currentStep ? const Color(0xFF83AEB1) : Colors.grey[300],
+                color: index < _currentStep
+                    ? const Color(0xFF83AEB1)
+                    : Colors.grey[300],
               ),
           ],
         ),
@@ -138,7 +143,8 @@ class _TambahResep4PageState extends State<TambahResep4Page> {
             prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(25),
               borderSide: BorderSide(color: Colors.grey[300]!),
@@ -158,7 +164,7 @@ class _TambahResep4PageState extends State<TambahResep4Page> {
 
   Widget _buildCategoryItem(String category) {
     final bool isSelected = _selectedCategory == category;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -188,50 +194,95 @@ class _TambahResep4PageState extends State<TambahResep4Page> {
     );
   }
 
-Widget _buildBottomButton() {
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
-          spreadRadius: 1,
-          blurRadius: 5,
-          offset: const Offset(0, -3),
-        ),
-      ],
-    ),
-    child: SafeArea(
-      child: SizedBox(
-        height: 50,
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigate to Validasi Resep page
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ValidasiResepPage()),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF83AEB1),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
-            ),
-            elevation: 0,
+  Widget _buildBottomButton() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, -3),
           ),
-          child: const Text(
-            'Lanjutkan',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
+        ],
+      ),
+      child: SafeArea(
+        child: SizedBox(
+          height: 50,
+          child: ElevatedButton(
+            onPressed: () {
+              // Validate that a category is selected
+              if (_selectedCategory == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Pilih kategori resep terlebih dahulu'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              // Save to provider
+              final provider =
+                  Provider.of<RecipeFormProvider>(context, listen: false);
+
+              // Get category ID from selected category
+              int categoryId = 0;
+              switch (_selectedCategory) {
+                case 'Makanan Berat':
+                  categoryId = 1;
+                  break;
+                case 'Minuman':
+                  categoryId = 2;
+                  break;
+                case 'Hidangan Pembuka':
+                  categoryId = 3;
+                  break;
+                case 'Hidangan Penutup':
+                  categoryId = 4;
+                  break;
+                case 'Jamu':
+                  categoryId = 5;
+                  break;
+                default:
+                  categoryId = 1;
+                  break;
+              }
+
+              provider.setCategoryId(categoryId);
+
+              // For this example, we'll set some dummy nutrition values
+              // In a real app, you would collect these from the user
+              provider.setNutrition(carbs: 0, protein: 0, fat: 0, fiber: 0);
+
+              // Navigate to Validasi Resep page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ValidasiResepPage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF83AEB1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              elevation: 0,
+            ),
+            child: const Text(
+              'Lanjutkan',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

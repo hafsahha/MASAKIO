@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:provider/provider.dart';
+import 'recipe_form_provider.dart';
 import 'tambah-resep-4.dart';
 
 class TambahResep3Page extends StatefulWidget {
@@ -13,8 +15,10 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
   int _currentStep = 2;
   final _totalSteps = 5;
 
-  final TextEditingController _firstSubtitleController = TextEditingController();
-  final TextEditingController _secondSubtitleController = TextEditingController();
+  final TextEditingController _firstSubtitleController =
+      TextEditingController();
+  final TextEditingController _secondSubtitleController =
+      TextEditingController();
 
   List<Map<String, dynamic>> firstInstructionsList = [
     {'instruction': '', 'subTitle': ''},
@@ -32,14 +36,10 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
   void initState() {
     super.initState();
     firstInstructionControllers = List.generate(
-      firstInstructionsList.length,
-      (index) => TextEditingController()
-    );
-    
+        firstInstructionsList.length, (index) => TextEditingController());
+
     secondInstructionControllers = List.generate(
-      secondInstructionsList.length,
-      (index) => TextEditingController()
-    );
+        secondInstructionsList.length, (index) => TextEditingController());
   }
 
   @override
@@ -92,7 +92,8 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
               color: Colors.grey[100],
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 16),
+            child: const Icon(Icons.arrow_back_ios_new,
+                color: Colors.black, size: 16),
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -128,7 +129,9 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
               height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: index <= _currentStep ? const Color(0xFF83AEB1) : Colors.grey[300],
+                color: index <= _currentStep
+                    ? const Color(0xFF83AEB1)
+                    : Colors.grey[300],
               ),
               child: Center(
                 child: Text(
@@ -144,7 +147,9 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
               Container(
                 width: 40,
                 height: 1,
-                color: index < _currentStep ? const Color(0xFF83AEB1) : Colors.grey[300],
+                color: index < _currentStep
+                    ? const Color(0xFF83AEB1)
+                    : Colors.grey[300],
               ),
           ],
         ),
@@ -168,16 +173,19 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
         InkWell(
           onTap: () => _showSubtitleDialog(context, true),
           child: Text(
-            _firstSubtitleController.text.isEmpty ? 'Tambahkan subjudul' : _firstSubtitleController.text,
+            _firstSubtitleController.text.isEmpty
+                ? 'Tambahkan subjudul'
+                : _firstSubtitleController.text,
             style: TextStyle(
               fontSize: 14,
               color: const Color(0xFF83AEB1),
-              fontWeight: _firstSubtitleController.text.isEmpty ? FontWeight.normal : FontWeight.w500,
+              fontWeight: _firstSubtitleController.text.isEmpty
+                  ? FontWeight.normal
+                  : FontWeight.w500,
             ),
           ),
         ),
         const SizedBox(height: 12),
-        
         ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -193,32 +201,32 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
           },
           itemBuilder: (context, index) {
             return _buildDraggableInstructionRow(
-              index, 
-              Key('first-$index'),
-              firstInstructionControllers[index],
-              firstInstructionsList,
-              true
-            );
+                index,
+                Key('first-$index'),
+                firstInstructionControllers[index],
+                firstInstructionsList,
+                true);
           },
         ),
-        
         const SizedBox(height: 8),
         _buildAddButton('Tambahkan instruksi baru', addNewFirstInstruction),
         const SizedBox(height: 16),
-        
         InkWell(
           onTap: () => _showSubtitleDialog(context, false),
           child: Text(
-            _secondSubtitleController.text.isEmpty ? 'Tambahkan subjudul' : _secondSubtitleController.text,
+            _secondSubtitleController.text.isEmpty
+                ? 'Tambahkan subjudul'
+                : _secondSubtitleController.text,
             style: TextStyle(
               fontSize: 14,
               color: const Color(0xFF83AEB1),
-              fontWeight: _secondSubtitleController.text.isEmpty ? FontWeight.normal : FontWeight.w500,
+              fontWeight: _secondSubtitleController.text.isEmpty
+                  ? FontWeight.normal
+                  : FontWeight.w500,
             ),
           ),
         ),
         const SizedBox(height: 12),
-        
         ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -228,21 +236,20 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
               if (newIndex > oldIndex) newIndex -= 1;
               final item = secondInstructionsList.removeAt(oldIndex);
               secondInstructionsList.insert(newIndex, item);
-              final controller = secondInstructionControllers.removeAt(oldIndex);
+              final controller =
+                  secondInstructionControllers.removeAt(oldIndex);
               secondInstructionControllers.insert(newIndex, controller);
             });
           },
           itemBuilder: (context, index) {
             return _buildDraggableInstructionRow(
-              index, 
-              Key('second-$index'),
-              secondInstructionControllers[index],
-              secondInstructionsList,
-              false
-            );
+                index,
+                Key('second-$index'),
+                secondInstructionControllers[index],
+                secondInstructionsList,
+                false);
           },
         ),
-        
         const SizedBox(height: 8),
         _buildAddButton('Tambahkan instruksi baru', addNewSecondInstruction),
       ],
@@ -250,12 +257,11 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
   }
 
   Widget _buildDraggableInstructionRow(
-    int index, 
-    Key key, 
-    TextEditingController controller,
-    List<Map<String, dynamic>> instructionsList,
-    bool isFirstList
-  ) {
+      int index,
+      Key key,
+      TextEditingController controller,
+      List<Map<String, dynamic>> instructionsList,
+      bool isFirstList) {
     return Container(
       key: key,
       margin: const EdgeInsets.only(bottom: 8.0),
@@ -290,7 +296,6 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
               ),
             ),
           ),
-          
           Expanded(
             child: TextField(
               controller: controller,
@@ -302,7 +307,8 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
                 ),
                 filled: true,
                 fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // Increased padding
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16), // Increased padding
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -314,7 +320,6 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
               },
             ),
           ),
-          
           Container(
             decoration: BoxDecoration(
               color: Colors.grey[200],
@@ -370,6 +375,63 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
       height: 50,
       child: ElevatedButton(
         onPressed: () {
+          // Prepare procedures data for provider
+          final List<Map<String, dynamic>> procedures = [];
+
+          // Process first instruction set if it has content
+          if (_firstSubtitleController.text.isNotEmpty) {
+            final steps = [];
+            for (int i = 0; i < firstInstructionsList.length; i++) {
+              final instruction = firstInstructionControllers[i].text.trim();
+              if (instruction.isNotEmpty) {
+                steps.add({'nama_langkah': instruction, 'urutan': i + 1});
+              }
+            }
+
+            if (steps.isNotEmpty) {
+              procedures.add({
+                'nama_prosedur': _firstSubtitleController.text,
+                'durasi_menit': 0, // We're not tracking this now
+                'langkah': steps
+              });
+            }
+          }
+
+          // Process second instruction set if it has content
+          if (_secondSubtitleController.text.isNotEmpty) {
+            final steps = [];
+            for (int i = 0; i < secondInstructionsList.length; i++) {
+              final instruction = secondInstructionControllers[i].text.trim();
+              if (instruction.isNotEmpty) {
+                steps.add({'nama_langkah': instruction, 'urutan': i + 1});
+              }
+            }
+
+            if (steps.isNotEmpty) {
+              procedures.add({
+                'nama_prosedur': _secondSubtitleController.text,
+                'durasi_menit': 0,
+                'langkah': steps
+              });
+            }
+          }
+
+          if (procedures.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Tambahkan minimal satu prosedur memasak'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          // Save to provider
+          final provider =
+              Provider.of<RecipeFormProvider>(context, listen: false);
+          provider.setProcedures(procedures);
+
+          // Navigate to next step
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const TambahResep4Page()),
@@ -396,11 +458,10 @@ class _TambahResep3PageState extends State<TambahResep3Page> {
 
   void _showSubtitleDialog(BuildContext context, bool isFirstSubtitle) {
     TextEditingController tempController = TextEditingController(
-      text: isFirstSubtitle 
-          ? _firstSubtitleController.text 
-          : _secondSubtitleController.text
-    );
-    
+        text: isFirstSubtitle
+            ? _firstSubtitleController.text
+            : _secondSubtitleController.text);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

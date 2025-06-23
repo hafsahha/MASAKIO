@@ -13,6 +13,10 @@ import 'package:masakio/Profile/edit_profile.dart';
 import 'package:masakio/data/dummy_resep.dart';
 import 'package:masakio/resep_detail.dart';
 import 'package:masakio/splash_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:masakio/Tambah Resep/recipe_form_provider.dart';
+
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,20 +31,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      return MaterialApp(
-      title: 'MASAKIO | KELOMPOK 20',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF83AEB1),
-          primary: const Color(0xFF83AEB1),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => RecipeFormProvider()),
+      ],
+      child: MaterialApp(
+        title: 'MASAKIO | KELOMPOK 20',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF83AEB1),
+            primary: const Color(0xFF83AEB1),
+          ),
+          useMaterial3: true,
         ),
-        useMaterial3: true,
+        home: const SplashScreen(),
       ),
-      home: const SplashScreen(),
     );
   }
 }
+
 
 class RecipeMenuPage extends StatelessWidget {
   const RecipeMenuPage({super.key});
