@@ -19,7 +19,7 @@ class _ForumPageState extends State<ForumPage> {
     _forumsFuture = fetchForums();
   }
 
-  void _refreshForums() async { setState(() { _forumsFuture = fetchForums(); }); }
+  void _refreshForums() async { setState(() => _forumsFuture = fetchForums()); }
 
   @override
   Widget build(BuildContext context) {
@@ -86,24 +86,28 @@ class _ForumPageState extends State<ForumPage> {
                   return const Center(child: Text('Belum ada diskusi.'));
                 }
                 final forums = snapshot.data!;
-                return ListView.builder(
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0,  bottom: 110.0),
-                  itemCount: forums.length,
-                  itemBuilder: (context, index) {
-                    final forum = forums[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: DiscussionCard(
-                        id: forum.id,
-                        username: forum.author,
-                        userImage: forum.authorPhoto,
-                        contentImage: forum.image,
-                        content: forum.content,
-                        likesCount: forum.likes,
-                        repliesCount: forum.comments,
-                      ),
-                    );
-                  },
+                return RefreshIndicator(
+                  onRefresh: () async { _refreshForums(); },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(left: 16.0, right: 16.0,  bottom: 110.0),
+                    itemCount: forums.length,
+                    itemBuilder: (context, index) {
+                      final forum = forums[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: DiscussionCard(
+                          id: forum.id,
+                          username: forum.author,
+                          userImage: forum.authorPhoto,
+                          contentImage: forum.image,
+                          content: forum.content,
+                          likesCount: forum.likes,
+                          repliesCount: forum.comments,
+                          timestamp: forum.timestamp,
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),
