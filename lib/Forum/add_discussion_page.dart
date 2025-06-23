@@ -22,9 +22,7 @@ class _AddDiscussionBottomSheetState extends State<AddDiscussionBottomSheet> {
 
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() => _selectedImage = File(image.path));
-    }
+    if (image != null) setState(() => _selectedImage = File(image.path));
   }
 
 
@@ -100,11 +98,8 @@ class _AddDiscussionBottomSheetState extends State<AddDiscussionBottomSheet> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: 
-        Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child:  Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -265,11 +260,7 @@ class _AddDiscussionBottomSheetState extends State<AddDiscussionBottomSheet> {
                           ),
                           const Spacer(),
                           TextButton(
-                            onPressed: () {
-                              setState(() {
-                                _selectedImage = null;
-                              });
-                            },
+                            onPressed: () => setState(() => _selectedImage = null),
                             child: const Text(
                               'Hapus',
                               style: TextStyle(
