@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'recipe_form_provider.dart';
 import 'tambah-resep-3.dart'; // Import the next page
 import 'package:dotted_border/dotted_border.dart';
 
@@ -13,43 +15,114 @@ class TambahResep2Page extends StatefulWidget {
 class _TambahResep2PageState extends State<TambahResep2Page> {
   int _currentStep = 1; // Step kedua (indeks 1)
   final _totalSteps = 5;
-  
+
   // List untuk menyimpan bahan
   List<Map<String, dynamic>> bahanList = [
-    {'bahan': '', 'kuantitas': 1},
-    {'bahan': '', 'kuantitas': 1},
-    {'bahan': '', 'kuantitas': 1},
+    {'bahan': '', 'kuantitas': 1, 'id_satuan': 1},
+    {'bahan': '', 'kuantitas': 1, 'id_satuan': 1},
+    {'bahan': '', 'kuantitas': 1, 'id_satuan': 1},
   ];
-  
+
   // List untuk menyimpan alat
   List<Map<String, dynamic>> alatList = [
     {'alat': '', 'kuantitas': 1},
     {'alat': '', 'kuantitas': 1},
   ];
 
-  // Controllers untuk kuantitas
+  // Controllers untuk bahan
+  late List<TextEditingController> bahanNameControllers;
   late List<TextEditingController> bahanQuantityControllers;
+
+  // Controllers untuk alat
+  late List<TextEditingController> alatNameControllers;
   late List<TextEditingController> alatQuantityControllers;
+
+  // Satuan yang tersedia (bisa ditambahkan sesuai kebutuhan)
+  final List<Map<String, dynamic>> satuanList = [
+    {'id': 1, 'nama': 'Gram'},
+    {'id': 2, 'nama': 'Sendok makan'},
+    {'id': 3, 'nama': 'Sendok teh'},
+    {'id': 4, 'nama': 'Buah'},
+    {'id': 5, 'nama': 'Potong'},
+    {'id': 6, 'nama': 'Siung'},
+    {'id': 7, 'nama': 'ml'},
+    {'id': 8, 'nama': 'Liter'},
+    {'id': 9, 'nama': 'Cup'},
+  ];
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers
+
+    // Load data from provider if available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<RecipeFormProvider>(context, listen: false);
+
+      if (provider.ingredients.isNotEmpty) {
+        setState(() {
+          bahanList = provider.ingredients
+              .map((item) => {
+                    'bahan': item['nama_bahan'] ?? '',
+                    'kuantitas': item['jumlah'] ?? 1,
+                    'id_satuan': item['id_satuan'] ?? 1
+                  })
+              .toList();
+        });
+      }
+
+      if (provider.tools.isNotEmpty) {
+        setState(() {
+          alatList = provider.tools
+              .map((item) => {
+                    'alat': item['nama_alat'] ?? '',
+                    'kuantitas': item['jumlah'] ?? 1
+                  })
+              .toList();
+        });
+      }
+
+      // Initialize controllers
+      _initializeControllers();
+    });
+
+    // Initialize controllers with default values
+    _initializeControllers();
+  }
+
+  void _initializeControllers() {
+    // Initialize bahan controllers
+    bahanNameControllers = List.generate(
+        bahanList.length,
+        (index) =>
+            TextEditingController(text: bahanList[index]['bahan'].toString()));
+
     bahanQuantityControllers = List.generate(
-      bahanList.length,
-      (index) => TextEditingController(text: bahanList[index]['kuantitas'].toString())
-    );
-    
+        bahanList.length,
+        (index) => TextEditingController(
+            text: bahanList[index]['kuantitas'].toString()));
+
+    // Initialize alat controllers
+    alatNameControllers = List.generate(
+        alatList.length,
+        (index) =>
+            TextEditingController(text: alatList[index]['alat'].toString()));
+
     alatQuantityControllers = List.generate(
-      alatList.length,
-      (index) => TextEditingController(text: alatList[index]['kuantitas'].toString())
-    );
+        alatList.length,
+        (index) => TextEditingController(
+            text: alatList[index]['kuantitas'].toString()));
   }
 
   @override
   void dispose() {
     // Dispose all controllers
+    for (var controller in bahanNameControllers) {
+      controller.dispose();
+    }
     for (var controller in bahanQuantityControllers) {
+      controller.dispose();
+    }
+    for (var controller in alatNameControllers) {
       controller.dispose();
     }
     for (var controller in alatQuantityControllers) {
@@ -61,7 +134,8 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
   // Add a new bahan with controller
   void addNewBahan() {
     setState(() {
-      bahanList.add({'bahan': '', 'kuantitas': 1});
+      bahanList.add({'bahan': '', 'kuantitas': 1, 'id_satuan': 1});
+      bahanNameControllers.add(TextEditingController(text: ''));
       bahanQuantityControllers.add(TextEditingController(text: '1'));
     });
   }
@@ -70,6 +144,7 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
   void addNewAlat() {
     setState(() {
       alatList.add({'alat': '', 'kuantitas': 1});
+      alatNameControllers.add(TextEditingController(text: ''));
       alatQuantityControllers.add(TextEditingController(text: '1'));
     });
   }
@@ -141,7 +216,8 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
               color: Colors.grey[100],
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 16),
+            child: const Icon(Icons.arrow_back_ios_new,
+                color: Colors.black, size: 16),
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -179,7 +255,9 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
               height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: index <= _currentStep ? const Color(0xFF83AEB1) : Colors.grey[300],
+                color: index <= _currentStep
+                    ? const Color(0xFF83AEB1)
+                    : Colors.grey[300],
               ),
               child: Center(
                 child: Text(
@@ -195,7 +273,9 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
               Container(
                 width: 40,
                 height: 1,
-                color: index < _currentStep ? const Color(0xFF83AEB1) : Colors.grey[300],
+                color: index < _currentStep
+                    ? const Color(0xFF83AEB1)
+                    : Colors.grey[300],
               ),
           ],
         ),
@@ -259,7 +339,8 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
                 ),
                 filled: true,
                 fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // Adjusted padding
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16), // Adjusted padding
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
@@ -270,9 +351,11 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF83AEB1), width: 1),
+                  borderSide:
+                      const BorderSide(color: Color(0xFF83AEB1), width: 1),
                 ),
               ),
+              controller: bahanNameControllers[index],
               onChanged: (value) {
                 setState(() {
                   bahanList[index]['bahan'] = value;
@@ -310,7 +393,8 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
                 ),
                 filled: true,
                 fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // Adjusted padding
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16), // Adjusted padding
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
@@ -321,9 +405,11 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF83AEB1), width: 1),
+                  borderSide:
+                      const BorderSide(color: Color(0xFF83AEB1), width: 1),
                 ),
               ),
+              controller: alatNameControllers[index],
               onChanged: (value) {
                 setState(() {
                   alatList[index]['alat'] = value;
@@ -365,7 +451,8 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // Adjusted padding
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16), // Adjusted padding
                 border: InputBorder.none,
                 filled: true,
                 fillColor: Colors.grey[100],
@@ -381,7 +468,7 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
               ),
             ),
           ),
-          
+
           // Up and Down arrows in a column
           Container(
             width: 32,
@@ -408,14 +495,14 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
                     ),
                   ),
                 ),
-                
+
                 // Divider
                 Divider(
                   height: 1,
                   thickness: 1,
                   color: Colors.grey[300],
                 ),
-                
+
                 // Down arrow button
                 Expanded(
                   child: InkWell(
@@ -479,6 +566,68 @@ class _TambahResep2PageState extends State<TambahResep2Page> {
       height: 50,
       child: ElevatedButton(
         onPressed: () {
+          // Update bahan and alat from controllers
+          for (int i = 0; i < bahanList.length; i++) {
+            bahanList[i]['bahan'] = bahanNameControllers[i].text;
+            try {
+              bahanList[i]['kuantitas'] =
+                  int.parse(bahanQuantityControllers[i].text);
+            } catch (e) {
+              bahanList[i]['kuantitas'] = 1;
+            }
+          }
+
+          for (int i = 0; i < alatList.length; i++) {
+            alatList[i]['alat'] = alatNameControllers[i].text;
+            try {
+              alatList[i]['kuantitas'] =
+                  int.parse(alatQuantityControllers[i].text);
+            } catch (e) {
+              alatList[i]['kuantitas'] = 1;
+            }
+          }
+
+          // Filter out empty entries
+          final validBahanList = bahanList
+              .where((item) => item['bahan'].toString().trim().isNotEmpty)
+              .toList();
+          final validAlatList = alatList
+              .where((item) => item['alat'].toString().trim().isNotEmpty)
+              .toList();
+
+          if (validBahanList.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Tambahkan minimal satu bahan'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          // Save to provider
+          final provider =
+              Provider.of<RecipeFormProvider>(context, listen: false);
+
+          // Convert to format expected by API
+          final ingredientsList = validBahanList
+              .map((item) => {
+                    'nama_bahan': item['bahan'],
+                    'jumlah': item['kuantitas'],
+                    'id_satuan': item['id_satuan'] ?? 1
+                  })
+              .toList();
+
+          final toolsList = validAlatList
+              .map((item) =>
+                  {'nama_alat': item['alat'], 'jumlah': item['kuantitas']})
+              .toList();
+
+          // Update the provider
+          provider.setIngredients(ingredientsList);
+          provider.setTools(toolsList);
+
+          // Navigate to next page
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const TambahResep3Page()),

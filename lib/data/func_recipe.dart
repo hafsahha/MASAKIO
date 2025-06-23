@@ -384,8 +384,7 @@ Future<Recipe> fetchRecipeById(int id) async {
 // - prosedur: Langkah-langkah memasak
 // - tag: Tanda/label tambahan untuk resep
 // - videoPath: Path file video tutorial (opsional)
-Future<int> addRecipe({
-  required String nama,
+Future<int> addRecipe({  required String nama,
   required String deskripsi,
   required int porsi,
   required int idUser,
@@ -395,6 +394,8 @@ Future<int> addRecipe({
   required List<Map<String, dynamic>> prosedur,
   required List<String> tag,
   String? videoPath,
+  String? thumbnailPath,
+  String defaultThumbnail = 'nasi_goreng.jpeg', // Default thumbnail if none provided
 }) async {
   try {
     // Create the recipe data
@@ -408,23 +409,39 @@ Future<int> addRecipe({
       'bahan': bahan,
       'prosedur': prosedur,
       'tag': tag,
+      'thumbnail': defaultThumbnail, // Always include a default thumbnail
     };
 
-    // If video is included, handle as multipart request
-    if (videoPath != null) {
+    // If video or thumbnail is included, handle as multipart request
+    if (videoPath != null || thumbnailPath != null) {
+      print("[DEBUG] Creating multipart request for recipe with files");
       var request = http.MultipartRequest('POST', Uri.parse('$url/create'));
 
-      // Add video file
-      var file = await http.MultipartFile.fromPath('video', videoPath);
-      request.files.add(file);
+      // Add files if available
+      if (videoPath != null) {
+        print("[DEBUG] Adding video file: $videoPath");
+        var videoFile = await http.MultipartFile.fromPath('video', videoPath);
+        request.files.add(videoFile);
+      }
+
+      if (thumbnailPath != null) {
+        print("[DEBUG] Adding thumbnail file: $thumbnailPath");
+        var thumbnailFile = await http.MultipartFile.fromPath('thumbnail', thumbnailPath);
+        request.files.add(thumbnailFile);
+      }
 
       // Add recipe data as JSON field
       request.fields['recipe'] = jsonEncode(recipeData);
+      print("[DEBUG] Recipe data in multipart request: ${jsonEncode(recipeData)}");
 
       // Send the request
+      print("[DEBUG] Sending multipart request...");
       var streamedResponse =
           await request.send().timeout(const Duration(seconds: 30));
       var response = await http.Response.fromStream(streamedResponse);
+
+      print("[DEBUG] Response status: ${response.statusCode}");
+      print("[DEBUG] Response body: ${response.body}");
 
       if (response.statusCode != 201)
         throw Exception('Failed to add recipe: ${response.body}');
@@ -432,7 +449,10 @@ Future<int> addRecipe({
       final data = json.decode(response.body);
       return data['id_resep'] ?? 0;
     } else {
-      // No video, just send JSON
+      // No files, just send JSON
+      print("[DEBUG] Creating JSON request for recipe without files");
+      print("[DEBUG] Recipe data in JSON request: ${jsonEncode(recipeData)}");
+      
       final response = await http
           .post(
             Uri.parse('$url/create'),

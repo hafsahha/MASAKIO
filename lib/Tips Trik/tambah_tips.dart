@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
-import 'tips_validation.dart';
+import 'tips_validation.dart'; // Pastikan path ini benar
 
 class TambahTipsPage extends StatefulWidget {
   const TambahTipsPage({super.key});
@@ -18,7 +18,23 @@ class _TambahTipsPageState extends State<TambahTipsPage> {
 
   Uint8List? _imageBytes;
 
+  @override
+  void initState() {
+    super.initState();
+    print('[TambahTipsPage] initState called.'); // Debug log
+  }
+
+  @override
+  void dispose() {
+    _judulController.dispose();
+    _isiController.dispose();
+    _hashtagController.dispose();
+    print('[TambahTipsPage] dispose called. Controllers disposed.'); // Debug log
+    super.dispose();
+  }
+
   Future<void> _pickImage() async {
+    print('[TambahTipsPage] _pickImage() called. Opening image picker.'); // Debug log
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -26,14 +42,57 @@ class _TambahTipsPageState extends State<TambahTipsPage> {
       setState(() {
         _imageBytes = bytes;
       });
+      print('[TambahTipsPage] Image picked successfully. Image bytes length: ${_imageBytes?.length}'); // Debug log
+    } else {
+      print('[TambahTipsPage] Image picking cancelled.'); // Debug log
     }
   }
 
+  // Fungsi untuk menambahkan hashtag
+  void _addHashtag() {
+    final tag = _hashtagController.text.trim();
+    print('[TambahTipsPage] Attempting to add hashtag: "$tag"'); // Debug log
+    if (tag.isNotEmpty && !_hashtags.contains(tag)) {
+      setState(() {
+        _hashtags.add(tag);
+        _hashtagController.clear();
+      });
+      print('[TambahTipsPage] Hashtag added: "$tag". Current hashtags: $_hashtags'); // Debug log
+    } else if (tag.isEmpty) {
+      print('[TambahTipsPage] Hashtag not added: Input is empty.'); // Debug log
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Hashtag tidak boleh kosong.')),
+      );
+    } else if (_hashtags.contains(tag)) {
+      print('[TambahTipsPage] Hashtag not added: "$tag" already exists.'); // Debug log
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Hashtag "$tag" sudah ada.')),
+      );
+    }
+  }
+
+  // Fungsi untuk menghapus hashtag
+  void _removeHashtag(String tag) {
+    setState(() {
+      _hashtags.remove(tag);
+    });
+    print('[TambahTipsPage] Hashtag removed: "$tag". Current hashtags: $_hashtags'); // Debug log
+  }
+
+
   void _lanjutkan() {
+    print('[TambahTipsPage] _lanjutkan() button pressed.'); // Debug log
+    print('[TambahTipsPage] Validating inputs...'); // Debug log
+    print('  _imageBytes is null: ${_imageBytes == null}');
+    print('  _judulController.text.isNotEmpty: ${_judulController.text.isNotEmpty}');
+    print('  _isiController.text.isNotEmpty: ${_isiController.text.isNotEmpty}');
+    print('  _hashtags.isNotEmpty: ${_hashtags.isNotEmpty}');
+
     if (_imageBytes != null &&
         _judulController.text.isNotEmpty &&
         _isiController.text.isNotEmpty &&
         _hashtags.isNotEmpty) {
+      print('[TambahTipsPage] All inputs are valid. Navigating to TipsValidationPage.'); // Debug log
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -46,14 +105,22 @@ class _TambahTipsPageState extends State<TambahTipsPage> {
         ),
       );
     } else {
+      print('[TambahTipsPage] Validation failed. Showing snackbar.'); // Debug log
+      String errorMessage = 'Harap lengkapi semua data:';
+      if (_imageBytes == null) errorMessage += '\n- Gambar Cover';
+      if (_judulController.text.isEmpty) errorMessage += '\n- Judul Tips & Trik';
+      if (_isiController.text.isEmpty) errorMessage += '\n- Isi Tips & Trik';
+      if (_hashtags.isEmpty) errorMessage += '\n- Setidaknya satu Hashtag';
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Harap lengkapi semua data.')),
+        SnackBar(content: Text(errorMessage)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('[TambahTipsPage] Building widget.'); // Debug log
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -68,7 +135,10 @@ class _TambahTipsPageState extends State<TambahTipsPage> {
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                print('[TambahTipsPage] Back button pressed.'); // Debug log
+                Navigator.pop(context);
+              },
             ),
           ),
         ),
@@ -146,32 +216,24 @@ class _TambahTipsPageState extends State<TambahTipsPage> {
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.add, color: Colors.white),
-                    onPressed: () {
-                      final tag = _hashtagController.text.trim();
-                      if (tag.isNotEmpty && !_hashtags.contains(tag)) {
-                        setState(() {
-                          _hashtags.add(tag);
-                          _hashtagController.clear();
-                        });
-                      }
-                    },
+                    onPressed: _addHashtag, // Panggil fungsi _addHashtag
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
+            // Bagian menampilkan Chip hashtag yang telah ditambahkan
             Wrap(
               spacing: 8,
               children: _hashtags
-                  .map((tag) => Chip(
-                        label: Text(tag),
-                        deleteIcon: const Icon(Icons.close),
-                        onDeleted: () {
-                          setState(() {
-                            _hashtags.remove(tag);
-                          });
-                        },
-                      ))
+                  .map((tag) {
+                    print('[TambahTipsPage] Displaying hashtag chip: "$tag"'); // Debug log for each chip
+                    return Chip(
+                      label: Text(tag),
+                      deleteIcon: const Icon(Icons.close),
+                      onDeleted: () => _removeHashtag(tag), // Panggil fungsi _removeHashtag
+                    );
+                  })
                   .toList(),
             ),
             const SizedBox(height: 32),

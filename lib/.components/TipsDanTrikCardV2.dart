@@ -1,38 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:masakio/data/dummy_tips.dart';  // Ensure this path is correct
-import 'package:masakio/Tips Trik/detail_tips.dart';  // Page to navigate to for detailed tips
+import 'package:masakio/Tips Trik/detail_tips.dart';
+import 'package:masakio/data/func_tips.dart';
 
-// Updated Version of Tips Card (V2) for wider display
+// Widget TipsDanTrikCardV2 (tidak ada perubahan signifikan, hanya penambahan log)
 class TipsDanTrikCardV2 extends StatelessWidget {
-  final String imagePath;
+  final String imageUrl;
   final String title;
   final String author;
-  final String authorImage;
   final VoidCallback onTap;
 
   const TipsDanTrikCardV2({
     Key? key,
-    required this.imagePath,
+    required this.imageUrl,
     required this.title,
     required this.author,
-    required this.authorImage,
     required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print('[TipsDanTrikCardV2] Building card for: $title, image: $imageUrl'); // Debug log
     return GestureDetector(
-      onTap: onTap, // Navigate to the detailed page
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Container(
-          width: double.infinity,  // Make the card span the width of the screen
-          height: 120,  // Adjust the height to make it bigger
+          width: double.infinity,
+          height: 120,
           margin: const EdgeInsets.only(right: 12, bottom: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             image: DecorationImage(
-              image: AssetImage(imagePath),  // Image as the background
+              image: NetworkImage(imageUrl),
               fit: BoxFit.cover,
             ),
           ),
@@ -44,7 +43,7 @@ class TipsDanTrikCardV2 extends StatelessWidget {
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [
-                  Colors.black.withOpacity(0.6),  // Darken the background for text visibility
+                  Colors.black.withOpacity(0.6),
                   Colors.transparent,
                 ],
               ),
@@ -57,7 +56,7 @@ class TipsDanTrikCardV2 extends StatelessWidget {
                   title,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 16,  // Larger font size for the title
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                   maxLines: 2,
@@ -66,20 +65,20 @@ class TipsDanTrikCardV2 extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 14,  // Adjust size of avatar
-                      backgroundImage: AssetImage(authorImage),
+                    const CircleAvatar(
+                      radius: 14,
+                      backgroundImage: AssetImage('assets/images/profile.jpg'), // Ganti jika punya avatar uploader
                     ),
                     const SizedBox(width: 6),
                     Text(
                       author,
                       style: const TextStyle(
                         color: Colors.white70,
-                        fontSize: 14,  // Slightly larger author text
+                        fontSize: 14,
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -89,47 +88,113 @@ class TipsDanTrikCardV2 extends StatelessWidget {
   }
 }
 
-// Section to display Tips and Tricks (V2) with a wider layout
-class TipsDanTrikSectionV2 extends StatelessWidget {
+// Widget TipsDanTrikSectionV2 yang telah diperbarui
+class TipsDanTrikSectionV2 extends StatefulWidget {
   const TipsDanTrikSectionV2({super.key});
 
   @override
+  State<TipsDanTrikSectionV2> createState() => _TipsDanTrikSectionV2State();
+}
+
+class _TipsDanTrikSectionV2State extends State<TipsDanTrikSectionV2> {
+  List<Map<String, dynamic>> tipsList = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    print('[TipsDanTrikSectionV2State] initState called'); // Debug log
+    loadTips();
+  }
+
+  Future<void> loadTips() async {
+    print('[TipsDanTrikSectionV2State] loadTips() called'); // Debug log
+    try {
+      final data = await fetchAllTips();
+      print('[TipsDanTrikSectionV2State] fetchAllTips() returned: ${data.length} items'); // Debug log
+      setState(() {
+        tipsList = data;
+        isLoading = false;
+        print('[TipsDanTrikSectionV2State] State updated: isLoading=$isLoading, tipsList.length=${tipsList.length}'); // Debug log
+      });
+    } catch (e) {
+      print('[TipsDanTrikSectionV2State] Error fetching tips: $e'); // Debug log
+      setState(() {
+        isLoading = false;
+        print('[TipsDanTrikSectionV2State] Error state updated: isLoading=$isLoading'); // Debug log
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    print('[TipsDanTrikSectionV2State] Building widget. isLoading: $isLoading, tipsList.length: ${tipsList.length}'); // Debug log
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header for the section
+        // Header "Tips dan Trik"
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          ),
-        ),
-        const SizedBox(height: 8),
-        // Display the tips in a vertically stacked list
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: dummyTipsList.length,
-            itemBuilder: (context, index) {
-              final tip = dummyTipsList[index];
-              return TipsDanTrikCardV2(
-                imagePath: tip.imageAsset,
-                title: tip.title,
-                author: tip.author,
-                authorImage: 'assets/images/profile.jpg',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TipsAndTrikPage(tip: tip),
-                    ),
-                  );
+            children: [
+              const Text(
+                "Tips dan Trik",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  print('[TipsDanTrikSectionV2State] "Lihat Semua" button pressed'); // Debug log
+                  // TODO: Tambah navigasi ke halaman "Lihat Semua"
                 },
-              );
-            },
+                child: const Text(
+                  "Lihat Semua",
+                  style: TextStyle(
+                    color: Colors.teal,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+        // --- Perubahan utama ada di sini: penggunaan Expanded ---
+        Expanded( // Membuat ListView mengisi sisa ruang vertikal yang tersedia
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : tipsList.isEmpty // Tambahkan kondisi jika daftar tips kosong
+                  ? const Center(
+                      child: Text('Tidak ada tips yang tersedia saat ini.'),
+                    )
+                  : ListView.builder(
+                      scrollDirection: Axis.vertical, // Pastikan ini vertikal
+                      padding: const EdgeInsets.symmetric(horizontal: 16), // Padding horizontal untuk ListView
+                      itemCount: tipsList.length,
+                      itemBuilder: (context, index) {
+                        final tip = tipsList[index];
+                        print('[TipsDanTrikSectionV2State] Building card at index $index: ${tip['title']}'); // Debug log
+                        return TipsDanTrikCardV2(
+                          imageUrl: tip['imageUrl'], // Menggunakan URL gambar dari API
+                          title: tip['title'],
+                          author: tip['uploader'],
+                          onTap: () {
+                            print('[TipsDanTrikSectionV2State] Card tapped for tip ID: ${tip['id']}'); // Debug log
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TipsAndTrikPage(idTips: tip['id']),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+        ),
+        // --- Akhir perubahan ---
       ],
     );
   }
