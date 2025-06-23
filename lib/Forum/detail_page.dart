@@ -12,16 +12,24 @@ class ForumDetailPage extends StatefulWidget {
 }
 
 class _ForumDetailPageState extends State<ForumDetailPage> {
+  final List<String> hashtags = ['#masakio', '#resepmasakan', '#capekbgt', '#provis'];
   Future<ForumDetail>? _forumFuture;
   ForumDetail? forum;
-  final List<String> hashtags = ['#masakio', '#resep', '#masakan'];
+  bool isLiked = false;
 
   @override
   void initState() {
     super.initState();
     _forumFuture = fetchForumById(widget.id);
     _forumFuture!.then((f) { forum = f; });
+    isLikedForumPost(widget.id).then((liked) { setState(() => isLiked = liked); });
   }
+
+  void _refreshForum() => setState(() {
+    _forumFuture = fetchForumById(widget.id);
+    _forumFuture!.then((f) { forum = f; });
+  });
+  
 
   @override
   Widget build(BuildContext context) {
@@ -126,17 +134,39 @@ class _ForumDetailPageState extends State<ForumDetailPage> {
                               ),
                             ),
                             ),
+                        const SizedBox(height: 8),
                         
+                        // Time ago
+                        Text(
+                          formatTimestamp(forum!.timestamp),
+                          style: const TextStyle(
+                            fontFamily: 'montserrat',
+                            fontSize: 16,
+                            color: Color(0xFF666666),
+                          ),
+                        ),
                         const SizedBox(height: 16),
 
                         // Action buttons
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildActionButton(Icons.favorite_border, '${forum!.likes} Suka', () async { }),
-                            _buildActionButton(Icons.chat_bubble_outline, '${forum!.comments} Balasan', () {
-                              showReplyBottomSheet(context, 'Berikan Balasan');
-                            }),
+                            _buildActionButton(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              '${forum!.likes} Suka',
+                              () async {
+                                await likeForumPost(forum!.id);
+                                setState(() {
+                                  isLiked = !isLiked;
+                                  forum!.likes += isLiked ? 1 : -1;
+                                });
+                              },
+                              liked: isLiked,
+                            ),
+                            _buildActionButton(
+                              Icons.chat_bubble_outline, '${forum!.comments} Balasan',
+                              () => showReplyBottomSheet(context, _refreshForum, forum!.id)
+                            ),
                           ],
                         ),
                       ],
@@ -165,14 +195,15 @@ class _ForumDetailPageState extends State<ForumDetailPage> {
                         username: reply.author,
                         userImage: reply.authorPhoto != null ? 'assets/images/${reply.authorPhoto}' : 'assets/images/avatar.png',
                         content: reply.caption,
-                        timeAgo: '${DateTime.now().difference(reply.timestamp).inDays}d',
+                        timeAgo: reply.timestamp,
                         replyingTo: forum!.author,
                         hashtags: [],
                         likesCount: reply.likes,
                         repliesCount: reply.comments,
+                        id: reply.id,
                         context: context,
                       ),
-                    const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+                      const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
                     ],
                   );
                 }).toList(),
@@ -184,142 +215,151 @@ class _ForumDetailPageState extends State<ForumDetailPage> {
     );
   }
 
-  void showReplyBottomSheet(BuildContext context, String originalMessage) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => ReplyBottomSheet(),
-    );
-  }
-
   Widget _buildReply({
     required BuildContext context,
     required String username,
     required String userImage,
     required String content,
-    required String timeAgo,
+    required DateTime timeAgo,
     String? replyingTo,
     List<String> hashtags = const [],
     required int likesCount,
     required int repliesCount,
+    required id,
   }) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              UserAvatar(imageUrl: userImage, size: 24),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          username,
-                          style: const TextStyle(
-                            fontFamily: 'montserrat',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: Color(0xFF333333),
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          '· $timeAgo',
-                          style: const TextStyle(
-                            fontFamily: 'montserrat',
-                            color: Color(0xFF666666),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (replyingTo != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          'Membalas kepada $replyingTo',
-                          style: const TextStyle(
-                            fontFamily: 'montserrat',
-                            color: Colors.blue,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          
-          // Content
-          Padding(
-            padding: const EdgeInsets.only(left: 34),
-            child: Column(
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ForumDetailPage(id: id)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                Text(
-                  content,
-                  style: const TextStyle(
-                  fontFamily: 'montserrat',
-                  fontSize: 13,
-                  height: 1.4,
-                  color: Color(0xFF333333),
-                  ),
-                ),
-                if (hashtags.isNotEmpty) 
-                  const SizedBox(height: 4),
-                Wrap(
-                  spacing: 4,
-                  children: hashtags.map((tag) => Text(
-                  tag,
-                  style: const TextStyle(
-                    fontFamily: 'montserrat',
-                    color: Colors.blue,
-                    fontSize: 13,
-                  ),
-                  )).toList(),
-                ),
-                const SizedBox(height: 12),
-                
-                // Action buttons
-                Padding(
-                  padding: const EdgeInsets.only(left: 0, right: 16), // Add right padding for spacing
-                  child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    _buildReplyActionButton(Icons.favorite_border, count: likesCount, onPressed: () {
-                    }),
-                    const SizedBox(width: 16), // Add space between buttons
-                    _buildReplyActionButton(Icons.chat_bubble_outline, count: repliesCount, onPressed: () {
-                    showReplyBottomSheet(context, "Ini isi diskusi yang ingin dibalas.");
-                    }),
-                  ],
+              children: [
+                UserAvatar(imageUrl: userImage, size: 24),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            username,
+                            style: const TextStyle(
+                              fontFamily: 'montserrat',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: Color(0xFF333333),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            '· ${(() {
+                              final diff = DateTime.now().difference(timeAgo);
+                              if (diff.inSeconds < 60) { return '${diff.inSeconds} dtk'; }
+                              else if (diff.inMinutes < 60) { return '${diff.inMinutes} mnt'; }
+                              else if (diff.inHours < 24) { return '${diff.inHours} j'; }
+                              else if (diff.inDays < 7) { return '${diff.inDays} hr'; }
+                              else if (diff.inDays < 30) { return '${(diff.inDays / 7).floor()} mg'; }
+                              else if (diff.inDays < 365) { return '${(diff.inDays / 30).floor()} bln'; }
+                              else { return '${(diff.inDays / 365).floor()} thn'; }
+                            })()}',
+                            style: const TextStyle(
+                              fontFamily: 'montserrat',
+                              color: Color(0xFF666666),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (replyingTo != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            'Membalas kepada $replyingTo',
+                            style: const TextStyle(
+                              fontFamily: 'montserrat',
+                              color: Colors.blue,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            
+            // Content
+            Padding(
+              padding: const EdgeInsets.only(left: 34),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                  Text(
+                    content,
+                    style: const TextStyle(
+                    fontFamily: 'montserrat',
+                    fontSize: 13,
+                    height: 1.4,
+                    color: Color(0xFF333333),
+                    ),
+                  ),
+                  if (hashtags.isNotEmpty) 
+                    const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 4,
+                    children: hashtags.map((tag) => Text(
+                    tag,
+                    style: const TextStyle(
+                      fontFamily: 'montserrat',
+                      color: Colors.blue,
+                      fontSize: 13,
+                    ),
+                    )).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Action buttons
+                  Padding(
+                    padding: const EdgeInsets.only(left: 0, right: 16), // Add right padding for spacing
+                    child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _buildReplyActionButton(Icons.favorite_border, count: likesCount, onPressed: () {
+                      }),
+                      const SizedBox(width: 16), // Add space between buttons
+                      _buildReplyActionButton(Icons.chat_bubble_outline, count: repliesCount, onPressed: () {
+                      showReplyBottomSheet(context, _refreshForum, forum!.id);
+                      }),
+                    ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, VoidCallback onPressed) {
+  Widget _buildActionButton(IconData icon, String label, VoidCallback onPressed, {bool liked = false}) {
     return InkWell(
       onTap: onPressed,
       child: Row(
         children: [
-          Icon(icon, size: 24, color: Colors.grey),
-          if (label.isNotEmpty) 
-            const SizedBox(width: 5),
+          Icon(
+            icon, size: 24,
+            color: liked ? Colors.red : Colors.grey
+          ),
+          if (label.isNotEmpty) const SizedBox(width: 5),
           if (label.isNotEmpty)
             Text(
               label,
@@ -356,4 +396,19 @@ class _ForumDetailPageState extends State<ForumDetailPage> {
       ),
     );
   }
+}
+
+String formatTimestamp(DateTime timestamp) {
+  final months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+  ];
+  String twoDigits(int n) => n.toString().padLeft(2, '0');
+  final dt = timestamp.toLocal();
+  final hour = twoDigits(dt.hour);
+  final minute = twoDigits(dt.minute);
+  final day = twoDigits(dt.day);
+  final month = months[dt.month - 1];
+  final year = dt.year % 100;
+  return '$hour:$minute · $day $month $year';
 }
