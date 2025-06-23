@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:masakio/data/func_profile.dart';
-
-// Base URL untuk backend
-const url = 'https://masakio.up.railway.app/wishlist'; // Endpoint untuk wishlist
+import '../config/api_config.dart';
 
 // Fetch user wishlist
 Future<List<Map<String, dynamic>>> fetchWishlist(int id) async {
   try {
-    final response = await http.get(Uri.parse('$url/$id')).timeout(const Duration(seconds: 10));
+    final response = await http.get(Uri.parse('$wishlistUrl/$id')).timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) throw Exception('Failed to load wishlist');
     
     final List<dynamic> data = json.decode(response.body);
@@ -29,7 +27,7 @@ Future<bool> wish(int recipeId) async {
   final userId = user!.id;
 
   try {
-    final response = await http.post(Uri.parse('$url/add'),
+    final response = await http.post(Uri.parse('$wishlistUrl/add'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'user_id': userId,
@@ -47,7 +45,7 @@ Future<bool> unwish(int recipeId) async {
   final userId = user!.id;
 
   try {
-    final response = await http.delete(Uri.parse('$url/remove'),
+    final response = await http.delete(Uri.parse('$wishlistUrl/remove'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'user_id': userId,

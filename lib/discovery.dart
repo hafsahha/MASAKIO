@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import '.components/resep_grid.dart';
+import '.components/card_recipe_grid.dart';
 import '.components/search_bar.dart';
 import '.components/bottom_popup.dart';
-import 'data/dummy_resep.dart';
 import '.components/TipsDanTrikCardV2.dart';
+import 'data/func_card_recipe.dart';
 
 class DiscoveryResep extends StatefulWidget {
   const DiscoveryResep({super.key});
 
   @override
-  State<DiscoveryResep> createState() => _DiscoveryResepState();
+  _DiscoveryResepState createState() => _DiscoveryResepState();
 }
 
 class _DiscoveryResepState extends State<DiscoveryResep> {
@@ -29,6 +29,13 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
   List<String> bahanDiinginkan = [];
   List<String> bahanTidakDiinginkan = [];
 
+  // Backend data state
+  List<CardRecipe> _allRecipes = [];
+  List<CardRecipe> _filteredRecipes = [];
+  bool _isLoading = false;
+  bool _hasError = false;
+  String _errorMessage = '';
+
   final TextEditingController _bahanDiinginkanController =
       TextEditingController();
   final TextEditingController _bahanTidakDiinginkanController =
@@ -38,6 +45,72 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
   void initState() {
     super.initState();
     selectedCategory = "Semua";
+    _loadRecipes();
+  }
+
+  Future<void> _loadRecipes() async {
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+      _errorMessage = '';
+    });
+
+    try {
+      final recipes = await fetchAllCardRecipes();
+      setState(() {
+        _allRecipes = recipes;
+        _filteredRecipes = recipes;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _hasError = true;
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+      print('Error loading recipes: $e');
+    }
+  }
+
+  Future<void> _applyFilters() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      List<CardRecipe> filtered;
+      
+      // Apply backend filter if needed
+      if (selectedCategory != "Semua" || bahanDiinginkan.isNotEmpty || bahanTidakDiinginkan.isNotEmpty) {
+        final categoryId = selectedCategory != "Semua" ? getCategoryId(selectedCategory) : null;
+        filtered = await fetchFilteredCardRecipes(
+          categoryId: categoryId,
+          includeBahan: bahanDiinginkan.isNotEmpty ? bahanDiinginkan : null,
+          excludeBahan: bahanTidakDiinginkan.isNotEmpty ? bahanTidakDiinginkan : null,
+        );
+      } else {
+        filtered = _allRecipes;
+      }
+
+      // Apply search filter on client side
+      if (searchQuery.isNotEmpty) {
+        filtered = filtered
+            .where((r) => r.namaResep.toLowerCase().contains(searchQuery.toLowerCase()))
+            .toList();
+      }
+
+      setState(() {
+        _filteredRecipes = filtered;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _hasError = true;
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+      print('Error applying filters: $e');
+    }
   }
 
   @override
@@ -52,57 +125,7 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
       // Jika pindah ke Tips & Trik, reset searchQuery
       if (activeTab != tabIndex) searchQuery = '';
       activeTab = tabIndex;
-    });
-  }
-
-  List<Resep> getFilteredReseps() {
-    // 1. Filter kategori
-    List<Resep> filtered =
-        selectedCategory == "Semua"
-            ? dummyResepList
-            : dummyResepList
-                .where((r) => r.categories.contains(selectedCategory))
-                .toList();
-
-    // 2. Filter search query
-    if (searchQuery.isNotEmpty) {
-      filtered =
-          filtered
-              .where(
-                (r) =>
-                    r.title.toLowerCase().contains(searchQuery.toLowerCase()),
-              )
-              .toList();
-    }
-
-    // 3. Filter bahan yang diinginkan
-    if (bahanDiinginkan.isNotEmpty) {
-      filtered =
-          filtered.where((r) {
-            return bahanDiinginkan.every((b) {
-              final bl = b.toLowerCase();
-              return r.ingredientNames.any(
-                (ing) => ing.toLowerCase().contains(bl),
-              );
-            });
-          }).toList();
-    }
-
-    // 4. Filter bahan yang tidak diinginkan
-    if (bahanTidakDiinginkan.isNotEmpty) {
-      filtered =
-          filtered.where((r) {
-            return !bahanTidakDiinginkan.any((b) {
-              final bl = b.toLowerCase();
-              return r.ingredientNames.any(
-                (ing) => ing.toLowerCase().contains(bl),
-              );
-            });
-          }).toList();
-    }
-
-    return filtered;
-  }
+    });  }
 
   void _showFilterBottomSheet() {
     // staging variables
@@ -285,14 +308,14 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
+                      child: OutlinedButton(                        onPressed: () {
                           setState(() {
                             selectedCategory = 'Semua';
                             bahanDiinginkan.clear();
                             bahanTidakDiinginkan.clear();
                           });
                           Navigator.pop(ctx);
+                          _applyFilters(); // Apply filters after clearing
                         },
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(color: Colors.grey.shade300),
@@ -306,14 +329,14 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
+                      child: ElevatedButton(                        onPressed: () {
                           setState(() {
                             selectedCategory = tempCategory;
                             bahanDiinginkan = List.from(tempWanted);
                             bahanTidakDiinginkan = List.from(tempUnwanted);
                           });
                           Navigator.pop(ctx);
+                          _applyFilters(); // Apply filters after closing modal
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.teal.shade300,
@@ -353,12 +376,14 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
+        child: Column(          children: [
             // Search Bar
             CustomSearchBar(
               hintText: activeTab == 0 ? "Cari resep" : "Cari tips & trik",
-              onSearch: (q) => setState(() => searchQuery = q),
+              onSearch: (q) {
+                setState(() => searchQuery = q);
+                if (activeTab == 0) _applyFilters(); // Apply filters when searching recipes
+              },
             ),
 
             // Tab Navigasi
@@ -453,9 +478,10 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                         itemBuilder: (context, index) {
                           final c = categories[index];
                           final sel = selectedCategory == c;
-                          return ElevatedButton(
-                            onPressed:
-                                () => setState(() => selectedCategory = c),
+                          return ElevatedButton(                            onPressed: () {
+                              setState(() => selectedCategory = c);
+                              _applyFilters(); // Apply backend filter when category changes
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
                                   sel
@@ -507,15 +533,17 @@ class _DiscoveryResepState extends State<DiscoveryResep> {
                     ),
                   ],
                 ),
-              ),
-              // Grid Resep
+              ),              // Grid Resep
               Expanded(
                 child: MediaQuery.removePadding(
                   context: context,
                   removeBottom: true,
-                  child: ResepGrid(
-                    reseps:
-                        getFilteredReseps(), // This should now be passing List<Resep>
+                  child: CardRecipeGrid(
+                    recipes: _filteredRecipes,
+                    isLoading: _isLoading,
+                    hasError: _hasError,
+                    errorMessage: _errorMessage,
+                    onRetry: _loadRecipes,
                   ),
                 ),
               ),

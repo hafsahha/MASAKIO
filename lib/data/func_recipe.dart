@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-// Base URL untuk backend
-const url = 'https://masakio.up.railway.app/recipes';
+import '../config/api_config.dart';
 
 // Recipe model
 class Recipe {
@@ -166,7 +164,7 @@ class Step {
 // Fetch all recipes
 Future<List<Map<String, dynamic>>> fetchAllRecipes() async {
   try {
-    final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+    final response = await http.get(Uri.parse('$baseUrl/recipes')).timeout(const Duration(seconds: 10));
     
     if (response.statusCode != 200) throw Exception('Failed to load recipes');
     
@@ -186,7 +184,7 @@ Future<List<Map<String, dynamic>>> fetchAllRecipes() async {
 // Fetch recipe details by ID
 Future<Recipe> fetchRecipeById(int id) async {
   try {
-    final response = await http.get(Uri.parse('$url/$id')).timeout(const Duration(seconds: 10));
+    final response = await http.get(Uri.parse('$baseUrl/recipes/$id')).timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) throw Exception('Failed to load recipe details');
     
     final data = json.decode(response.body);
@@ -197,7 +195,7 @@ Future<Recipe> fetchRecipeById(int id) async {
 // Add a new recipe
 Future<int> addRecipe(Recipe recipe) async {
   try {
-    final response = await http.post(Uri.parse(url),
+    final response = await http.post(Uri.parse('$baseUrl/recipes'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(recipe.toJson()),
     ).timeout(const Duration(seconds: 15));

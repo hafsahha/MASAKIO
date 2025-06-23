@@ -1,9 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-// Base URL untuk backend
-const url = 'https://masakio.up.railway.app/';
-const diseaseHistoryEndpoint = '${url}user/disease-history/'; // Endpoint untuk riwayat penyakit
+import '../config/api_config.dart';
 
 // Disease model
 class Disease {
@@ -52,7 +49,7 @@ class DiseaseSuggestion {
 Future<List<Disease>> getDiseaseHistory(int userId) async {
   final client = http.Client();
   try {
-    final response = await client.get(Uri.parse('${diseaseHistoryEndpoint}${userId}'))
+    final response = await client.get(Uri.parse('$baseUrl/user/disease-history/$userId'))
       .timeout(const Duration(seconds: 10));
     
     if (response.statusCode != 200) throw Exception('Failed to load disease history');
@@ -72,7 +69,7 @@ Future<bool> addDiseaseHistory(int userId, String diseaseName) async {
   final client = http.Client();
   try {
     final response = await client.post(
-      Uri.parse('${url}user/disease-history/add'),
+      Uri.parse('$baseUrl/user/disease-history/add'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'userId': userId,
@@ -94,9 +91,8 @@ Future<List<DiseaseSuggestion>> fetchDiseases({String? query}) async {
   final client = http.Client();
   try {
     // Menyesuaikan endpoint sesuai dengan ada tidaknya query
-    final endpoint = query != null && query.isNotEmpty
-        ? '${url}diseases/search?q=${Uri.encodeComponent(query)}'
-        : '${url}diseases';
+    final endpoint = query != null && query.isNotEmpty        ? '$baseUrl/diseases/search?q=${Uri.encodeComponent(query)}'
+        : '$baseUrl/diseases';
         
     final response = await client.get(Uri.parse(endpoint))
       .timeout(const Duration(seconds: 10));
@@ -119,7 +115,7 @@ Future<bool> addDiseaseToHistory(int userId, String diseaseName) async {
   final client = http.Client();
   try {
     final response = await client.post(
-      Uri.parse('${diseaseHistoryEndpoint}add'),
+      Uri.parse('$baseUrl/user/disease-history/add'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'id_user': userId,

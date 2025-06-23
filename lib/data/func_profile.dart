@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-// Base URL untuk backend
-const url = 'https://masakio.up.railway.app';
+import '../config/api_config.dart';
 
 // User model
 class User {
@@ -49,7 +47,7 @@ class User {
 // Fungsi untuk mengecek ketersediaan server
 Future<bool> checkServerAvailability() async {
   try {
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(baseUrl));
     return response.statusCode == 200;
   } catch (e) { return false; }
 }
@@ -64,7 +62,7 @@ class AuthService {
     if (!isServerAvailable) throw Exception('Server tidak dapat dijangkau.');
 
     try {      
-      final response = await http.post(Uri.parse('$url/auth/register'),
+      final response = await http.post(Uri.parse('$authUrl/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': name,
@@ -93,7 +91,7 @@ class AuthService {
     if (!isServerAvailable) throw Exception('Server tidak dapat dijangkau.');
       
     try {
-      final response = await http.post(Uri.parse('$url/auth/login'),
+      final response = await http.post(Uri.parse('$authUrl/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,
@@ -156,7 +154,7 @@ class AuthService {
 // Fetch user profile
 Future<User?> fetchUserProfile(int id) async {
   try {
-    final response = await http.get(Uri.parse('$url/user/$id')).timeout(const Duration(seconds: 10));
+    final response = await http.get(Uri.parse('$baseUrl/user/$id')).timeout(const Duration(seconds: 10));
     
     if (response.statusCode == 200) {
       final userData = json.decode(response.body);
@@ -169,7 +167,7 @@ Future<User?> fetchUserProfile(int id) async {
 // Update user profile
 Future<bool> updateUserProfile(User user) async {
   try {
-    final response = await http.put(Uri.parse('$url/user/${user.id}'),
+    final response = await http.put(Uri.parse('$baseUrl/user/${user.id}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'nama_user': user.name,

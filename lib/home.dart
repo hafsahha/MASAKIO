@@ -14,10 +14,10 @@ class _HomePageState extends State<HomePage> {
   int _selectedCategoryIndex = 0;  // Default ke kategori pertama
   final List<String> _categories = [
     'Semua',
-    'Makanan',
-    'Cemilan',
-    'Minuman',
-    'Sup',
+    'Makanan Berat',  // ID 1 di database
+    'Minuman',        // ID 2 di database
+    'Hidangan Pembuka', // ID 3 di database
+    'Hidangan Penutup', // ID 4 di database
   ];
 
   @override
