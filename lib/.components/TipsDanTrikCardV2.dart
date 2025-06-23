@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:masakio/Tips Trik/detail_tips.dart';
 import 'package:masakio/data/func_tips.dart';
 
+// Widget TipsDanTrikCardV2 (tidak ada perubahan signifikan, hanya penambahan log)
 class TipsDanTrikCardV2 extends StatelessWidget {
   final String imageUrl;
   final String title;
@@ -18,6 +19,7 @@ class TipsDanTrikCardV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('[TipsDanTrikCardV2] Building card for: $title, image: $imageUrl'); // Debug log
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -76,7 +78,7 @@ class TipsDanTrikCardV2 extends StatelessWidget {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -86,6 +88,7 @@ class TipsDanTrikCardV2 extends StatelessWidget {
   }
 }
 
+// Widget TipsDanTrikSectionV2 yang telah diperbarui
 class TipsDanTrikSectionV2 extends StatefulWidget {
   const TipsDanTrikSectionV2({super.key});
 
@@ -100,53 +103,98 @@ class _TipsDanTrikSectionV2State extends State<TipsDanTrikSectionV2> {
   @override
   void initState() {
     super.initState();
+    print('[TipsDanTrikSectionV2State] initState called'); // Debug log
     loadTips();
   }
 
   Future<void> loadTips() async {
+    print('[TipsDanTrikSectionV2State] loadTips() called'); // Debug log
     try {
       final data = await fetchAllTips();
+      print('[TipsDanTrikSectionV2State] fetchAllTips() returned: ${data.length} items'); // Debug log
       setState(() {
         tipsList = data;
         isLoading = false;
+        print('[TipsDanTrikSectionV2State] State updated: isLoading=$isLoading, tipsList.length=${tipsList.length}'); // Debug log
       });
     } catch (e) {
-      setState(() => isLoading = false);
+      print('[TipsDanTrikSectionV2State] Error fetching tips: $e'); // Debug log
+      setState(() {
+        isLoading = false;
+        print('[TipsDanTrikSectionV2State] Error state updated: isLoading=$isLoading'); // Debug log
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('[TipsDanTrikSectionV2State] Building widget. isLoading: $isLoading, tipsList.length: ${tipsList.length}'); // Debug log
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 640, // Bisa pakai MediaQuery untuk fleksibel
+        // Header "Tips dan Trik"
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Tips dan Trik",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  print('[TipsDanTrikSectionV2State] "Lihat Semua" button pressed'); // Debug log
+                  // TODO: Tambah navigasi ke halaman "Lihat Semua"
+                },
+                child: const Text(
+                  "Lihat Semua",
+                  style: TextStyle(
+                    color: Colors.teal,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // --- Perubahan utama ada di sini: penggunaan Expanded ---
+        Expanded( // Membuat ListView mengisi sisa ruang vertikal yang tersedia
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: tipsList.length,
-                  itemBuilder: (context, index) {
-                    final tip = tipsList[index];
-                    return TipsDanTrikCardV2(
-                      imageUrl: tip['imageUrl'],
-                      title: tip['title'],
-                      author: tip['uploader'],
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TipsAndTrikPage(idTips: tip['id']),
-                          ),
+              : tipsList.isEmpty // Tambahkan kondisi jika daftar tips kosong
+                  ? const Center(
+                      child: Text('Tidak ada tips yang tersedia saat ini.'),
+                    )
+                  : ListView.builder(
+                      scrollDirection: Axis.vertical, // Pastikan ini vertikal
+                      padding: const EdgeInsets.symmetric(horizontal: 16), // Padding horizontal untuk ListView
+                      itemCount: tipsList.length,
+                      itemBuilder: (context, index) {
+                        final tip = tipsList[index];
+                        print('[TipsDanTrikSectionV2State] Building card at index $index: ${tip['title']}'); // Debug log
+                        return TipsDanTrikCardV2(
+                          imageUrl: tip['imageUrl'], // Menggunakan URL gambar dari API
+                          title: tip['title'],
+                          author: tip['uploader'],
+                          onTap: () {
+                            print('[TipsDanTrikSectionV2State] Card tapped for tip ID: ${tip['id']}'); // Debug log
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TipsAndTrikPage(idTips: tip['id']),
+                              ),
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                ),
+                    ),
         ),
+        // --- Akhir perubahan ---
       ],
     );
   }

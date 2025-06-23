@@ -18,6 +18,7 @@ class TipsDanTrikCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('[TipsDanTrikCard] Building card for: $title, image: $imageUrl'); // Debug log
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -97,17 +98,21 @@ class _TipsDanTrikSectionState extends State<TipsDanTrikSection> {
   @override
   void initState() {
     super.initState();
+    print('[TipsDanTrikSectionState] initState called'); // Debug log
     loadTips();
   }
 
   Future<void> loadTips() async {
+    print('[TipsDanTrikSectionState] loadTips() called'); // Debug log
     try {
       final data = await fetchAllTips();
+      print('[TipsDanTrikSectionState] fetchAllTips() returned: $data'); // Debug log
       setState(() {
         tipsList = data;
         isLoading = false;
       });
     } catch (e) {
+      print('[TipsDanTrikSectionState] Error fetching tips: $e'); // Debug log
       // Tangani error jika perlu
       setState(() => isLoading = false);
     }
@@ -115,6 +120,7 @@ class _TipsDanTrikSectionState extends State<TipsDanTrikSection> {
 
   @override
   Widget build(BuildContext context) {
+    print('[TipsDanTrikSectionState] Building widget. isLoading: $isLoading, tipsList.length: ${tipsList.length}'); // Debug log
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -134,6 +140,7 @@ class _TipsDanTrikSectionState extends State<TipsDanTrikSection> {
               TextButton(
                 onPressed: () {
                   // TODO: Tambah navigasi ke halaman "Lihat Semua"
+                  print('[TipsDanTrikSectionState] "Lihat Semua" button pressed'); // Debug log
                 },
                 child: const Text(
                   "Lihat Semua",
@@ -158,11 +165,13 @@ class _TipsDanTrikSectionState extends State<TipsDanTrikSection> {
                   itemCount: tipsList.length,
                   itemBuilder: (context, index) {
                     final tip = tipsList[index];
+                    print('[TipsDanTrikSectionState] Building card at index $index: $tip'); // Debug log
                     return TipsDanTrikCard(
-                      imageUrl: tip['imageUrl'],
+                      imageUrl: tip['imageUrl'], // Use the actual image URL
                       title: tip['title'],
                       author: tip['uploader'],
                       onTap: () {
+                        print('[TipsDanTrikSectionState] Card tapped for tip ID: ${tip['id']}'); // Debug log
                         Navigator.push(
                           context,
                           MaterialPageRoute(

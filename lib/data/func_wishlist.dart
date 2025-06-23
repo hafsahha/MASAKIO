@@ -10,10 +10,9 @@ Future<List<Map<String, dynamic>>> fetchWishlist(int id) async {
   try {
     final response = await http.get(Uri.parse('$url/$id')).timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) throw Exception('Failed to load wishlist');
-    
-    final List<dynamic> data = json.decode(response.body);
+      final List<dynamic> data = json.decode(response.body);
     return data.map((item) => {
-      'id': item['id_resep'],
+      'id': item['id_resep'].toString(),  // Convert to string
       'title': item['nama_resep'],
       'rating': item['rating'] ?? 0.0,
       'reviewCount': item['review_count'] ?? 0,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:masakio/data/func_tips.dart';
 import 'package:masakio/data/func_profile.dart';
+import 'package:masakio/Tips Trik/detail_tips.dart';
 
 class TipsValidationPage extends StatefulWidget {
   final String judul;
@@ -68,16 +69,23 @@ class _TipsValidationPageState extends State<TipsValidationPage> {
 
     setState(() => _isLoading = false);
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tips berhasil disimpan!')),
-      );
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal menyimpan tips.')),
-      );
-    }
+  if (success != null) {
+    // Ambil ID tips dari hasil backend
+    final int newTipId = success['id_tips'];
+
+    // Navigasi ke halaman detail tips yang baru disimpan
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TipsAndTrikPage(idTips: newTipId),
+      ),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Gagal menyimpan tips.')),
+    );
+  }
+
   }
 
   @override
